@@ -61,7 +61,8 @@ make models     # trains the failure model and replays its alerts (about 20 seco
 make test       # runs the test suite
 make lint       # runs ruff and the code rule checks
 make settings   # prints the model endpoint and data directories in effect
-make app        # opens the copilot web app
+make api        # starts the HTTP API on port 8000 (the React frontend talks to it)
+make app        # opens the Streamlit version of the app (kept until the React app replaces it)
 ```
 
 Per-machine settings go in `.env`, copied from `.env.example`. The Makefile loads it for every target.
@@ -99,6 +100,20 @@ The bridge (`semantic/bridge/bridge.yaml`) links sites to supply plants, compone
 ## Deploying to Google Cloud
 
 The app ships as one container: `Dockerfile` generates all the data at build time and serves the app on Cloud Run's port. `PROJECT_ID=<id> make deploy` runs `deploy/cloudrun.sh`. It enables the APIs, creates a service account that may only call Vertex AI, and deploys from source. Gemini then runs on Vertex AI with that identity, so no key is deployed. `docs/HANDOVER.md` has every step, with checks, costs, and teardown.
+
+## HTTP API
+
+`make api` serves the copilot with FastAPI on port 8000. The routers are thin: they call the same services as every other interface.
+
+| Endpoint | Returns |
+|---|---|
+| `GET /health` | Liveness only, with no data or model access |
+| `GET /api/engine-status` | Whether the services loaded, and the model in use |
+| `GET /api/scenarios` | The named demo moments |
+| `GET /api/overview?as_of=` | Open alerts with their recommended option, and the headline numbers |
+| `GET /api/alerts/{id}/impact?as_of=`, `.../evidence` | One alert's impact analysis and sensor evidence |
+| `GET /api/proposals`, `POST /api/proposals/{id}/status` | The approval queue |
+| `POST /api/agent/stream` | The agent's run as server-sent events: each tool call and result live, then the checked answer |
 
 ## Web app
 
