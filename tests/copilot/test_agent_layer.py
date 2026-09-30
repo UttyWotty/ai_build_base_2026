@@ -108,3 +108,30 @@ def test_offline_adk_run_records_the_trace_and_verifies_the_answer(monkeypatch: 
     run = agent_runner.run_copilot("How many alerts?", FakeTools(), ModelSelection(Provider.LOCAL, "scripted", "", 5.0))
     assert run.tools_used == ("list_open_alerts",) and run.answer == "There are 2 open alerts."
     assert run.verified and run.as_of == T0 and run.seconds < timedelta(minutes=1).total_seconds()
+
+
+class TeamLlm(BaseLlm):
+    """Specialists brief at once; the lead lists alerts, then answers."""
+
+    async def generate_content_async(self, llm_request: LlmRequest, stream: bool = False) -> AsyncGenerator[LlmResponse, None]:
+        instruction = str(llm_request.config.system_instruction or "")
+        answered = any(p.function_response for c in llm_request.contents for p in (c.parts or []))
+        if "operations lead" not in instruction:
+            role = instruction.split(".")[0].replace("You are the ", "")
+            part = types.Part(text=f"{role} brief: 2 alerts.")
+        elif not answered:
+            part = types.Part(function_call=types.FunctionCall(name="list_open_alerts", args={}))
+        else:
+            part = types.Part(text="Lead: 2 alerts are open; plan follows.")
+        yield LlmResponse(content=types.Content(role="model", parts=[part]))
+
+
+def test_offline_team_run_separates_briefs_from_the_leads_answer(monkeypatch: pytest.MonkeyPatch) -> None:
+    from copilot.services import agent_team
+    monkeypatch.setattr(agent_team, "adk_model", lambda selection: TeamLlm(model="scripted"))
+    run = agent_runner.run_copilot("Triage the alerts", FakeTools(), ModelSelection(Provider.LOCAL, "scripted", "", 5.0),
+                                   mode="team")
+    briefs = {s.author for s in run.steps if s.kind == "brief"}
+    assert briefs == {"maintenance_planner", "procurement_lead", "customer_lead"}
+    assert run.answer == "Lead: 2 alerts are open; plan follows." and run.tools_used == ("list_open_alerts",)
+    assert run.verified

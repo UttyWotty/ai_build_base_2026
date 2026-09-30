@@ -7,6 +7,13 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 ## [Unreleased]
 
 ### Added
+- Operations team on the Agent Development Kit: a `ParallelAgent` of three specialists (maintenance, procurement,
+  customer service), each with only its role's tools and a brief in session state, then an operations lead in a
+  `SequentialAgent` who reads the briefs and proposes. `mode=team` on the stream endpoint; the plan button, the
+  autopilot, and a switch on the Copilot page use it.
+- Every trace step carries its author; specialists' briefs show as their own cards.
+
+### Added
 - Multimodal Gemini: a structured reader in the gateway (images and PDFs in, schema-checked JSON out; other providers
   refuse clearly).
 - Supplier inbox: Gemini reads supplier messages into delivery updates that revise open orders from the moment they

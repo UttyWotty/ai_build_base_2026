@@ -45,6 +45,9 @@ Net value: **197,949 USD in four months**, with the losses counted, not hidden.
   as an `LlmAgent` with eight typed function tools (`agent_functions.py`).
 - The agent decides which tools to call and in what order. For example, it analyses both competing alerts in parallel
   before recommending an allocation.
+- **A multi-agent team on ADK.** Plans come from four agents. A `ParallelAgent` runs a maintenance planner, a
+  procurement lead, and a customer service lead at once, each with only its role's tools. A `SequentialAgent` then
+  hands their briefs, through session state, to an operations lead who balances them and proposes.
 - **Multimodal Gemini.** Gemini reads suppliers' delay notices, as text or PDF, into structured delivery updates with a
   strict JSON schema. A new date revises the open order in every later analysis, and a price-list letter is correctly
   read as no change. Gemini vision reads a technician's inspection photo against the predicted failure mode, so a

@@ -105,7 +105,10 @@ def test_a_person_approves_a_proposal(client: TestClient) -> None:
 
 
 def test_agent_run_streams_steps_then_the_checked_answer(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
-    async def scripted(question, tools, selection):
+    modes = []
+
+    async def scripted(question, tools, selection, mode):
+        modes.append(mode)
         yield AgentStep("tool_call", "list_open_alerts", {})
         yield AgentStep("tool_result", "list_open_alerts", {"count": 1})
         yield AgentRun(question, tools.as_of, "scripted", (), "1 alert is open.", (), 0.1)
@@ -115,6 +118,9 @@ def test_agent_run_streams_steps_then_the_checked_answer(client: TestClient, mon
     events = [json.loads(line[len("data: "):]) for line in response.text.splitlines() if line.startswith("data: ")]
     assert [e["type"] for e in events] == ["tool_call", "tool_result", "done"]
     assert events[-1]["verified"] is True and events[-1]["answer"] == "1 alert is open."
+    client.post("/api/agent/stream", json={"question": "Plan it", "mode": "team"})
+    assert modes == ["single", "team"]
+    assert client.post("/api/agent/stream", json={"question": "x", "mode": "crowd"}).status_code == 400
 
 
 def test_the_built_frontend_is_served_with_client_side_routes(tmp_path: Path) -> None:

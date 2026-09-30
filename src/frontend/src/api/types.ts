@@ -147,12 +147,15 @@ export interface Proposal {
   status: 'pending' | 'approved' | 'rejected'
 }
 
-export type AgentStepType = 'tool_call' | 'tool_result' | 'text' | 'error'
+export type AgentStepType = 'tool_call' | 'tool_result' | 'text' | 'brief' | 'error'
+
+export type AgentMode = 'single' | 'team'
 
 export interface AgentStepEvent {
   type: AgentStepType
   name: string
   payload: unknown
+  author: string
 }
 
 export interface AgentDoneEvent {

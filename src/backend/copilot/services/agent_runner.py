@@ -12,7 +12,7 @@ from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from google.adk.agents import LlmAgent
+from google.adk.agents import BaseAgent, LlmAgent
 from google.adk.runners import InMemoryRunner
 from google.genai import types
 
@@ -21,10 +21,13 @@ from copilot.core.answer_check import unexplained_numbers
 from copilot.core.errors import CopilotError
 from copilot.data_pipeline.adk_models import adk_model
 from copilot.services.agent_functions import adk_functions
+from copilot.services.agent_team import answering_agents, build_team
 from copilot.services.agent_tools import CopilotTools
 from llm_gateway.selection import ModelSelection
 
 APP_NAME = "operations_copilot"
+SINGLE = "single"
+TEAM = "team"
 AGENT_NAME = "operations_copilot"
 USER_ID = "operator"
 USER_ROLE = "user"
@@ -38,11 +41,13 @@ RETRY_OPTIONS = types.HttpRetryOptions(attempts=5, initial_delay=2.0, max_delay=
 
 @dataclass(frozen=True)
 class AgentStep:
-    """One step of the trace: a tool call, a tool result, or text from the agent."""
+    """One step of the trace: a tool call, a tool result, a specialist's brief, or the answer's text."""
 
     kind: str
     name: str
     payload: object
+    # The agent that took the step; in team mode it tells the specialists and the lead apart.
+    author: str = ""
 
 
 @dataclass(frozen=True)
@@ -69,26 +74,34 @@ class AgentRun:
         return tuple(s.name for s in self.steps if s.kind == "tool_call")
 
 
-def build_agent(tools: CopilotTools, selection: ModelSelection) -> LlmAgent:
-    """The copilot agent for one analysis time."""
+def _config() -> types.GenerateContentConfig:
+    return types.GenerateContentConfig(temperature=TEMPERATURE,
+                                       http_options=types.HttpOptions(retry_options=RETRY_OPTIONS))
+
+
+def build_agent(tools: CopilotTools, selection: ModelSelection, mode: str = SINGLE) -> BaseAgent:
+    """The single copilot agent, or the operations team, for one analysis time."""
+    if mode == TEAM:
+        return build_team(tools, selection, _config())
+    if mode != SINGLE:
+        raise CopilotError(f"Unknown agent mode {mode!r}; expected {SINGLE} or {TEAM}")
     return LlmAgent(name=AGENT_NAME, model=adk_model(selection), instruction=copilot_instruction(tools.as_of),
-                    tools=adk_functions(tools),
-                    generate_content_config=types.GenerateContentConfig(
-                        temperature=TEMPERATURE, http_options=types.HttpOptions(retry_options=RETRY_OPTIONS)))
+                    tools=adk_functions(tools), generate_content_config=_config())
 
 
-def run_copilot(question: str, tools: CopilotTools, selection: ModelSelection) -> AgentRun:
+def run_copilot(question: str, tools: CopilotTools, selection: ModelSelection, mode: str = SINGLE) -> AgentRun:
     """Ask the copilot one question and return the checked trace."""
-    return asyncio.run(_last(stream_copilot(question, tools, selection)))
+    return asyncio.run(_last(stream_copilot(question, tools, selection, mode)))
 
 
-async def stream_copilot(question: str, tools: CopilotTools,
-                         selection: ModelSelection) -> AsyncIterator[AgentStep | AgentRun]:
-    """Yield each step as the agent takes it, then the finished, checked run."""
+async def stream_copilot(question: str, tools: CopilotTools, selection: ModelSelection,
+                         mode: str = SINGLE) -> AsyncIterator[AgentStep | AgentRun]:
+    """Yield each step as the agent (or the team) takes it, then the finished, checked run."""
     started = time.monotonic()
     steps: list[AgentStep] = []
+    answerers = answering_agents() if mode == TEAM else frozenset({AGENT_NAME})
     try:
-        async for step in _steps(build_agent(tools, selection), question):
+        async for step in _steps(build_agent(tools, selection, mode), question, answerers):
             steps.append(step)
             yield step
     except Exception as error:  # the model provider can fail in many ways; the run records it instead of crashing
@@ -127,16 +140,18 @@ def _short(error: Exception) -> str:
     return (text.splitlines()[0] if text else type(error).__name__)[:ERROR_CHARS]
 
 
-async def _steps(agent: LlmAgent, question: str) -> AsyncIterator[AgentStep]:
+async def _steps(agent: BaseAgent, question: str, answerers: frozenset[str]) -> AsyncIterator[AgentStep]:
     runner = InMemoryRunner(agent=agent, app_name=APP_NAME)
     session = await runner.session_service.create_session(app_name=APP_NAME, user_id=USER_ID)
     message = types.Content(role=USER_ROLE, parts=[types.Part(text=question)])
     async for event in runner.run_async(user_id=USER_ID, session_id=session.id, new_message=message):
+        author = event.author or ""
         for call in event.get_function_calls():
-            yield AgentStep("tool_call", call.name or "", dict(call.args or {}))
+            yield AgentStep("tool_call", call.name or "", dict(call.args or {}), author)
         for response in event.get_function_responses():
-            yield AgentStep("tool_result", response.name or "", response.response)
+            yield AgentStep("tool_result", response.name or "", response.response, author)
         if event.is_final_response() and event.content and event.content.parts:
+            kind = "text" if author in answerers else "brief"
             for part in event.content.parts:
                 if part.text and not part.thought:
-                    yield AgentStep("text", AGENT_NAME, part.text)
+                    yield AgentStep(kind, author, part.text, author)

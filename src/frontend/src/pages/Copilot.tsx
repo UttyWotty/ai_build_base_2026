@@ -3,6 +3,7 @@
 // Runs stack newest first and stay until the page reloads.
 import { Send } from 'lucide-react'
 import { useState } from 'react'
+import type { AgentMode } from '../api/types'
 import { AgentRunView } from '../components/AgentRunView'
 import { Card } from '../components/ui'
 import { shortTime } from '../lib/format'
@@ -15,15 +16,16 @@ const SUGGESTIONS = [
   'What was the OEE of line US1-L2 in the last 30 days?',
 ]
 
-interface Run { id: number; question: string; asOf: string }
+interface Run { id: number; question: string; asOf: string; mode: AgentMode }
 
 export function Copilot() {
   const { asOf } = useClock()
   const [runs, setRuns] = useState<Run[]>([])
   const [draft, setDraft] = useState('')
+  const [mode, setMode] = useState<AgentMode>('single')
   const ask = (question: string) => {
     if (!question.trim()) return
-    setRuns((r) => [{ id: Date.now(), question: question.trim(), asOf }, ...r])
+    setRuns((r) => [{ id: Date.now(), question: question.trim(), asOf, mode }, ...r])
     setDraft('')
   }
   return (
@@ -33,6 +35,13 @@ export function Copilot() {
         <p className="text-sm text-slate-500">
           Gemini answers from governed tools only, as of {shortTime(asOf)} UTC. Every number is checked against the tool results.
         </p>
+      </div>
+      <div className="flex rounded-lg bg-slate-100 p-1 text-sm w-fit">
+        {(['single', 'team'] as AgentMode[]).map((m) => (
+          <button key={m} onClick={() => setMode(m)} className={`rounded-md px-3 py-1 ${m === mode ? 'bg-white shadow-sm' : 'text-slate-600'}`}>
+            {m === 'single' ? 'One agent' : 'Operations team (4 agents)'}
+          </button>
+        ))}
       </div>
       <form onSubmit={(e) => { e.preventDefault(); ask(draft) }} className="flex gap-2">
         <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Ask about alerts, spares, suppliers, customers, or OEE"
@@ -50,7 +59,7 @@ export function Copilot() {
       </div>
       {runs.map((run) => (
         <Card key={run.id} title={run.question} action={<span className="text-xs text-slate-400">as of {shortTime(run.asOf)}</span>}>
-          <AgentRunView question={run.question} asOf={run.asOf} />
+          <AgentRunView question={run.question} asOf={run.asOf} mode={run.mode} />
         </Card>
       ))}
     </div>

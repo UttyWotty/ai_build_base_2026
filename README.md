@@ -118,7 +118,7 @@ The app ships as one container. `Dockerfile` builds the React app in a Node stag
 | `POST /api/alerts/{id}/inspection`, `GET /api/alerts/{id}/inspections` | Gemini vision reads an inspection photo against the alert's failure mode |
 | `GET /api/proposals`, `POST /api/proposals/{id}/status` | The approval queue |
 | `GET /api/proposals/outcomes?as_of=`, `POST /api/proposals/reset` | Outcomes of approved decisions at the clock; clear the queue |
-| `POST /api/agent/stream` | The agent's run as server-sent events: each tool call and result live, then the checked answer |
+| `POST /api/agent/stream` | The agent's run (`mode`: `single` or `team`) as server-sent events: each tool call, result, and brief live with its author, then the checked answer |
 
 ## Web app
 
@@ -149,6 +149,14 @@ The earlier Streamlit version still runs with `make app` until the React app has
 | **Net** | **$197,949** |
 
 Outcomes are used only for this evaluation, never by the recommendations. Alerts are scored independently, so a transfer is not charged for the sister site's later needs.
+
+## Operations team (multi-agent)
+
+For plans and triage the copilot runs as a team of four agents on the Agent Development Kit (`src/backend/copilot/services/agent_team.py`):
+- **Specialists, in parallel** (an ADK `ParallelAgent`). The maintenance planner has the sensor evidence, field reports, and history. The procurement lead has spares, options, and supplier records. The customer service lead has orders at risk and drafts the customer note. Each has only the tools of its role and writes a brief into session state.
+- **The operations lead**, run after them by an ADK `SequentialAgent`. It reads the three briefs, balances urgency, cost, and customer exposure, and makes the one proposal.
+
+"Draft the plan", the autopilot, and the team option on the Copilot page use the team; free questions default to one agent. Every agent's tool calls stream into the trace with its name, and the lead's answer is checked against all the team's tool results.
 
 ## Operations agent
 

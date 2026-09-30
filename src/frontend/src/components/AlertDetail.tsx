@@ -38,8 +38,8 @@ export function AlertDetail({ alertId, asOf }: { alertId: string; asOf: string }
       </div>
       {data.conflict && <Callout>{data.conflict}</Callout>}
       {planning > 0 && (
-        <Card title={<span className="inline-flex items-center gap-2"><Bot className="h-4 w-4 text-brand-600" />Copilot · live</span>}>
-          <AgentRunView key={planning} question={question} asOf={asOf} />
+        <Card title={<span className="inline-flex items-center gap-2"><Bot className="h-4 w-4 text-brand-600" />Operations team · live</span>}>
+          <AgentRunView key={planning} question={question} asOf={asOf} mode="team" />
         </Card>
       )}
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
