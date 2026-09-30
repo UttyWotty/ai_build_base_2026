@@ -6,6 +6,10 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+### Changed
+- The container starts Streamlit with exec, so Cloud Run's shutdown signal reaches it; Cloud Run memory is 2 GiB,
+  since the running app uses about 400 MiB.
+
 ### Added
 - `docs/SUBMISSION.md`: the write-up against the five judging points, with the architecture diagram and honest limits.
 - `docs/DEMO_SCRIPT.md`: the three-minute demo, click by click.

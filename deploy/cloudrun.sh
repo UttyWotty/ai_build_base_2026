@@ -29,7 +29,7 @@ gcloud run deploy "${SERVICE}" \
   --region "${REGION}" \
   --service-account "${SA_EMAIL}" \
   --set-env-vars "LLM_PROVIDER=gemini,GEMINI_MODEL=${GEMINI_MODEL},GOOGLE_GENAI_USE_VERTEXAI=true,GOOGLE_CLOUD_PROJECT=${PROJECT_ID},GOOGLE_CLOUD_LOCATION=${VERTEX_LOCATION}" \
-  --memory 4Gi --cpu 2 --timeout 900 --concurrency 20 \
+  --memory 2Gi --cpu 2 --timeout 900 --concurrency 20 \
   --min-instances "${MIN_INSTANCES}" --max-instances 3 \
   --session-affinity \
   --allow-unauthenticated

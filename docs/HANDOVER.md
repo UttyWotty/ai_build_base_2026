@@ -12,7 +12,7 @@ Work top to bottom; each step says how to check it worked.
 | Gemini through the model gateway | Done; runs with an AI Studio key locally, Vertex AI on Cloud Run |
 | Operations agent (Agent Development Kit) | Done; evaluated with `make eval` |
 | Web app | Done; `make app` |
-| Container and Cloud Run deploy script | Written (`Dockerfile`, `deploy/cloudrun.sh`); not yet run against a real project |
+| Container and Cloud Run deploy script | Image built and run locally on 2026-09-30 (`make image`); the deploy script has not yet run against a real project |
 
 ## 1. Local check with Gemini (no Cloud account needed)
 
@@ -45,7 +45,7 @@ PROJECT_ID=<project id> make deploy
 The script (`deploy/cloudrun.sh`) is safe to re-run. It:
 - enables Cloud Run, Cloud Build, Artifact Registry, and Vertex AI
 - creates the service account `ops-copilot-run` and grants it `roles/aiplatform.user` only
-- builds the container with Cloud Build and deploys the service `ops-copilot` in `europe-west1` with 2 CPUs, 4 GiB,
+- builds the container with Cloud Build and deploys the service `ops-copilot` in `europe-west1` with 2 CPUs, 2 GiB (the running app uses about 400 MiB),
   session affinity (Streamlit keeps a websocket per viewer), and public access for the judges
 - sets `GOOGLE_GENAI_USE_VERTEXAI=true`, so Gemini is called on Vertex AI with the service account; no API key is deployed
 - prints the service URL
