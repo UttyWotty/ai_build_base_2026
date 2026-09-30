@@ -24,5 +24,5 @@ COPY .streamlit ./.streamlit
 RUN make data models
 
 EXPOSE 8080
-# Shell form so the port Cloud Run injects in PORT is used.
-CMD .venv/bin/streamlit run src/copilot/ui/app.py --server.port=${PORT} --server.address=0.0.0.0 --server.headless=true
+# The shell expands the PORT Cloud Run injects; exec hands signals straight to Streamlit for a clean shutdown.
+CMD ["sh", "-c", "exec .venv/bin/streamlit run src/copilot/ui/app.py --server.port=${PORT} --server.address=0.0.0.0 --server.headless=true"]
