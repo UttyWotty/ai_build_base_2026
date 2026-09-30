@@ -27,7 +27,7 @@ from supply_ontology.ui.resources import (
 )
 from tests.supply_ontology.services.scripted_model import ScriptedModel
 
-APP_PATH = Path(__file__).resolve().parents[3] / "src" / "supply_ontology" / "ui" / "app.py"
+APP_PATH = Path(__file__).resolve().parents[3] / "src" / "backend" / "supply_ontology" / "ui" / "app.py"
 TIMEOUT_SECONDS = 30
 OTD_REPLY = json.dumps({"action": "query", "spec": {"metrics": ["otd"]}})
 CLARIFY_REPLY = json.dumps({"action": "clarify", "question": "Which on-time do you mean?",

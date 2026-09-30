@@ -11,11 +11,12 @@ import pytest
 from streamlit.testing.v1 import AppTest
 
 from copilot.services.agent_runner import AgentRun, AgentStep
+from copilot.services.factory import default_services
 from copilot.services.settings import BRIDGE_DATA_DIR
 from copilot.ui import resources
 
 ROOT = Path(__file__).resolve().parents[3]
-APP_PATH = ROOT / "src" / "copilot" / "ui" / "app.py"
+APP_PATH = ROOT / "src" / "backend" / "copilot" / "ui" / "app.py"
 REPLAY = ROOT / "data" / "pdm" / "alerts" / "replay.json"
 TIMEOUT_SECONDS = 300
 
@@ -30,9 +31,10 @@ def scripted_runner(question: str, tools) -> AgentRun:
     return AgentRun(question, tools.as_of, "scripted", steps, f"{result['count']} alerts are open.", (), 0.1)
 
 
-def test_bearing_scenario_headline_conflict_and_plan() -> None:
+def test_bearing_scenario_headline_conflict_and_plan(tmp_path: Path) -> None:
     page = AppTest.from_file(str(APP_PATH), default_timeout=TIMEOUT_SECONDS)
     page.session_state[resources.RUNNER_KEY] = scripted_runner
+    page.session_state[resources.SERVICES_KEY] = default_services(tmp_path / "proposals.json", tmp_path)
     page.run()
     assert not page.exception
     metrics = {m.label: m.value for m in page.metric}

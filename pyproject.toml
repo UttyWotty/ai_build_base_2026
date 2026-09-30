@@ -7,7 +7,7 @@
 # Lint and test settings apply to every package so one `make lint` and `make test` cover the whole repository.
 [project]
 name = "ai-build-base-2026"
-version = "0.7.0"
+version = "0.8.0"
 description = "AI operations copilot for manufacturing: predicts failures, traces their impact through parts, suppliers, and customer orders, and drafts actions for approval."
 requires-python = ">=3.11"
 readme = "README.md"
@@ -21,6 +21,8 @@ dependencies = [
   "google-genai>=1.50",
   "google-adk>=2.10",
   "litellm>=1.80",
+  "fastapi>=0.115",
+  "uvicorn>=0.30",
   "pyyaml",
   "scikit-learn>=1.7,<1.8",
   "streamlit",
@@ -47,12 +49,12 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["src/backend"]
 
 [tool.ruff]
 target-version = "py311"
 line-length = 88
-src = ["src", "."]
+src = ["src/backend", "."]
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
@@ -63,7 +65,7 @@ ignore = ["E501"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src", "."]
+pythonpath = ["src/backend", "."]
 filterwarnings = [
   "ignore::DeprecationWarning:opentelemetry.*",
   "ignore:.*EXPERIMENTAL.*:UserWarning",
