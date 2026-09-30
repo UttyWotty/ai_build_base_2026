@@ -7,6 +7,13 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 ## [Unreleased]
 
 ### Changed
+- The default Gemini model is `gemini-3.8-flash`; `gemini-2.5-flash` is no longer offered to new users.
+
+### Fixed
+- A model failure (quota, overload, permission) no longer crashes an agent run: the run records the provider's status
+  line, the app shows it, and the evaluation scores the case as a model error.
+
+### Changed
 - The container starts Streamlit with exec, so Cloud Run's shutdown signal reaches it; Cloud Run memory is 2 GiB,
   since the running app uses about 400 MiB.
 

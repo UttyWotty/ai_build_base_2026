@@ -17,6 +17,10 @@ Component-level limitations carried over from the imported packages are listed i
 - [ ] **CI once GitHub Actions minutes reset on 2026-10-01.** `make setup`, `make lint`, and `make test` on every PR
   into `develop` and `main`. The tests need no model and no generated data.
 
+- [ ] **Full Gemini evaluation.** The AI Studio free tier allows 20 requests per model per day and an agent run
+  takes about five, so `make eval` cannot finish on it. Run it on a paid key or on Vertex AI after the deploy, and put
+  the score in the README.
+
 ## P1 - Known limitations
 
 - [ ] **Docstrings in the imported packages still name the standalone make targets** (for example `make data` where
