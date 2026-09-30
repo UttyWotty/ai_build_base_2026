@@ -13,7 +13,7 @@ BOOTSTRAP_PYTHON := python3.11
 -include .env
 export
 
-.PHONY: setup settings test lint data models bridge impact ask eval app image deploy pdm-data supply-data pdm-oee pdm-predict pdm-alerts pdm-ask pdm-eval pdm-ui \
+.PHONY: setup settings test lint data models bridge impact ask eval app api image deploy pdm-data supply-data pdm-oee pdm-predict pdm-alerts pdm-ask pdm-eval pdm-ui \
 	supply-eval supply-demo supply-demo-offline supply-ui
 
 setup:
@@ -48,6 +48,9 @@ eval:
 
 app:
 	$(VENV)/bin/streamlit run src/backend/copilot/ui/app.py
+
+api:
+	$(VENV)/bin/uvicorn copilot.api.server:app --reload --reload-dir src/backend --port 8000
 
 # Local container check, then Cloud Run deployment (see docs/HANDOVER.md).
 image:

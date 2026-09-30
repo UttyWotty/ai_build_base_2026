@@ -6,6 +6,12 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+### Added
+- HTTP API (FastAPI, `make api`): health, engine status, scenarios, overview with headline, alert impact and
+  evidence, proposals with approval, and the agent run streamed as server-sent events.
+- `stream_copilot` yields each agent step as it happens; `run_copilot` is built on it.
+- Scenarios and headline summaries now live in the copilot core, shared by the API and the apps.
+
 ### Changed
 - Python packages live under `src/backend/`, leaving `src/frontend/` for the React app; imports are unchanged.
 

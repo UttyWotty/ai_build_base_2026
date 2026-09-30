@@ -1,0 +1,100 @@
+"""Tests for the HTTP API with a fake services bundle and a scripted agent stream.
+
+They cover the health check staying light, the overview headline, 404 for unknown alerts, the approval flow, and the
+server-sent events of an agent run. No data, no model, and no network are involved.
+"""
+from __future__ import annotations
+
+import json
+from datetime import datetime
+from pathlib import Path
+
+import pytest
+from fastapi.testclient import TestClient
+
+from copilot.api import server
+from copilot.api.endpoints import agent as agent_endpoint
+from copilot.data_pipeline.proposal_store import ProposalStore
+from copilot.services.agent_runner import AgentRun, AgentStep
+from tests.copilot.test_presenters import IMPACT
+
+ALERT = {"alert_id": "AL-2", "asset_id": "US1-L2-01", "line_id": "US1-L2", "failure_mode": "spindle_bearing_wear",
+         "raised_at": "2026-07-25 02:00", "repair_deadline": "2026-07-28 02:00", "priority": "P2"}
+
+
+class FakeTools:
+    def __init__(self, as_of: datetime) -> None:
+        self.as_of = as_of
+
+    def safe(self, method):
+        def call(*args):
+            try:
+                return method(*args)
+            except KeyError as error:
+                return {"error": f"Unknown alert {error}"}
+        return call
+
+    def list_open_alerts(self) -> dict:
+        return {"as_of": self.as_of.strftime("%Y-%m-%d %H:%M"), "count": 1, "alerts": [ALERT]}
+
+    def analyse_alert_impact(self, alert_id: str) -> dict:
+        if alert_id != "AL-2":
+            raise KeyError(alert_id)
+        return IMPACT
+
+    def get_sensor_evidence(self, alert_id: str) -> dict:
+        return {"alert_id": alert_id, "sensors": []}
+
+
+class FakeServices:
+    def __init__(self, proposals: ProposalStore) -> None:
+        self.proposals = proposals
+
+    def tools_at(self, as_of: datetime) -> FakeTools:
+        return FakeTools(as_of)
+
+
+@pytest.fixture()
+def client(tmp_path: Path):
+    store = ProposalStore(tmp_path / "proposals.json")
+    store._write([{"proposal_id": "PR-AL-2-1", "alert_id": "AL-2", "status": "pending"}])
+    with TestClient(server.create_app(lambda: FakeServices(store))) as test_client:
+        yield test_client
+
+
+def test_health_is_light_and_engine_status_reports_readiness(client: TestClient) -> None:
+    assert client.get("/health").json() == {"status": "ok"}
+    status = client.get("/api/engine-status").json()
+    assert status["ready"] is True and status["provider"] in {"gemini", "local"}
+
+
+def test_overview_carries_the_headline_and_each_alerts_recommendation(client: TestClient) -> None:
+    body = client.get("/api/overview", params={"as_of": "2026-07-25T02:00"}).json()
+    assert body["headline"] == {"open_alerts": 1, "alerts_in_spare_conflict": 1, "downtime_avoided_hours": 180.3,
+                                "cost_avoided_usd": 93175.0}
+    assert body["alerts"][0]["recommended"]["kind"] == "transfer" and body["alerts"][0]["conflict"]
+    assert client.get("/api/scenarios").json()["scenarios"][0]["id"] == "bearing-squeeze"
+
+
+def test_unknown_alerts_and_bad_clocks_are_client_errors(client: TestClient) -> None:
+    assert client.get("/api/alerts/NOPE/impact").status_code == 404
+    assert client.get("/api/overview", params={"as_of": "yesterday"}).status_code == 400
+
+
+def test_a_person_approves_a_proposal(client: TestClient) -> None:
+    assert client.get("/api/proposals").json()["proposals"][0]["status"] == "pending"
+    assert client.post("/api/proposals/PR-AL-2-1/status", json={"status": "approved"}).json()["status"] == "approved"
+    assert client.post("/api/proposals/PR-AL-2-1/status", json={"status": "done"}).status_code == 400
+
+
+def test_agent_run_streams_steps_then_the_checked_answer(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
+    async def scripted(question, tools, selection):
+        yield AgentStep("tool_call", "list_open_alerts", {})
+        yield AgentStep("tool_result", "list_open_alerts", {"count": 1})
+        yield AgentRun(question, tools.as_of, "scripted", (), "1 alert is open.", (), 0.1)
+
+    monkeypatch.setattr(agent_endpoint, "stream_copilot", scripted)
+    response = client.post("/api/agent/stream", json={"question": "How many?", "as_of": "2026-07-25T02:00"})
+    events = [json.loads(line[len("data: "):]) for line in response.text.splitlines() if line.startswith("data: ")]
+    assert [e["type"] for e in events] == ["tool_call", "tool_result", "done"]
+    assert events[-1]["verified"] is True and events[-1]["answer"] == "1 alert is open."
