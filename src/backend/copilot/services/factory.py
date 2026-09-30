@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
+from pathlib import Path
 
 from copilot.data_pipeline.bridge_files import load_bridge
 from copilot.data_pipeline.impact_queries import site_assets
@@ -71,14 +72,14 @@ class CopilotServices:
         return CopilotTools(as_of, self.impact, self.plant_tools, self.plant_catalog, self.reliability, self.proposals)
 
 
-def default_services() -> CopilotServices:
-    """Every copilot service over the configured data."""
+def default_services(proposals_path: Path = PROPOSALS_PATH) -> CopilotServices:
+    """Every copilot service over the configured data; tests pass their own proposals file."""
     store = default_world_store()
     alerts = default_alert_book()
     reliability = SupplierReliabilityService(QueryService(load_supply_catalog()), store)
     plant_catalog = load_catalog(PLANT_SEMANTIC_DIR)
     bridge = load_bridge(BRIDGE_SEMANTIC_DIR)
-    proposals = ProposalStore(PROPOSALS_PATH)
+    proposals = ProposalStore(proposals_path)
     book = DecisionBook(proposals, alerts, bridge, site_assets(store))
     impact = ImpactService(bridge, plant_catalog, alerts, reliability, store, decisions=book.decisions)
     # The track record scores the pure analysis, so demo approvals never change it.
