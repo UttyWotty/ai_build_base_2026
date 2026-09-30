@@ -1,0 +1,12 @@
+# Generated synthetic data is recreated from the seeded generator, never committed.
+# Local environment files hold per-machine model and path settings.
+# Standard Python build, cache, and editor artifacts are excluded.
+data/
+.env
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.ruff_cache/
+.DS_Store
