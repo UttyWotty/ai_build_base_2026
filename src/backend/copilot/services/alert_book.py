@@ -15,10 +15,16 @@ from copilot.core.lead_history import AlertOutcome
 
 NEW_DRAFT = "new_draft"
 USEFUL = "useful"
+# Alerts followed by their failure: in time ("useful") or with less warning than the scoring window ("late").
+REAL_FAILURE_TRUTHS = frozenset({"useful", "late"})
 
 
 def _timestamp(value: object) -> datetime:
     return pd.Timestamp(str(value)).to_pydatetime()
+
+
+def _failure_time(raw: dict[str, object]) -> datetime | None:
+    return _timestamp(raw["failure_at"]) if raw.get("truth") in REAL_FAILURE_TRUTHS else None
 
 
 def to_alert_facts(raw: dict[str, object]) -> AlertFacts:
@@ -36,6 +42,8 @@ class AlertBook:
     def __init__(self, raw_alerts: list[dict[str, object]]) -> None:
         self.alerts = {str(a["alert_id"]): to_alert_facts(a) for a in raw_alerts}
         self.drafting = [self.alerts[str(a["alert_id"])] for a in raw_alerts if a.get("outcome") == NEW_DRAFT]
+        # Evaluation only: the failure each alert was followed by (None for false alerts). Recommendations never read it.
+        self.failure_times = {str(a["alert_id"]): _failure_time(a) for a in raw_alerts}
         self.outcomes = [AlertOutcome(str(a["failure_mode"]), _timestamp(a["raised_at"]), _timestamp(a["failure_at"]))
                          for a in raw_alerts if a.get("truth") == USEFUL]
 

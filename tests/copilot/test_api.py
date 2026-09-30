@@ -6,7 +6,7 @@ server-sent events of an agent run. No data, no model, and no network are involv
 from __future__ import annotations
 
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -15,9 +15,12 @@ from fastapi.testclient import TestClient
 from copilot.api import server
 from copilot.api.endpoints import agent as agent_endpoint
 from copilot.api.static_site import mount_frontend
+from copilot.core.value_backtest import case_value, summarise
 from copilot.data_pipeline.proposal_store import ProposalStore
 from copilot.services.agent_runner import AgentRun, AgentStep
+from tests.copilot.fixtures import T0
 from tests.copilot.test_presenters import IMPACT
+from tests.copilot.test_value_backtest import report as value_report
 
 ALERT = {"alert_id": "AL-2", "asset_id": "US1-L2-01", "line_id": "US1-L2", "failure_mode": "spindle_bearing_wear",
          "raised_at": "2026-07-25 02:00", "repair_deadline": "2026-07-28 02:00", "priority": "P2"}
@@ -47,9 +50,16 @@ class FakeTools:
         return {"alert_id": alert_id, "sensors": []}
 
 
+class FakeValue:
+    def track_record(self):
+        case = case_value(value_report(), T0 + timedelta(hours=30))
+        return [case], summarise([case])
+
+
 class FakeServices:
     def __init__(self, proposals: ProposalStore) -> None:
         self.proposals = proposals
+        self.value = FakeValue()
 
     def tools_at(self, as_of: datetime) -> FakeTools:
         return FakeTools(as_of)
@@ -59,7 +69,7 @@ class FakeServices:
 def client(tmp_path: Path):
     store = ProposalStore(tmp_path / "proposals.json")
     store._write([{"proposal_id": "PR-AL-2-1", "alert_id": "AL-2", "status": "pending"}])
-    with TestClient(server.create_app(lambda: FakeServices(store))) as test_client:
+    with TestClient(server.create_app(lambda: FakeServices(store), tmp_path / "no-build")) as test_client:
         yield test_client
 
 
@@ -107,11 +117,17 @@ def test_the_built_frontend_is_served_with_client_side_routes(tmp_path: Path) ->
     (dist / "index.html").write_text("<div id=root></div>")
     (dist / "assets" / "app.js").write_text("console.log(1)")
     (dist / "favicon.svg").write_text("<svg/>")
-    app = server.create_app(lambda: FakeServices(ProposalStore(tmp_path / "p.json")))
-    assert mount_frontend(app, dist) and not mount_frontend(server.create_app(), tmp_path / "none")
+    app = server.create_app(lambda: FakeServices(ProposalStore(tmp_path / "p.json")), dist)
+    assert not mount_frontend(server.create_app(frontend_dir=tmp_path / "none"), tmp_path / "none")
     with TestClient(app) as test_client:
         assert test_client.get("/approvals").text == "<div id=root></div>"
         assert test_client.get("/assets/app.js").text == "console.log(1)"
         assert test_client.get("/favicon.svg").text == "<svg/>"
         assert test_client.get("/api/unknown").status_code == 404
         assert test_client.get("/health").json() == {"status": "ok"}
+
+
+def test_track_record_reports_the_net_value_and_the_method(client: TestClient) -> None:
+    body = client.get("/api/value").json()
+    assert body["summary"]["real_failures"] == 1 and body["summary"]["hours_saved"] == 144.0
+    assert body["cases"][0]["recommended_kind"] == "transfer" and len(body["method"]) == 4

@@ -34,6 +34,11 @@ emoldinounited runs a sense, reason, act loop over governed data from the plant 
   order lines at risk.
 - Across the open alerts, the plan avoids 180 hours of downtime and 93,175 USD, shown in the control room.
 
+**The track record (`make value`).** Every alert of the last four months was scored at its real outcome, comparing
+the copilot's plan with what the site would have done alone. The plan differed six times: three air transfers on real
+failures saved 662 hours and 199,809 USD, and three express buys on alerts that turned out false cost 1,860 USD.
+Net value: **197,949 USD in four months**, with the losses counted, not hidden.
+
 ## 3. How Google AI is integrated
 
 - **Gemini** is the reasoning model, called through the **Agent Development Kit** (`src/backend/copilot/services/agent_runner.py`)

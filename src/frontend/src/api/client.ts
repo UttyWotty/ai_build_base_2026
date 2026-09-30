@@ -1,7 +1,7 @@
 // Thin client for the FastAPI backend: one function per endpoint, each returning typed JSON.
 // Paths are relative, so the Vite proxy (development) and Firebase Hosting rewrites (production) both work.
 // A non-2xx response throws ApiError with the backend's detail message, which the pages show as is.
-import type { EngineStatus, Evidence, Impact, Overview, Proposal, ScenarioList } from './types'
+import type { EngineStatus, Evidence, Impact, Overview, Proposal, ScenarioList, TrackRecord } from './types'
 
 export class ApiError extends Error {
   readonly status: number
@@ -34,6 +34,7 @@ export const api = {
     getJson(`/api/alerts/${encodeURIComponent(alertId)}/impact?${clock(asOf)}`),
   evidence: (alertId: string, asOf: string): Promise<Evidence> =>
     getJson(`/api/alerts/${encodeURIComponent(alertId)}/evidence?${clock(asOf)}`),
+  trackRecord: (): Promise<TrackRecord> => getJson('/api/value'),
   proposals: async (): Promise<Proposal[]> => (await getJson<{ proposals: Proposal[] }>('/api/proposals')).proposals,
   setProposalStatus: async (proposalId: string, status: 'approved' | 'rejected'): Promise<Proposal> => {
     const response = await fetch(`/api/proposals/${encodeURIComponent(proposalId)}/status`, {
