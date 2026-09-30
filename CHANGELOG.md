@@ -6,6 +6,14 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+### Added
+- Multimodal Gemini: a structured reader in the gateway (images and PDFs in, schema-checked JSON out; other providers
+  refuse clearly).
+- Supplier inbox: Gemini reads supplier messages into delivery updates that revise open orders from the moment they
+  arrive; three sample messages in `demo/field/inbox` (a delay, a confirmation, a price list).
+- Field inspection: Gemini vision reads an inspection photo against the alert's failure mode; findings show on the
+  alert and reach the agent through the new `get_field_reports` tool.
+
 ### Fixed
 - The Streamlit page test used the live proposals file, so a demo approval broke it; `default_services` now takes the
   proposals path and the test passes an empty temporary one.

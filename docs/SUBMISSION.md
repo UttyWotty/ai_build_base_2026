@@ -45,6 +45,10 @@ Net value: **197,949 USD in four months**, with the losses counted, not hidden.
   as an `LlmAgent` with eight typed function tools (`agent_functions.py`).
 - The agent decides which tools to call and in what order. For example, it analyses both competing alerts in parallel
   before recommending an allocation.
+- **Multimodal Gemini.** Gemini reads suppliers' delay notices, as text or PDF, into structured delivery updates with a
+  strict JSON schema. A new date revises the open order in every later analysis, and a price-list letter is correctly
+  read as no change. Gemini vision reads a technician's inspection photo against the predicted failure mode, so a
+  person sees whether the part confirms the prediction before money is spent.
 - **Guardrails around the model.** It never writes SQL; supplier figures come from a governed metric compiler and carry
   a SQL fingerprint. Every number in its answer is checked against the tool results before the answer is marked
   verified. Actions only become proposals, and their numbers come from the analysis, not from the model's text.

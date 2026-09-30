@@ -28,6 +28,11 @@ def adk_functions(tools: CopilotTools) -> list[Callable[..., dict[str, object]]]
         ranges, the P-F interval, and the recommended repair action."""
         return tools.safe(tools.get_sensor_evidence)(alert_id)
 
+    def get_field_reports(alert_id: str) -> dict:
+        """Evidence from the field that Gemini has read: inspection photo findings for this alert, and supplier
+        messages that changed delivery dates (already applied to the impact analysis)."""
+        return tools.safe(tools.get_field_reports)(alert_id)
+
     def get_supplier_record(supplier_id: str) -> dict:
         """A supplier's on-time delivery (governed metric supplier_otd, with SQL fingerprint) and expected lateness in
         days over the last 90 days."""
@@ -53,5 +58,5 @@ def adk_functions(tools: CopilotTools) -> list[Callable[..., dict[str, object]]]
         none). Nothing is executed."""
         return tools.safe(tools.propose_action_plan)(alert_id, option_kind, option_source, work_order_note, customer_note)
 
-    return [list_open_alerts, analyse_alert_impact, get_sensor_evidence, get_supplier_record, oee_summary, failures,
+    return [list_open_alerts, analyse_alert_impact, get_sensor_evidence, get_field_reports, get_supplier_record, oee_summary, failures,
             work_order_history, propose_action_plan]

@@ -8,6 +8,7 @@ import type { Impact } from '../api/types'
 import { hours, modeLabel, money, optionLabel, percent, shortTime } from '../lib/format'
 import { useAsync } from '../state/useAsync'
 import { AgentRunView } from './AgentRunView'
+import { InspectionCard } from './InspectionCard'
 import { OptionsTable } from './OptionsTable'
 import { SensorChart } from './SensorChart'
 import { Callout, Card, ErrorNote, Loading, Stat } from './ui'
@@ -56,6 +57,7 @@ export function AlertDetail({ alertId, asOf }: { alertId: string; asOf: string }
         </Card>
       </div>
       <Card title="Every way to get the spare"><OptionsTable options={data.options} /></Card>
+      <InspectionCard alertId={alertId} assetId={data.alert.asset_id} asOf={asOf} />
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Card title="Why the model raised it">
           {evidence.data ? (

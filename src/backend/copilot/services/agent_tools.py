@@ -16,6 +16,7 @@ from copilot.core.agent_views import (
 )
 from copilot.core.errors import CopilotError
 from copilot.data_pipeline.proposal_store import ProposalStore
+from copilot.services.field_service import FieldInputService
 from copilot.services.impact_service import ImpactService
 from copilot.services.supplier_reliability import SupplierReliabilityService
 from pdm_oee.core.catalog import PlantCatalog
@@ -31,8 +32,10 @@ class CopilotTools:
     """Tool implementations for one run at a fixed analysis time."""
 
     def __init__(self, as_of: datetime, impact: ImpactService, plant_tools: ToolBox, plant_catalog: PlantCatalog,
-                 reliability: SupplierReliabilityService, proposals: ProposalStore) -> None:
+                 reliability: SupplierReliabilityService, proposals: ProposalStore,
+                 field: FieldInputService | None = None) -> None:
         self.as_of = as_of
+        self.field = field
         self.impact = impact
         self.plant_tools = plant_tools
         self.plant_catalog = plant_catalog
@@ -56,6 +59,15 @@ class CopilotTools:
         return {"alert_id": alert_id, "asset_id": alert.asset_id, "failure_mode": mode.label,
                 "pf_interval_days": mode.pf_interval_days, "recommended_action": mode.recommended_action,
                 "sensors": trends}
+
+    def get_field_reports(self, alert_id: str) -> dict[str, object]:
+        if self.field is None:
+            return {"inspections": [], "supplier_updates": []}
+        updates = self.field.updates_known(self.as_of)
+        return {"alert_id": alert_id, "inspections": self.field.findings_for(alert_id, self.as_of),
+                "supplier_updates": [{"order_reference": u.order_reference, "supplier": u.supplier_name, "change": u.change,
+                                      "new_delivery": u.new_delivery_at.strftime(TIME_FORMAT) if u.new_delivery_at else None,
+                                      "reason": u.reason, "received": u.received_at.strftime(TIME_FORMAT)} for u in updates]}
 
     def get_supplier_record(self, supplier_id: str) -> dict[str, object]:
         s = self.reliability.assess(supplier_id, self.as_of)

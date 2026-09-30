@@ -1,0 +1,14 @@
+From: Everline Metalworks GmbH, Order Desk <orders@everline-metalworks.example>
+Date: 2026-07-24T09:15
+Subject: Delivery update for your order SPO-US1-0061 (spindle bearing set)
+
+Dear purchasing team at US1,
+
+We regret to inform you that the heat treatment line for our precision bearing sets was out of service last week.
+Your order SPO-US1-0061 (1 x spindle bearing set, confirmed for 2 August) will now leave our plant on 5 August,
+with delivery to your site on 8 August 2026.
+
+We apologise for the inconvenience and will confirm the tracking number once the goods ship.
+
+Kind regards,
+Order Desk, Everline Metalworks GmbH
