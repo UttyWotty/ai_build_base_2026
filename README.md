@@ -28,7 +28,7 @@ What makes it trustworthy:
 |---|---|---|
 | 0.1.0 | Monorepo foundation | Released |
 | 0.2.0 to 0.7.0 | Model layer, bridge and impact, operations agent, web app, Cloud Run kit, submission kit | Released as 0.7.0 |
-| 0.8.0 | React and FastAPI; track record; live mode and autopilot; closed loop; multimodal Gemini; multi-agent team; model fallback | Done, see `CHANGELOG.md` |
+| 0.8.0 | React and FastAPI; track record; live mode and autopilot; closed loop; multimodal Gemini; multi-agent team; model fallback | Released |
 
 Open items, in priority order, are in `techdebt.md`: the first real Cloud Run deploy, sample inspection photos, and a full Gemini evaluation on a paid key or Vertex AI.
 

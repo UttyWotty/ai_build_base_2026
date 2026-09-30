@@ -6,84 +6,64 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
-### Changed
-- README, plan, submission write-up, demo script, handover, and techdebt rewritten for the 0.8.0 scope; the inspection
-  photo prompts are recorded in `demo/field/README.md`.
-- The deploy script passes `GEMINI_FALLBACK_MODELS` to Cloud Run (with "@" as the list separator, since the value has
-  commas).
+## [0.8.0] - 2026-09-30
+
+The finals-grade product: React and FastAPI, the track record, live mode, the closed loop, multimodal Gemini, and the agent team.
 
 ### Added
 - `GEMINI_FALLBACK_MODELS`: when a Gemini model is out of quota or unavailable, the run restarts on the next backup
   model and the trace says so.
 - Provider errors in plain language (quota, overloaded, credentials, model unavailable), each with what to do; the raw
   text sits behind a details toggle.
-
-### Changed
-- The autopilot stops itself and pauses the clock on quota or credential errors, with a banner, instead of failing on
-  every new alert.
-
-### Added
 - Operations team on the Agent Development Kit: a `ParallelAgent` of three specialists (maintenance, procurement,
   customer service), each with only its role's tools and a brief in session state, then an operations lead in a
   `SequentialAgent` who reads the briefs and proposes. `mode=team` on the stream endpoint; the plan button, the
   autopilot, and a switch on the Copilot page use it.
 - Every trace step carries its author; specialists' briefs show as their own cards.
-
-### Added
 - Multimodal Gemini: a structured reader in the gateway (images and PDFs in, schema-checked JSON out; other providers
   refuse clearly).
 - Supplier inbox: Gemini reads supplier messages into delivery updates that revise open orders from the moment they
   arrive; three sample messages in `demo/field/inbox` (a delay, a confirmation, a price list).
 - Field inspection: Gemini vision reads an inspection photo against the alert's failure mode; findings show on the
   alert and reach the agent through the new `get_field_reports` tool.
-
-### Fixed
-- The Streamlit page test used the live proposals file, so a demo approval broke it; `default_services` now takes the
-  proposals path and the test passes an empty temporary one.
-
-### Added
 - Closed loop: approved proposals become decisions that change stock and queues from their moment on (a transfer leaves
   the sister shelf at once and arrives when promised; covered alerts stop competing for the spare).
 - Outcomes settle once the clock passes the real failure or the end of the warning window: hours down with and without
   the plan, and the money saved. They show on the Approvals page and in the live feed with the approval and arrival.
 - Approve and reject in the autopilot panel; Reset demo; `GET /api/proposals/outcomes`, `POST /api/proposals/reset`.
-
-### Changed
-- The track record scores the analysis without demo approvals, so approving in the app never changes it.
-
-### Added
 - Live mode (the Live page): the demo clock runs at 1, 3, or 6 hours per second; a plant event feed streams alerts,
   breakdowns, restorations, and spare orders and receipts; with the autopilot on, every alert that opens a work order
   pauses the clock while Gemini triages it and creates a proposal, then the clock runs on.
 - `GET /api/events` and the pure event feed rules; alerts attached to an existing order are marked as covered.
-
-### Added
 - Value backtest (`make value`, `GET /api/value`, the Track record page): every alert of the test period analysed as it
   was raised and scored at its real outcome, the copilot against the site acting alone. On the default data: net
   197,949 USD, 662.1 h of downtime avoided, 1,860 USD spent on false alerts.
-
-### Changed
-- `create_app` takes the frontend build directory, so tests never depend on a local build.
-- Negative money renders as "−$620".
-
-### Added
 - React frontend in `src/frontend/` (Vite, TypeScript, Tailwind, Recharts): control room, a copilot page with the
   agent's tool calls streamed live, approvals, and How it works; `make web` with a dev proxy to `make api`.
 - The backend serves the built frontend with client-side routes, so one Cloud Run service hosts the whole app.
 - Frontend unit tests (Vitest) for formatting and the event-stream parser; `make lint` and `make test` cover both sides.
 - The impact endpoint returns the baseline option, so the frontend does not repeat that rule.
-
-### Changed
-- The container builds the frontend in a Node stage and serves everything with uvicorn instead of Streamlit.
-
-### Added
 - HTTP API (FastAPI, `make api`): health, engine status, scenarios, overview with headline, alert impact and
   evidence, proposals with approval, and the agent run streamed as server-sent events.
 - `stream_copilot` yields each agent step as it happens; `run_copilot` is built on it.
 - Scenarios and headline summaries now live in the copilot core, shared by the API and the apps.
 
 ### Changed
+- README, plan, submission write-up, demo script, handover, and techdebt rewritten for the 0.8.0 scope; the inspection
+  photo prompts are recorded in `demo/field/README.md`.
+- The deploy script passes `GEMINI_FALLBACK_MODELS` to Cloud Run (with "@" as the list separator, since the value has
+  commas).
+- The autopilot stops itself and pauses the clock on quota or credential errors, with a banner, instead of failing on
+  every new alert.
+- The track record scores the analysis without demo approvals, so approving in the app never changes it.
+- `create_app` takes the frontend build directory, so tests never depend on a local build.
+- Negative money renders as "−$620".
+- The container builds the frontend in a Node stage and serves everything with uvicorn instead of Streamlit.
 - Python packages live under `src/backend/`, leaving `src/frontend/` for the React app; imports are unchanged.
+
+### Fixed
+- The Streamlit page test used the live proposals file, so a demo approval broke it; `default_services` now takes the
+  proposals path and the test passes an empty temporary one.
 
 ## [0.7.0] - 2026-09-30
 
