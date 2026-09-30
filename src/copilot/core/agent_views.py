@@ -72,6 +72,7 @@ def impact_result(report: ImpactReport) -> dict[str, object]:
         result["supplier"] = {"supplier_id": s.supplier_id, "name": s.supplier_name,
                               "on_time_percent": None if s.on_time_share is None else round(s.on_time_share * PERCENT, 1),
                               "expected_days_late": s.expected_days_late, "window": f"{s.window_start} to {s.window_end}",
+                              "window_days": (s.window_end - s.window_start).days + 1,
                               "governed_metric": "supplier_otd", "sql_fingerprint": s.sql_fingerprint}
     if report.lead.count:
         result["past_alerts_of_this_mode"] = {"count": report.lead.count, "fastest_failure_hours": report.lead.fastest_hours,

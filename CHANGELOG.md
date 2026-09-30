@@ -6,6 +6,13 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+### Added
+- `docs/SUBMISSION.md`: the write-up against the five judging points, with the architecture diagram and honest limits.
+- `docs/DEMO_SCRIPT.md`: the three-minute demo, click by click.
+
+### Fixed
+- The supplier tool returns the window length (`window_days`), so an answer quoting "the last 90 days" verifies.
+
 ### Changed
 - The app is named emoldinounited.
 - The agent's model calls retry rate limits and server errors with backoff (five attempts), for free-tier quotas.
