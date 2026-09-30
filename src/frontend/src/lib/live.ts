@@ -16,3 +16,13 @@ export const triageQuestion = (alertId: string): string =>
   'option, create the proposal for approval, and summarise in three short sentences.'
 
 export const plural = (count: number, word: string): string => `${count} ${word}${count === 1 ? '' : 's'}`
+
+export const AGENT_LABELS: Record<string, string> = {
+  operations_copilot: 'Copilot',
+  maintenance_planner: 'Maintenance planner',
+  procurement_lead: 'Procurement lead',
+  customer_lead: 'Customer service lead',
+  operations_lead: 'Operations lead',
+}
+
+export const agentLabel = (author: string): string => AGENT_LABELS[author] ?? author

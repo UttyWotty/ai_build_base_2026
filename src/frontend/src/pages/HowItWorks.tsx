@@ -7,7 +7,7 @@ import { Card } from '../components/ui'
 
 const LOOP = [
   { icon: Eye, title: 'Sense', text: 'A gradient-boosted model scores every asset from its sensors. On the last four months it caught 27 of 41 failures at 0.16 false alerts per asset-month, with a median warning of 86 hours.' },
-  { icon: Bot, title: 'Reason', text: "A Gemini agent built with Google's Agent Development Kit investigates with governed tools: sensor evidence, spare stock at both sites, the supplier's governed on-time delivery, and the customer lines at risk." },
+  { icon: Bot, title: 'Reason', text: "A team of Gemini agents on Google's Agent Development Kit investigates with governed tools: a maintenance planner, a procurement lead, and a customer service lead work in parallel, then an operations lead weighs their briefs." },
   { icon: UserCheck, title: 'Act', text: 'It proposes the work order, the parts action, and the customer note. A person approves or rejects each one.' },
 ]
 
@@ -59,7 +59,7 @@ export function HowItWorks() {
           {arrow}
           <Box icon={<ShieldCheck className="h-4 w-4" />} title="Impact analysis" sub="point in time, priced options" />
           {arrow}
-          <Box icon={<Bot className="h-4 w-4" />} title="Gemini agent" sub="Agent Development Kit, 8 tools" accent />
+          <Box icon={<Bot className="h-4 w-4" />} title="Gemini agent team" sub="ADK: 3 specialists in parallel, then a lead" accent />
           {arrow}
           <Box icon={<UserCheck className="h-4 w-4" />} title="Person approves" sub="proposals only" />
         </div>

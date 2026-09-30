@@ -26,7 +26,7 @@ export function AutopilotPanel({ triages, enabled, onFinished, pending, onDecide
         <div className="space-y-2">
           <div className="text-sm font-medium">Triaging {active.event.subject}, raised {shortTime(active.event.at)}</div>
           <AgentRunView key={active.event.alert_id} question={triageQuestion(active.event.alert_id)} asOf={active.event.at.replace(' ', 'T')}
-            onFinished={(result) => onFinished(active.event.alert_id ?? '', result)} />
+            onFinished={(result) => onFinished(active.event.alert_id ?? '', result)} mode="team" />
         </div>
       )}
       {!active && finished.length > 0 && finished[finished.length - 1].result && (

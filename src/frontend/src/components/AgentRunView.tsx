@@ -5,12 +5,19 @@ import { CheckCircle2, ChevronRight, CircleAlert, Loader2, Wrench } from 'lucide
 import { useEffect, useRef, useState } from 'react'
 import Markdown from 'react-markdown'
 import { streamAgent } from '../api/agentStream'
-import type { AgentDoneEvent, AgentEvent } from '../api/types'
+import type { AgentDoneEvent, AgentEvent, AgentMode } from '../api/types'
+import { agentLabel } from '../lib/live'
 
 interface ToolStep {
   name: string
   args: unknown
+  author: string
   result?: unknown
+}
+
+interface Brief {
+  author: string
+  text: string
 }
 
 const TOOL_LABELS: Record<string, string> = {
@@ -24,9 +31,10 @@ const TOOL_LABELS: Record<string, string> = {
   propose_action_plan: 'Drafted a proposal',
 }
 
-export function AgentRunView({ question, asOf, onFinished }:
-  { question: string; asOf: string; onFinished?: (done: AgentDoneEvent | null) => void }) {
+export function AgentRunView({ question, asOf, onFinished, mode = 'single' }:
+  { question: string; asOf: string; onFinished?: (done: AgentDoneEvent | null) => void; mode?: AgentMode }) {
   const [steps, setSteps] = useState<ToolStep[]>([])
+  const [briefs, setBriefs] = useState<Brief[]>([])
   const [done, setDone] = useState<AgentDoneEvent | null>(null)
   const [failure, setFailure] = useState<string | null>(null)
   const started = useRef(false)
@@ -35,19 +43,22 @@ export function AgentRunView({ question, asOf, onFinished }:
     started.current = true
     let final: AgentDoneEvent | null = null
     const handle = (event: AgentEvent) => {
-      if (event.type === 'tool_call') setSteps((s) => [...s, { name: event.name, args: event.payload }])
-      else if (event.type === 'tool_result') setSteps((s) => attachResult(s, event.name, event.payload))
+      if (event.type === 'tool_call') setSteps((s) => [...s, { name: event.name, args: event.payload, author: event.author }])
+      else if (event.type === 'tool_result') setSteps((s) => attachResult(s, event.name, event.payload, event.author))
+      else if (event.type === 'brief') setBriefs((b) => [...b, { author: event.author, text: String(event.payload) }])
       else if (event.type === 'done') { final = event; setDone(event) }
     }
-    streamAgent(question, asOf, handle).catch((e: Error) => setFailure(e.message)).finally(() => onFinished?.(final))
-  }, [question, asOf, onFinished])
+    streamAgent(question, asOf, handle, mode).catch((e: Error) => setFailure(e.message)).finally(() => onFinished?.(final))
+  }, [question, asOf, onFinished, mode])
   return (
     <div className="space-y-4">
+      {mode === 'team' && <p className="text-xs text-slate-500">Three specialists work in parallel, then the operations lead decides.</p>}
       <ol className="space-y-2">
-        {steps.map((step, index) => <StepRow key={index} step={step} />)}
+        {steps.map((step, index) => <StepRow key={index} step={step} showAuthor={mode === 'team'} />)}
+        {briefs.map((brief) => <BriefRow key={brief.author} brief={brief} />)}
         {!done && !failure && (
           <li className="flex items-center gap-2 text-sm text-slate-500">
-            <Loader2 className="h-4 w-4 animate-spin" />{steps.length ? 'Reasoning over the results' : 'Gemini is planning its first step'}
+            <Loader2 className="h-4 w-4 animate-spin" />{steps.length ? 'Reasoning over the results' : mode === 'team' ? 'The specialists are starting' : 'Gemini is planning its first step'}
           </li>
         )}
       </ol>
@@ -57,19 +68,20 @@ export function AgentRunView({ question, asOf, onFinished }:
   )
 }
 
-function attachResult(steps: ToolStep[], name: string, result: unknown): ToolStep[] {
-  const index = steps.findIndex((s) => s.name === name && s.result === undefined)
+function attachResult(steps: ToolStep[], name: string, result: unknown, author: string): ToolStep[] {
+  const index = steps.findIndex((s) => s.name === name && s.author === author && s.result === undefined)
   if (index < 0) return steps
   return steps.map((s, i) => (i === index ? { ...s, result } : s))
 }
 
-function StepRow({ step }: { step: ToolStep }) {
+function StepRow({ step, showAuthor }: { step: ToolStep; showAuthor: boolean }) {
   const [open, setOpen] = useState(false)
   const args = JSON.stringify(step.args)
   return (
     <li className="rounded-lg border border-slate-200 bg-white">
       <button onClick={() => setOpen(!open)} className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm">
         {step.result === undefined ? <Loader2 className="h-4 w-4 animate-spin text-brand-600" /> : <Wrench className="h-4 w-4 text-brand-600" />}
+        {showAuthor && <span className="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-medium text-slate-600">{agentLabel(step.author)}</span>}
         <span className="shrink-0 font-medium">{TOOL_LABELS[step.name] ?? step.name}</span>
         <code className="min-w-0 flex-1 truncate font-mono text-xs text-slate-500">{step.name}({args === '{}' ? '' : args})</code>
         <ChevronRight className={`h-4 w-4 shrink-0 text-slate-400 transition ${open ? 'rotate-90' : ''}`} />
@@ -79,6 +91,19 @@ function StepRow({ step }: { step: ToolStep }) {
           {JSON.stringify(step.result, null, 2)}
         </pre>
       )}
+    </li>
+  )
+}
+
+function BriefRow({ brief }: { brief: Brief }) {
+  return (
+    <li className="rounded-lg border border-brand-100 bg-brand-50/50 px-3 py-2 text-sm">
+      <details>
+        <summary className="cursor-pointer font-medium">{agentLabel(brief.author)}'s brief</summary>
+        <div className="mt-2 text-xs leading-relaxed text-slate-700 [overflow-wrap:anywhere] [&_li]:my-0.5 [&_ul]:list-disc [&_ul]:pl-4">
+          <Markdown>{brief.text}</Markdown>
+        </div>
+      </details>
     </li>
   )
 }

@@ -3,14 +3,14 @@
 // The returned promise resolves when the server closes the stream; network failures reject it.
 import { toError } from './client'
 import { parseSse } from './sse'
-import type { AgentEvent } from './types'
+import type { AgentEvent, AgentMode } from './types'
 
 export async function streamAgent(question: string, asOf: string, onEvent: (event: AgentEvent) => void,
-                                  signal?: AbortSignal): Promise<void> {
+                                  mode: AgentMode = 'single', signal?: AbortSignal): Promise<void> {
   const response = await fetch('/api/agent/stream', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ question, as_of: asOf }),
+    body: JSON.stringify({ question, as_of: asOf, mode }),
     signal,
   })
   if (!response.ok || !response.body) throw await toError(response)
