@@ -62,6 +62,7 @@ class CopilotTools:
         return {"supplier_id": s.supplier_id, "name": s.supplier_name, "governed_metric": "supplier_otd",
                 "on_time_percent": None if s.on_time_share is None else round(s.on_time_share * 100, 1),
                 "expected_days_late": s.expected_days_late, "window": f"{s.window_start} to {s.window_end}",
+                "window_days": (s.window_end - s.window_start).days + 1,
                 "sql_fingerprint": s.sql_fingerprint}
 
     def oee_summary(self, scope_type: str, scope_id: str, start: str, end: str) -> dict[str, object]:
