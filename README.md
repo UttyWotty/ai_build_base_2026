@@ -68,7 +68,7 @@ Per-machine settings go in `.env`, copied from `.env.example`. The Makefile load
 ## Models
 
 Every language feature goes through `src/llm_gateway`, and one setting chooses the model:
-- **`LLM_PROVIDER=gemini`** (default) uses Gemini through the google-genai SDK. Locally it needs `GEMINI_API_KEY`, a free key from aistudio.google.com. On Google Cloud it uses Vertex AI with the service account instead. `GEMINI_MODEL` picks the model.
+- **`LLM_PROVIDER=gemini`** (default) uses Gemini through the google-genai SDK. Locally it needs `GEMINI_API_KEY`, a free key from aistudio.google.com. On Google Cloud it uses Vertex AI with the service account instead. `GEMINI_MODEL` picks the model (default `gemini-3.8-flash`; `gemini-2.5-flash` is no longer offered to new users).
 - **`LLM_PROVIDER=local`** uses an OpenAI-compatible server such as `mlx_lm.server` at `LLM_BASE_URL`, serving `LLM_MODEL`. It is the offline fallback.
 
 Command lines accept `--provider`, `--model`, and `--base-url` for one run, for example `make pdm-eval` or `.venv/bin/supply-eval-nl --provider local`. The unit tests use scripted models and never call a real one.
@@ -130,7 +130,7 @@ Guardrails:
 
 Latest results (2026-09-30):
 - **Local Qwen3.6-35B-A3B:** 7 of 8 on a full run. The miss was a tool gap: the agent quoted the 90-day window, which the tool did not return as a number. The tool now returns `window_days`, and that case passes on a rerun.
-- **Gemini:** pending a valid key.
+- **Gemini (AI Studio free tier):** `gemini-3.8-flash` answered the triage question verified, with nine tool calls: it found the bearing conflict and allocated as the rules do. A full run on `gemini-3.7-flash` passed the bearing-conflict case, then stopped on the free tier's limit of 20 requests per model per day and one 503. A full Gemini score needs a paid key or Vertex AI (see `docs/HANDOVER.md`).
 
 ## Ground rules
 

@@ -39,7 +39,8 @@ def main(argv: list[str] | None = None) -> int:
         tools.proposals = eval_store
         run = run_copilot(case.question, tools, selection)
         calls = tuple((s.name, dict(s.payload)) for s in run.steps if s.kind == "tool_call")
-        problems = score(case, RunOutcome(calls, run.answer, run.unexplained_numbers))
+        problems = [f"model error: {run.error}"] if run.error else score(case, RunOutcome(calls, run.answer,
+                                                                                         run.unexplained_numbers))
         rows.append({"id": case.case_id, "passed": not problems, "problems": problems, "seconds": run.seconds,
                      "tools": list(run.tools_used), "answer": run.answer})
         print(f"{'PASS' if not problems else 'FAIL'} {case.case_id:18s} {run.seconds:6.1f}s  {', '.join(problems)}")

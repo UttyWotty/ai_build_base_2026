@@ -6,6 +6,7 @@ tool calls, tool results, and the final answer, which is then checked number by 
 from __future__ import annotations
 
 import asyncio
+import re
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -26,6 +27,8 @@ AGENT_NAME = "operations_copilot"
 USER_ID = "operator"
 USER_ROLE = "user"
 TEMPERATURE = 0.0
+ERROR_CHARS = 300
+STATUS_PATTERN = re.compile(r"\b[45]\d\d [A-Z_]{4,}")
 # Free-tier and shared quotas answer 429 under bursts; the SDK retries these with backoff before the run fails.
 RETRY_OPTIONS = types.HttpRetryOptions(attempts=5, initial_delay=2.0, max_delay=30.0,
                                        http_status_codes=[429, 500, 502, 503, 504])
@@ -52,6 +55,8 @@ class AgentRun:
     unexplained_numbers: tuple[str, ...]
     seconds: float
     tool_results: tuple[object, ...] = field(default=())
+    # Why the run failed before answering, for example a quota limit; empty when it answered.
+    error: str = ""
 
     @property
     def verified(self) -> bool:
@@ -73,11 +78,24 @@ def build_agent(tools: CopilotTools, selection: ModelSelection) -> LlmAgent:
 def run_copilot(question: str, tools: CopilotTools, selection: ModelSelection) -> AgentRun:
     """Ask the copilot one question and return the checked trace."""
     started = time.monotonic()
-    steps = asyncio.run(_run(build_agent(tools, selection), question))
+    try:
+        steps = asyncio.run(_run(build_agent(tools, selection), question))
+    except Exception as error:  # the model provider can fail in many ways; the run records it instead of crashing
+        return AgentRun(question, tools.as_of, selection.label, (AgentStep("error", type(error).__name__, str(error)),),
+                        "", (), round(time.monotonic() - started, 1), error=_short(error))
     answer = "\n".join(str(s.payload) for s in steps if s.kind == "text").strip()
     results = tuple(s.payload for s in steps if s.kind == "tool_result")
     return AgentRun(question, tools.as_of, selection.label, tuple(steps), answer,
                     tuple(unexplained_numbers(answer, question, results)), round(time.monotonic() - started, 1), results)
+
+
+def _short(error: Exception) -> str:
+    """The provider's status line (for example "429 RESOURCE_EXHAUSTED ...") or, failing that, the first line."""
+    text = str(error).strip()
+    status = STATUS_PATTERN.search(text)
+    if status:
+        return text[status.start():status.start() + ERROR_CHARS]
+    return (text.splitlines()[0] if text else type(error).__name__)[:ERROR_CHARS]
 
 
 async def _run(agent: LlmAgent, question: str) -> list[AgentStep]:
