@@ -1,0 +1,11 @@
+From: Everline Metalworks GmbH, Sales <sales@everline-metalworks.example>
+Date: 2026-07-23T14:05
+Subject: Price list 2027
+
+Dear customer,
+
+Please find our price list for 2027 attached. Prices for bearing sets rise by 3.5 percent from 1 January 2027.
+Open orders are not affected.
+
+Best regards,
+Sales, Everline Metalworks GmbH

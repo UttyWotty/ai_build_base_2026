@@ -229,3 +229,28 @@ export interface Outcome {
   usd_saved: number | null
   extra_cost_usd: number | null
 }
+
+export interface SampleMessage { name: string; sender: string; received_at: string; subject: string; text: string }
+export interface SamplePhoto { name: string; asset_id: string; mime_type: string }
+export interface FieldSamples { messages: SampleMessage[]; photos: SamplePhoto[] }
+
+export interface SupplierUpdate {
+  received_at: string
+  supplier_name: string
+  order_reference: string
+  change: string
+  new_delivery_at: string | null
+  reason: string
+  confidence: number
+}
+
+export interface InspectionFinding {
+  alert_id: string
+  asset_id: string
+  received_at: string
+  condition: string
+  matches_predicted_failure: boolean
+  confidence: number
+  observations: string[]
+  advice: string
+}

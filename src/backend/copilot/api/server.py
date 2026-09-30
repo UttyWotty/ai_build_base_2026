@@ -18,6 +18,7 @@ from copilot.api.endpoints import (
     alerts,
     catalog,
     events,
+    field,
     health,
     proposals,
     value,
@@ -43,7 +44,7 @@ def create_app(load_services: Callable[[], CopilotServices] = default_services,
         yield
 
     app = FastAPI(title=TITLE, lifespan=lifespan)
-    for module in (health, catalog, alerts, events, proposals, value, agent):
+    for module in (health, catalog, alerts, events, field, proposals, value, agent):
         app.include_router(module.router)
     mount_frontend(app, frontend_dir)
     return app

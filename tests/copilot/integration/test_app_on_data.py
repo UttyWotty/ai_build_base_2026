@@ -34,7 +34,7 @@ def scripted_runner(question: str, tools) -> AgentRun:
 def test_bearing_scenario_headline_conflict_and_plan(tmp_path: Path) -> None:
     page = AppTest.from_file(str(APP_PATH), default_timeout=TIMEOUT_SECONDS)
     page.session_state[resources.RUNNER_KEY] = scripted_runner
-    page.session_state[resources.SERVICES_KEY] = default_services(tmp_path / "proposals.json")
+    page.session_state[resources.SERVICES_KEY] = default_services(tmp_path / "proposals.json", tmp_path)
     page.run()
     assert not page.exception
     metrics = {m.label: m.value for m in page.metric}

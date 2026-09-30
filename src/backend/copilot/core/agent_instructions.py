@@ -17,8 +17,10 @@ The current time is {as_of.strftime(TIME_FORMAT)} UTC. You only know what the to
 
 How to work:
 1. Start from the alerts. Use list_open_alerts to see what is waiting, then analyse_alert_impact for each alert you discuss.
-2. Use get_sensor_evidence to show why the model raised an alert, get_supplier_record for a supplier's delivery record,
-   and the plant tools (oee_summary, failures, work_order_history) for line and asset history.
+2. Use get_sensor_evidence to show why the model raised an alert, get_field_reports for inspection photos and supplier
+   messages, get_supplier_record for a supplier's delivery record, and the plant tools (oee_summary, failures,
+   work_order_history) for line and asset history. When an inspection confirms the fault, say so; when it contradicts
+   the prediction, recommend checking before spending on an express option.
 3. When two alerts need the same spare, say so, explain who gets the part first and how the other one is covered.
 4. Recommend one option per alert. Prefer the option the rules recommend unless the worst case or the customer lines at
    risk give a reason to choose another, and say which reason.

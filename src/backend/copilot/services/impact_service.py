@@ -14,6 +14,7 @@ from copilot.core.alert_claims import Repair, open_claims
 from copilot.core.bridge_model import BridgeCatalog, SparePart
 from copilot.core.decisions import Decision, apply_decisions
 from copilot.core.errors import ImpactError
+from copilot.core.field_inputs import SupplierUpdate, revise_expected
 from copilot.core.impact_analysis import assemble_report
 from copilot.core.impact_model import (
     AlertFacts,
@@ -44,8 +45,11 @@ class ImpactService:
 
     def __init__(self, bridge: BridgeCatalog, plant_catalog: PlantCatalog, alerts: AlertBook,
                  reliability: SupplierReliabilityService, connection_manager: WorldStore,
-                 decisions: Callable[[], list[Decision]] | None = None) -> None:
+                 decisions: Callable[[], list[Decision]] | None = None,
+                 supplier_updates: Callable[[], list[SupplierUpdate]] | None = None) -> None:
         self.bridge = bridge
+        # Supplier messages read by Gemini revise open orders from the moment they arrived.
+        self.supplier_updates = supplier_updates
         # Approved decisions change stock and queues from their moment on; None means no approvals are applied.
         self.decisions = decisions
         self.alerts = alerts
@@ -116,8 +120,10 @@ class ImpactService:
                      now: datetime) -> tuple[OpenOrder, ...]:
         late = timedelta(days=supplier.expected_days_late if supplier else 0.0)
         frame = q.open_spare_orders(self.connection_manager, site, spare.spare_part_id, now)
-        return tuple(OpenOrder(r.po_id, r.supplier_id, int(r.quantity), pd.Timestamp(r.promised_at).to_pydatetime(),
-                               max(pd.Timestamp(r.promised_at).to_pydatetime() + late, now)) for r in frame.itertuples())
+        orders = [OpenOrder(r.po_id, r.supplier_id, int(r.quantity), pd.Timestamp(r.promised_at).to_pydatetime(),
+                            max(pd.Timestamp(r.promised_at).to_pydatetime() + late, now)) for r in frame.itertuples()]
+        updates = self.supplier_updates() if self.supplier_updates else []
+        return tuple(revise_expected(o, updates, now) for o in orders)
 
     def _candidate_orders(self, asset: AssetContext, part_ids: tuple[str, ...], now: datetime) -> tuple[OrderAtRisk, ...]:
         frame = q.open_customer_lines(self.connection_manager, asset.plant_id, part_ids, now.date(), CUSTOMER_HORIZON_DAYS)
