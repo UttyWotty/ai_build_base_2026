@@ -5,8 +5,8 @@ Times are targets. Keep the top-bar clock on "Bearing squeeze at US1" unless a s
 
 | Time | Screen | Say |
 |---|---|---|
-| 0:00 | Title card, then the control room | "A failure alert is only useful if the repair can happen in time. That depends on stores, purchasing, and customer service, and that is where plants lose days." |
-| 0:20 | Headline row | "It is 02:00 on 25 July at our US plant. Three alerts are open, and two of them are fighting over the same spare." |
+| 0:00 | Title card, then Live at "Bearing week at US1", press Run at 3 h/s | "A failure alert is only useful if the repair can happen in time. That depends on stores, purchasing, and customer service, and that is where plants lose days." |
+| 0:20 | The feed streams; at 25 Jul 02:00 the alert arrives, the clock pauses, the autopilot starts | "The plant runs; machines stop and restart. At 02:00 a new alert arrives, and the copilot picks it up on its own." |
 | 0:35 | Conflict banner, spare and supplier cards | "One bearing set on the shelf, two spindles wearing out. The replacement is with a supplier who was on time 66% of the time in the last 90 days. That comes from a governed metric, and here is its SQL fingerprint." |
 | 0:55 | Select the US1-L2-01 alert; options table | "Here is every way to get the part, priced. Waiting for the open order costs 190 hours and 94 thousand dollars, with four customer orders at risk. An air transfer from our German site costs 650 dollars." |
 | 1:20 | Sensor chart | "This is why the model raised the alert: spindle vibration climbing past its normal range over the week." |

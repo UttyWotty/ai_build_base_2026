@@ -112,6 +112,8 @@ The app ships as one container. `Dockerfile` builds the React app in a Node stag
 | `GET /api/scenarios` | The named demo moments |
 | `GET /api/overview?as_of=` | Open alerts with their recommended option, and the headline numbers |
 | `GET /api/alerts/{id}/impact?as_of=`, `.../evidence` | One alert's impact analysis and sensor evidence |
+| `GET /api/events?start=&end=` | The plant event feed for a window (at most 31 days): alerts, breakdowns, restorations, spare movements |
+| `GET /api/value` | The track record |
 | `GET /api/proposals`, `POST /api/proposals/{id}/status` | The approval queue |
 | `POST /api/agent/stream` | The agent's run as server-sent events: each tool call and result live, then the checked answer |
 
@@ -120,6 +122,7 @@ The app ships as one container. `Dockerfile` builds the React app in a Node stag
 The web app is React (Vite, TypeScript, Tailwind) in `src/frontend/`, talking to the FastAPI backend in `src/backend/`. For development, run `make api` and `make web` in two terminals and open http://localhost:5173; the dev server forwards `/api` to the backend. In the container, the backend serves the built app itself, so there is one service and one URL.
 
 The top bar sets the demo clock: a named scenario or any time in the data. Every page answers as of that moment.
+- **Live.** The plant replayed as it happens. Press Run and the clock advances 1, 3, or 6 hours per second. Alerts, breakdowns, restorations, and spare orders and receipts stream into the event feed. With **Autopilot** on, every alert that opens a work order pauses the clock while Gemini triages it: impact, conflicts, the best option, and a proposal for approval. Then the clock runs on.
 - **Control room.** Headline numbers (open alerts, spare conflicts, and the downtime and cost the plan avoids), then the alert list and the selected alert. It shows the conflict, the spare across sites, the supplier's governed on-time delivery, the rules' pick against what the site would do alone, every priced option, the sensor evidence against its normal band, and the customers at risk. **Draft the plan with the copilot** runs Gemini and streams each tool call as it happens.
 - **Copilot.** Free questions, with suggested ones. Each run shows its live tool timeline, the answer, and the verified badge.
 - **Approvals.** The proposals, with approve and reject.

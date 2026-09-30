@@ -205,3 +205,15 @@ export interface TrackRecord {
   cases: ValueCase[]
   method: string[]
 }
+
+export type EventSeverity = 'info' | 'warning' | 'critical' | 'good'
+
+export interface PlantEvent {
+  at: string
+  kind: string
+  site_id: string
+  subject: string
+  title: string
+  severity: EventSeverity
+  alert_id: string | null
+}

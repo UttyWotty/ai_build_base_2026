@@ -7,6 +7,12 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 ## [Unreleased]
 
 ### Added
+- Live mode (the Live page): the demo clock runs at 1, 3, or 6 hours per second; a plant event feed streams alerts,
+  breakdowns, restorations, and spare orders and receipts; with the autopilot on, every alert that opens a work order
+  pauses the clock while Gemini triages it and creates a proposal, then the clock runs on.
+- `GET /api/events` and the pure event feed rules; alerts attached to an existing order are marked as covered.
+
+### Added
 - Value backtest (`make value`, `GET /api/value`, the Track record page): every alert of the test period analysed as it
   was raised and scored at its real outcome, the copilot against the site acting alone. On the default data: net
   197,949 USD, 662.1 h of downtime avoided, 1,860 USD spent on false alerts.

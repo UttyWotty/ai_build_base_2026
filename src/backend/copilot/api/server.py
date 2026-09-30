@@ -13,7 +13,15 @@ from pathlib import Path
 from fastapi import FastAPI
 
 from copilot.api.dependencies import SELECTION_STATE, SERVICES_STATE
-from copilot.api.endpoints import agent, alerts, catalog, health, proposals, value
+from copilot.api.endpoints import (
+    agent,
+    alerts,
+    catalog,
+    events,
+    health,
+    proposals,
+    value,
+)
 from copilot.api.static_site import mount_frontend
 from copilot.services.factory import CopilotServices, default_services
 from copilot.services.settings import FRONTEND_DIST_DIR
@@ -35,7 +43,7 @@ def create_app(load_services: Callable[[], CopilotServices] = default_services,
         yield
 
     app = FastAPI(title=TITLE, lifespan=lifespan)
-    for module in (health, catalog, alerts, proposals, value, agent):
+    for module in (health, catalog, alerts, events, proposals, value, agent):
         app.include_router(module.router)
     mount_frontend(app, frontend_dir)
     return app
