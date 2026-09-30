@@ -2,14 +2,16 @@
 // The run streams into the panel and ends with a proposal waiting for approval; finished runs stay listed below.
 // The clock pauses while the agent works, so its analysis is for the moment the alert arrived.
 import { Bot } from 'lucide-react'
-import { shortTime } from '../lib/format'
+import { hours, money, optionLabel, shortTime } from '../lib/format'
 import { type Triage, triageQuestion } from '../lib/live'
-import type { AgentDoneEvent } from '../api/types'
+import { Check, X } from 'lucide-react'
+import type { AgentDoneEvent, Proposal } from '../api/types'
 import { AgentRunView, Answer } from './AgentRunView'
 import { Badge, Card } from './ui'
 
-export function AutopilotPanel({ triages, enabled, onFinished }:
-  { triages: Triage[]; enabled: boolean; onFinished: (alertId: string, result: AgentDoneEvent | null) => void }) {
+export function AutopilotPanel({ triages, enabled, onFinished, pending, onDecide }:
+  { triages: Triage[]; enabled: boolean; onFinished: (alertId: string, result: AgentDoneEvent | null) => void;
+    pending: Proposal[]; onDecide: (id: string, status: 'approved' | 'rejected') => void }) {
   const active = triages.find((t) => !t.done)
   const finished = triages.filter((t) => t.done)
   return (
@@ -31,6 +33,9 @@ export function AutopilotPanel({ triages, enabled, onFinished }:
         <div className="space-y-2">
           <div className="text-sm font-medium">Latest: {finished[finished.length - 1].event.subject}, raised {shortTime(finished[finished.length - 1].event.at)}</div>
           <Answer done={finished[finished.length - 1].result!} />
+          {pending.filter((p) => p.alert_id === finished[finished.length - 1].event.alert_id).map((p) => (
+            <DecisionBar key={p.proposal_id} proposal={p} onDecide={onDecide} />
+          ))}
         </div>
       )}
       {finished.length > 0 && (
@@ -39,5 +44,18 @@ export function AutopilotPanel({ triages, enabled, onFinished }:
         </ul>
       )}
     </Card>
+  )
+}
+
+function DecisionBar({ proposal: p, onDecide }: { proposal: Proposal; onDecide: (id: string, s: 'approved' | 'rejected') => void }) {
+  return (
+    <div className="flex flex-wrap items-center gap-3 rounded-lg border border-brand-100 bg-brand-50 px-3 py-2 text-sm">
+      <span className="font-medium">Proposal: {optionLabel(p.option_kind)} from {p.option_source}</span>
+      <span className="text-slate-600">{money(p.extra_cost_usd)} extra, {hours(p.downtime_hours)} down</span>
+      <span className="ml-auto flex gap-2">
+        <button onClick={() => onDecide(p.proposal_id, 'approved')} className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-emerald-700"><Check className="h-3.5 w-3.5" />Approve</button>
+        <button onClick={() => onDecide(p.proposal_id, 'rejected')} className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700"><X className="h-3.5 w-3.5" />Reject</button>
+      </span>
+    </div>
   )
 }

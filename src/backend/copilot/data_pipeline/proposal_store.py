@@ -52,6 +52,12 @@ class ProposalStore:
                 return record
         raise ProposalStoreError(f"Unknown proposal {proposal_id}")
 
+    def clear(self) -> int:
+        """Remove every proposal; return how many there were."""
+        count = len(self.all())
+        self._write([])
+        return count
+
     def _write(self, proposals: list[dict[str, object]]) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.path.write_text(json.dumps({PROPOSALS_KEY: proposals}, indent=JSON_INDENT, default=str) + "\n",

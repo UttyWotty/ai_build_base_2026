@@ -23,6 +23,7 @@ async def events(request: Request, start: str, end: str) -> dict[str, object]:
     first, last = parse_as_of(start), parse_as_of(end)
     if last < first or last - first > MAX_WINDOW:
         raise HTTPException(BAD_REQUEST, "The window must run forward and span at most 31 days")
-    feed = EventFeed(services(request).impact).between(first, last)
+    bundle = services(request)
+    feed = EventFeed(bundle.impact, getattr(bundle, "outcomes", None)).between(first, last)
     return {"events": [{"at": e.at.strftime(TIME_FORMAT), "kind": e.kind, "site_id": e.site_id, "subject": e.subject,
                         "title": e.title, "severity": e.severity.value, "alert_id": e.alert_id} for e in feed]}

@@ -22,7 +22,7 @@ export function AlertList({ alerts, selected, onSelect }:
           <div className="mt-1 text-sm text-slate-700">{modeLabel(a.failure_mode)}</div>
           <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
             <span>Repair by {shortTime(a.repair_deadline)}</span>
-            <span className="font-medium text-slate-700">{optionLabel(a.recommended.kind)} · {money(a.recommended.total_cost_usd)}</span>
+            <span className="font-medium text-slate-700">{optionLabel(a.recommended.kind, a.recommended.source)} · {money(a.recommended.total_cost_usd)}</span>
           </div>
         </button>
       ))}

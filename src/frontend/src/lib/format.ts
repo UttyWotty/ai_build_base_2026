@@ -38,7 +38,10 @@ export function percent(value: number | null | undefined): string {
   return `${value.toFixed(1)}%`
 }
 
-export function optionLabel(kind: string): string {
+export const DECISION_PREFIX = 'DEC-'
+
+export function optionLabel(kind: string, source = ''): string {
+  if (source.startsWith(DECISION_PREFIX)) return 'Approved plan'
   return OPTION_LABELS[kind] ?? kind
 }
 

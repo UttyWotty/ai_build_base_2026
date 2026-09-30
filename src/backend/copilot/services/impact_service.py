@@ -5,12 +5,14 @@ impact rules. The analysis time defaults to the moment the alert was raised.
 """
 from __future__ import annotations
 
+from collections.abc import Callable
 from datetime import datetime, timedelta
 
 import pandas as pd
 
 from copilot.core.alert_claims import Repair, open_claims
 from copilot.core.bridge_model import BridgeCatalog, SparePart
+from copilot.core.decisions import Decision, apply_decisions
 from copilot.core.errors import ImpactError
 from copilot.core.impact_analysis import assemble_report
 from copilot.core.impact_model import (
@@ -41,8 +43,11 @@ class ImpactService:
     """Impact analysis for alerts."""
 
     def __init__(self, bridge: BridgeCatalog, plant_catalog: PlantCatalog, alerts: AlertBook,
-                 reliability: SupplierReliabilityService, connection_manager: WorldStore) -> None:
+                 reliability: SupplierReliabilityService, connection_manager: WorldStore,
+                 decisions: Callable[[], list[Decision]] | None = None) -> None:
         self.bridge = bridge
+        # Approved decisions change stock and queues from their moment on; None means no approvals are applied.
+        self.decisions = decisions
         self.alerts = alerts
         self.reliability = reliability
         self.connection_manager = connection_manager
@@ -99,9 +104,12 @@ class ImpactService:
                           and a.component == spare.component]
             if site == site_id and alert not in candidates:
                 candidates.append(alert)
-            return SparePosition(site, q.stock_on_hand(self.connection_manager, site, spare.spare_part_id, now),
-                                 self._open_orders(site, spare, supplier, now),
-                                 open_claims(candidates, repairs, self.pf_days, now))
+            raw = SparePosition(site, q.stock_on_hand(self.connection_manager, site, spare.spare_part_id, now),
+                                self._open_orders(site, spare, supplier, now),
+                                open_claims(candidates, repairs, self.pf_days, now))
+            if self.decisions is None:
+                return raw
+            return apply_decisions(raw, spare.spare_part_id, self.decisions(), now, for_alert=alert.alert_id)
         return position(site_id), tuple(position(s) for s in self.bridge.sister_sites(site_id))
 
     def _open_orders(self, site: str, spare: SparePart, supplier: SupplierReliability | None,

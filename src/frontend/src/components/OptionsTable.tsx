@@ -3,7 +3,7 @@
 // Totals are extra spend plus lost contribution, the cost beyond a normal planned repair.
 import { Star } from 'lucide-react'
 import type { RecoveryOption } from '../api/types'
-import { hours, money, optionLabel, shortTime } from '../lib/format'
+import { DECISION_PREFIX, hours, money, optionLabel, shortTime } from '../lib/format'
 
 const HEADERS = ['Option', 'Source', 'Spare ready', 'Extra cost', 'Downtime', 'Worst case', 'Lost contribution', 'Customer lines', 'Total']
 
@@ -22,10 +22,10 @@ export function OptionsTable({ options }: { options: RecoveryOption[] }) {
               <td className="whitespace-nowrap px-3 py-2 font-medium">
                 <span className="inline-flex items-center gap-1.5">
                   {o.recommended_by_rules && <Star className="h-3.5 w-3.5 fill-brand-600 text-brand-600" />}
-                  {optionLabel(o.kind)}
+                  {optionLabel(o.kind, o.source)}
                 </span>
               </td>
-              <td className="whitespace-nowrap px-3 py-2 font-mono text-xs">{o.source}</td>
+              <td className="whitespace-nowrap px-3 py-2 font-mono text-xs">{o.source.startsWith(DECISION_PREFIX) ? 'approved' : o.source}</td>
               <td className="whitespace-nowrap px-3 py-2 tabular-nums">{shortTime(o.ready_at)}</td>
               <td className="px-3 py-2 tabular-nums">{money(o.extra_cost_usd)}</td>
               <td className="px-3 py-2 tabular-nums">{hours(o.downtime_hours)}</td>
