@@ -21,7 +21,7 @@ The agent never writes SQL and never invents a number. Details and milestones ar
 | Version | Milestone | Status |
 |---|---|---|
 | 0.1.0 | Monorepo foundation | Done |
-| 0.2.0 | Model layer (Gemini and local models) | Planned |
+| 0.2.0 | Model layer (Gemini and local models) | In progress |
 | 0.3.0 | Bridge and impact analysis | Planned |
 | 0.4.0 | Operations agent | Planned |
 | 0.5.0 | Web app | Planned |
@@ -35,6 +35,7 @@ semantic/pdm/, semantic/supply/   governed definitions per component
 evaluation/, demo/                evaluation sets and demo recipes per component
 src/pdm_oee/                      plant: simulation, conform, OEE, failure prediction, alerts, investigation
 src/supply_ontology/              supply: simulation, conform, ontology and metrics, compiler, governed questions
+src/llm_gateway/                  model gateway: Gemini or local model behind one interface
 tests/<package>/                  tests per package
 tools/check_code_rules.py         file length, function length, and summary docstring rules
 docs/plan.md                      problem, architecture, milestones
@@ -55,6 +56,14 @@ make settings   # prints the model endpoint and data directories in effect
 ```
 
 Per-machine settings go in `.env`, copied from `.env.example`. The Makefile loads it for every target.
+
+## Models
+
+Every language feature goes through `src/llm_gateway`, and one setting chooses the model:
+- **`LLM_PROVIDER=gemini`** (default) uses Gemini through the google-genai SDK. Locally it needs `GEMINI_API_KEY`, a free key from aistudio.google.com. On Google Cloud it uses Vertex AI with the service account instead. `GEMINI_MODEL` picks the model.
+- **`LLM_PROVIDER=local`** uses an OpenAI-compatible server such as `mlx_lm.server` at `LLM_BASE_URL`, serving `LLM_MODEL`. It is the offline fallback.
+
+Command lines accept `--provider`, `--model`, and `--base-url` for one run, for example `make pdm-eval` or `.venv/bin/supply-eval-nl --provider local`. The unit tests use scripted models and never call a real one.
 
 Component commands carry a prefix, for example `make pdm-predict`, `make pdm-ui`, `make supply-demo-offline`, and `make supply-ui`. See `docs/components/pdm.md` and `docs/components/supply.md`.
 

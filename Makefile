@@ -19,7 +19,7 @@ setup:
 	$(PYTHON) -m pip install -q -e ".[dev]"
 
 settings:
-	@$(PYTHON) -c "from pdm_oee.services import settings as p; from supply_ontology.services import settings as s; print('LLM_BASE_URL=' + p.LLM_BASE_URL); print('LLM_MODEL=' + p.LLM_MODEL); print('PDM_DATA_DIR=' + str(p.DATA_DIR)); print('SUPPLY_DATA_DIR=' + str(s.DATA_DIR))"
+	@$(PYTHON) -c "from llm_gateway.factory import default_selection as d; from pdm_oee.services import settings as p; from supply_ontology.services import settings as s; m = d(); print('LLM_PROVIDER=' + m.provider.value); print('MODEL=' + m.label); print('LLM_BASE_URL=' + m.base_url + ' (local only)'); print('PDM_DATA_DIR=' + str(p.DATA_DIR)); print('SUPPLY_DATA_DIR=' + str(s.DATA_DIR))"
 
 test:
 	$(PYTHON) -m pytest -q

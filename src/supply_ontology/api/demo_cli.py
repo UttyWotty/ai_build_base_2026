@@ -9,7 +9,8 @@ from __future__ import annotations
 import argparse
 import json
 
-from supply_ontology.data_pipeline.llm_client import OpenAICompatibleClient
+from llm_gateway import build_llm_client
+from llm_gateway.cli_args import add_model_arguments, selection_from_args
 from supply_ontology.data_pipeline.semantic_files import (
     load_catalog,
 )
@@ -29,9 +30,6 @@ from supply_ontology.services.service_factory import (
 )
 from supply_ontology.services.settings import (
     DEMO_DIR,
-    LLM_BASE_URL,
-    LLM_MODEL,
-    LLM_TIMEOUT_SECONDS,
     SEMANTIC_DIR,
 )
 
@@ -43,8 +41,7 @@ PERCENT = 100
 def main(argv: list[str] | None = None) -> int:
     """Run the demo once and save it."""
     parser = argparse.ArgumentParser(description="Run the consistency demo against a live model.")
-    parser.add_argument("--base-url", default=LLM_BASE_URL)
-    parser.add_argument("--model", default=LLM_MODEL)
+    add_model_arguments(parser)
     parser.add_argument("--offline", action="store_true", help="only the team recipes and the governed answer; no model")
     args = parser.parse_args(argv)
     catalog = load_catalog(SEMANTIC_DIR)
@@ -53,12 +50,13 @@ def main(argv: list[str] | None = None) -> int:
     if args.offline:
         print_recipes(compare_recipes(recipes, raw_database, query_service))
         return 0
-    client = OpenAICompatibleClient(args.base_url, args.model, LLM_TIMEOUT_SECONDS)
+    selection = selection_from_args(args)
+    client = build_llm_client(selection)
     report = ConsistencyDemo(NLService(catalog, query_service, client), raw_database, recipes=recipes).run()
     print_report(report)
-    path = DEMO_DIR / f"{args.model.translate(SLUG_REPLACEMENTS)}.json"
+    path = DEMO_DIR / f"{selection.label.translate(SLUG_REPLACEMENTS)}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(report_to_dict(report, args.model), indent=2, default=str) + "\n", encoding="utf-8")
+    path.write_text(json.dumps(report_to_dict(report, selection.label), indent=2, default=str) + "\n", encoding="utf-8")
     print(f"\nSaved: {path}")
     return 0
 

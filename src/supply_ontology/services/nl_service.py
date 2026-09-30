@@ -40,7 +40,7 @@ from supply_ontology.core.term_matcher import (
 from supply_ontology.data_pipeline.llm_client import (
     LLMClient,
     LLMError,
-    OpenAICompatibleClient,
+    build_llm_client,
 )
 from supply_ontology.services.nl_models import (
     MODEL_UNAVAILABLE,
@@ -54,11 +54,6 @@ from supply_ontology.services.nl_models import (
     Unanswerable,
 )
 from supply_ontology.services.query_service import QueryService
-from supply_ontology.services.settings import (
-    LLM_BASE_URL,
-    LLM_MODEL,
-    LLM_TIMEOUT_SECONDS,
-)
 
 MAX_ATTEMPTS = 2
 DISTINCT_SQL = "SELECT DISTINCT {attribute} AS value FROM {entity} WHERE {attribute} IS NOT NULL ORDER BY 1"
@@ -70,7 +65,7 @@ class NLService:
     def __init__(self, catalog: SemanticCatalog, query_service: QueryService, llm_client: LLMClient | None = None) -> None:
         self.catalog = catalog
         self.query_service = query_service
-        self.llm_client = llm_client or OpenAICompatibleClient(LLM_BASE_URL, LLM_MODEL, LLM_TIMEOUT_SECONDS)
+        self.llm_client = llm_client or build_llm_client()
         self.dimension_values = self._load_dimension_values()
         self.anchors = calendar_anchors(query_service.as_of)
         self.context_index = build_context_index(catalog)

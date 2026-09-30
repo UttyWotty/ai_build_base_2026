@@ -13,6 +13,3 @@ SEMANTIC_DIR = Path(os.getenv("SUPPLY_SEMANTIC_DIR", "semantic/supply"))
 CONFORMED_DIR = DATA_DIR / "conformed"
 SOURCES_DIR = DATA_DIR / "sources"
 DEMO_DIR = DATA_DIR / "demo"
-LLM_BASE_URL = os.getenv("LLM_BASE_URL", "http://127.0.0.1:8080/v1")
-LLM_MODEL = os.getenv("LLM_MODEL", "ailexleon/Huihui-Qwen3.8-27B-abliterated-mlx-6Bit")
-LLM_TIMEOUT_SECONDS = float(os.getenv("LLM_TIMEOUT_SECONDS", "300"))
