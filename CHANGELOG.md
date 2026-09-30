@@ -7,6 +7,19 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 ## [Unreleased]
 
 ### Added
+- `semantic/bridge/bridge.yaml`: sites to supply plants, components to spares with suppliers and min/max policies,
+  urgent transfer terms, lines to customer parts with their contribution, and the customer-risk rule.
+- Bridge builder (`make bridge`): validates every bridge id against both worlds, then simulates each site's spares
+  store from the plant's repair history, with order lateness drawn from each supplier's delivery record.
+- Impact analysis (`make impact A=<alert>`): point-in-time spare position with the queue of open alerts, supplier
+  reliability from the governed `supplier_otd` metric, priced recovery options, customer order lines at risk, and a
+  worst case learned only from past alert outcomes.
+
+### Fixed
+- scikit-learn is pinned to 1.7: version 1.9 trained a different classifier (31 of 41 failures caught at 0.32 false
+  alerts per asset-month instead of the documented 27 of 41 at 0.16).
+
+### Added
 - `llm_gateway` package: one `LLMClient` interface with a Gemini adapter (google-genai, AI Studio key or Vertex AI) and
   the OpenAI-compatible local adapter. `LLM_PROVIDER` chooses between them.
 - The Gemini adapter retries rate limits and server errors with capped exponential backoff, and reports an empty reply

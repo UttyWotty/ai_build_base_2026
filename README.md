@@ -22,7 +22,7 @@ The agent never writes SQL and never invents a number. Details and milestones ar
 |---|---|---|
 | 0.1.0 | Monorepo foundation | Done |
 | 0.2.0 | Model layer (Gemini and local models) | In progress |
-| 0.3.0 | Bridge and impact analysis | Planned |
+| 0.3.0 | Bridge and impact analysis | In progress |
 | 0.4.0 | Operations agent | Planned |
 | 0.5.0 | Web app | Planned |
 | 0.6.0 | Cloud-ready (Cloud Run, Vertex AI) | Planned |
@@ -36,6 +36,8 @@ evaluation/, demo/                evaluation sets and demo recipes per component
 src/pdm_oee/                      plant: simulation, conform, OEE, failure prediction, alerts, investigation
 src/supply_ontology/              supply: simulation, conform, ontology and metrics, compiler, governed questions
 src/llm_gateway/                  model gateway: Gemini or local model behind one interface
+src/copilot/                      bridge, spares simulation, impact analysis (agent and app to come)
+semantic/bridge/                  governed links between the plant and the supply network
 tests/<package>/                  tests per package
 tools/check_code_rules.py         file length, function length, and summary docstring rules
 docs/plan.md                      problem, architecture, milestones
@@ -49,7 +51,8 @@ Requires Python 3.11.
 
 ```bash
 make setup      # creates .venv and installs the package with dev tools
-make data       # generates and conforms both synthetic worlds (about 25 seconds)
+make data       # generates and conforms both worlds, then the bridge (about 30 seconds)
+make models     # trains the failure model and replays its alerts (about 20 seconds)
 make test       # runs the test suite
 make lint       # runs ruff and the code rule checks
 make settings   # prints the model endpoint and data directories in effect
@@ -66,6 +69,26 @@ Every language feature goes through `src/llm_gateway`, and one setting chooses t
 Command lines accept `--provider`, `--model`, and `--base-url` for one run, for example `make pdm-eval` or `.venv/bin/supply-eval-nl --provider local`. The unit tests use scripted models and never call a real one.
 
 Component commands carry a prefix, for example `make pdm-predict`, `make pdm-ui`, `make supply-demo-offline`, and `make supply-ui`. See `docs/components/pdm.md` and `docs/components/supply.md`.
+
+## Impact analysis
+
+`make impact A=<alert id>` (optionally `AS_OF=2026-07-25T02:00`) answers what an alert means beyond the machine:
+- **Spares.** Stock at the site and at the sister site, open orders, and the other open alerts queued for the same spare.
+- **Supplier.** The governed `supplier_otd` metric over the last 90 days, with its SQL fingerprint, and the expected lateness.
+- **Options.** Every way to get the spare (own stock, open order, air transfer, broker, new order), each priced as extra spend plus lost contribution, with the customer order lines due during the outage.
+- **Worst case.** Downtime if the failure comes as soon as the fastest past alert of the same failure mode. Only outcomes already in the past are used.
+
+On the default data, the spindle-bearing alert on US1-L2-01 at 2026-07-25 02:00 shows the problem the copilot exists for:
+
+```
+spare SP-1001 Spindle bearing set: 1 on hand at US1, queue [AL-US1-L3-01-2026072017, AL-US1-L2-01-2026072502]
+supplier V10001: on time 66.1%, expected 2 days late (sql 59337a47eb2e9a5d)
+* transfer      DE1           ready 07-27 02:00  extra   650  down  10.0 h  lost       0  orders at risk 0
+  emergency_buy broker        ready 07-28 02:00  extra 9,700  down  10.0 h  lost       0  orders at risk 0
+  open_order    SPO-US1-0061  ready 08-04 14:18  extra     0  down 190.3 h  lost  93,825  orders at risk 4
+```
+
+The bridge (`semantic/bridge/bridge.yaml`) links sites to supply plants, components to spares and suppliers, and lines to the customer parts they make. `make bridge` simulates each site's spares store from the plant's repair history and the suppliers' real delivery record in the supply world.
 
 ## Ground rules
 

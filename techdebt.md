@@ -16,6 +16,11 @@ Component-level limitations carried over from the imported packages are listed i
 - [ ] **Docstrings in the imported packages still name the standalone make targets** (for example `make data` where
   this repository now has `make pdm-data`). The commands in `README.md` and `docs/components/` are correct.
 
+- [ ] **The impact service has no service-level test.** Its rules are unit-tested and it was checked on the full data;
+  a test with an in-memory world store (`WorldStore.register_frame`) would pin the query layer too.
+- [ ] **The line-stops rule is coarse:** any asset outage stops its whole line, and lost output uses the running
+  production order's rate. Good enough for ranking options; not a capacity model.
+
 ## P2 - Carried over from the components
 
 - [ ] **pdm_oee:** the model store uses pickle; early warnings for long P-F modes score as false; the simulated plant is

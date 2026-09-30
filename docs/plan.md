@@ -41,12 +41,14 @@ The two simulations already line up:
 - Plant sites US1 and DE1 correspond to supply plants US01 and DE01.
 - The supply network stocks the bearing, hydraulic, and electrical parts that the plant's failure modes consume.
 
-Planted stories on both sides make the joined demo concrete:
-- A spindle bearing on asset US1-L2-01 fails on 2026-07-26 after six days of warning.
-- Supplier V10001, which supplies 18 bearing parts, has been delivering late since early 2026.
-- DE01 holds three times its normal bearing stock.
+The bridge (`semantic/bridge/bridge.yaml`) gives each site a small maintenance spares store. The plant's own repairs
+consume it, and it is replenished from supply-network suppliers, arriving as late as those suppliers really deliver there.
+This produces the demo moment without any extra planting:
+- Supplier V10001, which supplies the spindle bearing sets, has been on time for only 66% of its lines in the 90 days before 2026-07-25.
+- At 02:00 that day, US1 has two open spindle-bearing alerts, on US1-L3-01 (raised 07-20) and US1-L2-01 (the planted six-day failure, raised that hour).
+- US1 has one bearing set on the shelf; the replacement ordered from V10001 on 07-19 is promised for 08-02. DE1 has one set.
 
-The bridge maps the spindle bearing to one of V10001's bearing parts. The demo question then has a real answer: expedite from the late supplier, or transfer from DE01?
+The copilot's answer: the overdue US1-L3-01 alert takes the set, and an air transfer from DE1 covers US1-L2-01 for 650 USD. Waiting for V10001's order would mean 190 hours of downtime, 94 thousand USD of lost contribution, and four customer order lines at risk.
 
 ## 4. Architecture
 
