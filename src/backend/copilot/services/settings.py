@@ -19,6 +19,8 @@ BRIDGE_SEED = int(os.getenv("BRIDGE_SEED", "20261018"))
 PROPOSALS_PATH = Path(os.getenv("PROPOSALS_PATH", "data/copilot/proposals.json"))
 # The demo clock: the moment the copilot treats as now. The planted bearing alert was raised at this time.
 DEMO_AS_OF = os.getenv("DEMO_AS_OF", "2026-07-25T02:00")
+# The built React app; absent during local development, where Vite serves it.
+FRONTEND_DIST_DIR = Path(os.getenv("FRONTEND_DIST_DIR", "src/frontend/dist"))
 
-__all__ = ["BRIDGE_DATA_DIR", "BRIDGE_SEED", "BRIDGE_SEMANTIC_DIR", "DEMO_AS_OF", "PROPOSALS_PATH", "PLANT_CONFORMED_DIR", "PLANT_SEMANTIC_DIR",
+__all__ = ["BRIDGE_DATA_DIR", "BRIDGE_SEED", "BRIDGE_SEMANTIC_DIR", "DEMO_AS_OF", "FRONTEND_DIST_DIR", "PROPOSALS_PATH", "PLANT_CONFORMED_DIR", "PLANT_SEMANTIC_DIR",
            "SUPPLY_CONFORMED_DIR"]

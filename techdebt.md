@@ -23,6 +23,10 @@ Component-level limitations carried over from the imported packages are listed i
 
 ## P1 - Known limitations
 
+- [ ] **The Streamlit app (`src/backend/copilot/ui`, `make app`) is superseded by the React app.** Delete it and its
+  tests after the first successful Cloud Run deploy of the React version.
+- [ ] **The frontend bundle is about 780 KB** (Recharts and Markdown). Code-split the chart if load time matters.
+
 - [ ] **Docstrings in the imported packages still name the standalone make targets** (for example `make data` where
   this repository now has `make pdm-data`). The commands in `README.md` and `docs/components/` are correct.
 

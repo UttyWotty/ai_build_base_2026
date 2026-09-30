@@ -49,18 +49,19 @@ emoldinounited runs a sense, reason, act loop over governed data from the plant 
 
 ## 4. A functional prototype
 
-- `make setup data models app` builds everything from seeds in about a minute and opens the web app.
+- `make setup data models`, then `make api` and `make web`, builds everything from seeds and opens the web app.
+- The React frontend streams the agent's tool calls live from the FastAPI backend.
 - **Control room:** the headline savings, then per alert the spare conflict, the supplier record, the priced options,
   the customers at risk, and the sensor evidence. One button asks the agent to draft the plan.
 - **Ask the copilot:** free questions, with a verified badge and the full tool trace.
 - **Approvals:** approve or reject proposals.
 - **How it works:** the loop, the architecture, and the guardrails.
-- Quality: 395 automated tests, a code-rule checker, and point-in-time tools, so no answer uses information from after
+- Quality: 401 backend and 5 frontend automated tests, a code-rule checker, and point-in-time tools, so no answer uses information from after
   the demo clock.
 
 ## 5. Deployment on Google Cloud
 
-- One container (`Dockerfile`) generates all data at build time and serves the app on **Cloud Run**.
+- One container (`Dockerfile`) builds the React app, generates all data at build time, and serves the API and the app on **Cloud Run**.
 - `deploy/cloudrun.sh` enables the APIs, creates a service account allowed only to call Vertex AI, and deploys from
   source with Cloud Build.
 - `docs/HANDOVER.md` lists every step with checks, costs, and teardown.

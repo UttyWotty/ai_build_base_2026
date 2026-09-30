@@ -8,7 +8,13 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException, Request
 
 from copilot.api.dependencies import tools_at
-from copilot.core.impact_summary import avoided, conflict_note, headline, recommended
+from copilot.core.impact_summary import (
+    avoided,
+    baseline,
+    conflict_note,
+    headline,
+    recommended,
+)
 
 router = APIRouter(prefix="/api")
 NOT_FOUND = 404
@@ -33,7 +39,7 @@ async def overview(request: Request, as_of: str | None = None) -> dict[str, obje
 async def impact(alert_id: str, request: Request, as_of: str | None = None) -> dict[str, object]:
     tools = tools_at(request, as_of)
     result = _checked(tools.safe(tools.analyse_alert_impact)(alert_id))
-    return {**result, "conflict": conflict_note(result)}
+    return {**result, "conflict": conflict_note(result), "baseline": baseline(result)}
 
 
 @router.get("/alerts/{alert_id}/evidence")
