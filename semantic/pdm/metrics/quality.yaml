@@ -1,0 +1,8 @@
+id: quality
+label: Quality
+description: "Share of parts produced that were good first time; reworked parts count as scrap."
+owner: quality
+numerator: good_count
+denominator: total_count
+format: percent
+synonyms: [quality rate, first pass yield, yield]

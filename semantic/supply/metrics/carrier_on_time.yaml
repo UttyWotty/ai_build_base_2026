@@ -1,0 +1,15 @@
+# Carrier on-time performance: whether each shipment arrived by the delivery date planned at tender.
+# It measures transport reliability only, independent of what was promised to customers or by suppliers.
+# Shipments are attributed to the period of their planned delivery date, in both directions.
+id: carrier_on_time
+label: Carrier on-time performance
+description: "Share of shipments delivered on or before the planned delivery date set when the shipment was tendered."
+owner: logistics
+type: ratio
+grain: shipment
+time_dimension: planned_delivery_date
+numerator: {aggregation: count_if, attribute: is_delivered_by_planned}
+denominator: {aggregation: count}
+format: percent
+synonyms: [carrier on time, carrier performance, carrier OTP, transit on time]
+not_to_be_confused_with: [otd, supplier_otd]

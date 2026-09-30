@@ -1,0 +1,8 @@
+id: mtbf
+label: Mean time between failures
+description: "Operating hours per functional failure of a component."
+owner: maintenance
+numerator: operating_hours
+denominator: functional_failures
+format: hours
+synonyms: [MTBF]

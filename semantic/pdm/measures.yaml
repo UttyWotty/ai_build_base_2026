@@ -1,0 +1,80 @@
+# Governed measures: every base quantity is defined once here, at one grain and in one unit.
+# Metrics are ratios of these measures, rolled up by summing numerator and denominator separately.
+# The OEE engine and its golden tests implement each definition word for word.
+measures:
+  calendar_time:
+    label: Calendar time
+    grain: asset_shift
+    unit: minutes
+    definition: "Shift length from shift start to shift end."
+  planned_production_time:
+    label: Planned production time
+    grain: asset_shift
+    unit: minutes
+    definition: "Calendar time minus time in states with a planned stop reason."
+  run_time:
+    label: Run time
+    grain: asset_shift
+    unit: minutes
+    definition: "Planned production time minus stops with a loss reason lasting at least small_stop_threshold_minutes."
+    parameters: {small_stop_threshold_minutes: 5}
+  run_time_all_stops:
+    label: Run time net of all stops
+    grain: asset_shift
+    unit: minutes
+    definition: "Planned production time minus every stop with a loss reason, however short."
+  ideal_run_time:
+    label: Ideal run time
+    grain: asset_shift
+    unit: minutes
+    definition: "Total count times the ideal cycle time of the product being run, summed over the products in the shift."
+  valuable_operating_time:
+    label: Valuable operating time
+    grain: asset_shift
+    unit: minutes
+    definition: "Good count times the ideal cycle time of the product being run, summed over the products in the shift."
+  nameplate_valuable_time:
+    label: Valuable operating time at nameplate speed
+    grain: asset_shift
+    unit: minutes
+    definition: "Good count times the asset's nameplate cycle time, whatever the product."
+  total_count:
+    label: Total count
+    grain: asset_shift
+    unit: parts
+    definition: "Parts produced in the shift, good and scrap, after resolving counter resets."
+  good_count:
+    label: Good count
+    grain: asset_shift
+    unit: parts
+    definition: "Total count minus scrap; reworked parts count as scrap."
+  operating_hours:
+    label: Operating hours
+    grain: asset_component
+    unit: hours
+    definition: "Hours the asset spent in the running state within the period."
+  functional_failures:
+    label: Functional failures
+    grain: asset_component
+    unit: count
+    definition: "Failure events of the component whose failure time falls in the period."
+  repair_hours:
+    label: Repair hours
+    grain: asset_component
+    unit: hours
+    definition: "Hours from failure to restoration, for repairs whose restore time falls in the period."
+  repairs:
+    label: Repairs
+    grain: asset_component
+    unit: count
+    definition: "Corrective repairs whose restore time falls in the period."
+  pm_due:
+    label: Preventive tasks due
+    grain: asset
+    unit: count
+    definition: "Preventive work orders whose due date falls in the period."
+  pm_completed_on_time:
+    label: Preventive tasks completed on time
+    grain: asset
+    unit: count
+    definition: "Preventive work orders due in the period that were completed on or before their due date."

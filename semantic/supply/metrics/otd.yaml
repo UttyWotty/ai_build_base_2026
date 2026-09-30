@@ -1,0 +1,17 @@
+# Canonical customer on-time delivery, measured against the date we committed to the customer.
+# A line counts as on time only when its full quantity is delivered (proof of delivery) by the committed date.
+# Lines are attributed to the period of their committed date and weighted equally regardless of quantity.
+id: otd
+label: On-time delivery (customer)
+description: "Share of non-cancelled customer order lines whose full quantity was delivered on or before the committed date."
+owner: planning
+type: ratio
+grain: sales_order_line
+time_dimension: committed_date
+numerator: {aggregation: count_if, attribute: is_delivered_complete_by_committed}
+denominator: {aggregation: count}
+filters:
+  - {attribute: status, operator: not_equals, value: cancelled}
+format: percent
+synonyms: [on time delivery, OTD, customer OTD, customer on time delivery, delivery performance]
+not_to_be_confused_with: [otd_vs_request, supplier_otd, carrier_on_time]

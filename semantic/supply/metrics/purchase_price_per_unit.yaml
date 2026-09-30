@@ -1,0 +1,15 @@
+# Declared variant of unit cost covering the goods price only, without freight or duty.
+# Goods are converted to USD at the FX rate on the receipt date, the same basis as landed cost.
+# Receipts are attributed to the period of their receipt date.
+id: purchase_price_per_unit
+label: Purchase price per unit
+description: "Goods value in USD at receipt-date FX divided by units received, excluding freight and duty."
+owner: procurement
+type: ratio
+grain: receipt
+time_dimension: receipt_date
+numerator: {aggregation: sum, attribute: goods_value_usd}
+denominator: {aggregation: sum, attribute: qty_received}
+format: currency_usd
+synonyms: [purchase price, unit purchase price, price paid per unit]
+not_to_be_confused_with: [landed_cost_per_unit]

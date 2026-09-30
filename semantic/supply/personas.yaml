@@ -1,0 +1,46 @@
+# Team personas: each team's own words for governed metrics and dimensions.
+# Persona phrases may add new ways to name a metric but can never point a governed term at a different metric.
+# Example questions seed the UI and the evaluation set.
+personas:
+  planning:
+    label: Planning
+    description: "Demand and supply planners who own customer service levels and inventory."
+    metric_vocabulary:
+      service level: otd
+      customer service level: otd
+      stock cover: days_of_inventory
+      inventory cover: days_of_inventory
+    dimension_vocabulary:
+      stocking location: plant.plant_id
+    example_questions:
+      - "What was our service level last quarter?"
+      - "Show days of inventory by plant for bearings"
+      - "Fill rate by customer segment by month this year"
+  procurement:
+    label: Procurement
+    description: "Buyers and category managers who own supplier performance and purchase cost."
+    metric_vocabulary:
+      vendor delivery reliability: supplier_otd
+      supplier reliability: supplier_otd
+      total landed cost: landed_cost_per_unit
+      landed price: landed_cost_per_unit
+    dimension_vocabulary:
+      buying category: part.category
+    example_questions:
+      - "How did customer delivery performance look last quarter?"
+      - "Supplier reliability by vendor by quarter"
+      - "Landed cost per unit by part family for US01"
+  logistics:
+    label: Logistics
+    description: "Transport and warehouse teams who own carriers, freight, and outbound delivery."
+    metric_vocabulary:
+      customer on time delivery rate: otd
+      carrier reliability: carrier_on_time
+      transport on time: carrier_on_time
+    dimension_vocabulary:
+      lane origin country: supplier.country
+      ship from: plant.plant_id
+    example_questions:
+      - "What was the customer on time delivery rate last quarter?"
+      - "Carrier reliability by carrier this year"
+      - "Were we on time for suppliers last quarter?"

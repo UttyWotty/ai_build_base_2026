@@ -1,0 +1,8 @@
+id: performance
+label: Performance
+description: "Ideal time for the parts produced, as a share of run time. Small stops and reduced speed lower it; above 100% means the ideal cycle time is wrong."
+owner: production
+numerator: ideal_run_time
+denominator: run_time
+format: percent
+synonyms: [performance rate, speed efficiency]

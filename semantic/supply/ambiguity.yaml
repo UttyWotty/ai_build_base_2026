@@ -1,0 +1,26 @@
+# Phrases that sound like one metric but could mean several governed metrics, with the context words that settle each meaning.
+# If the question contains context words for exactly one candidate, that candidate is bound; otherwise the assistant must ask.
+# A phrase listed here can never be a metric synonym or a persona phrase, and context words may not be shared between candidates.
+ambiguous_terms:
+  on time:
+    otd: [customer, customers, order, orders, delivery to customers]
+    supplier_otd: [supplier, suppliers, vendor, vendors, purchase order, purchase orders]
+    carrier_on_time: [carrier, carriers, transport, freight, shipment, shipments]
+  on time performance:
+    otd: [customer, customers, order, orders]
+    supplier_otd: [supplier, suppliers, vendor, vendors]
+    carrier_on_time: [carrier, carriers, transport, freight]
+  late deliveries:
+    otd: [customer, customers, order, orders]
+    supplier_otd: [supplier, suppliers, vendor, vendors]
+    carrier_on_time: [carrier, carriers, transport, freight]
+  unit cost:
+    landed_cost_per_unit: [landed, freight, duty, all in]
+    purchase_price_per_unit: [price, invoice, purchase price]
+  cost per unit:
+    landed_cost_per_unit: [landed, freight, duty, all in]
+    purchase_price_per_unit: [price, invoice, purchase price]
+  fill:
+    fill_rate: [units, unit]
+    line_fill_rate: [lines, line]
+    order_fill_rate: [orders, order]

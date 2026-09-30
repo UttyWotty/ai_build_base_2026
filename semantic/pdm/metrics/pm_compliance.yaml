@@ -1,0 +1,8 @@
+id: pm_compliance
+label: Preventive maintenance compliance
+description: "Share of preventive tasks due in the period that were completed by their due date."
+owner: maintenance
+numerator: pm_completed_on_time
+denominator: pm_due
+format: percent
+synonyms: [PM compliance, planned maintenance compliance]

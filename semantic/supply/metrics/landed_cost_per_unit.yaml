@@ -1,0 +1,15 @@
+# Canonical landed cost per unit: goods, allocated freight, and duty in USD, per unit received.
+# Goods are converted at the FX rate on the receipt date; freight is allocated by goods value share.
+# Receipts are attributed to the period of their receipt date.
+id: landed_cost_per_unit
+label: Landed cost per unit
+description: "Total landed cost in USD (goods at receipt-date FX, allocated freight, duty) divided by units received."
+owner: procurement
+type: ratio
+grain: receipt
+time_dimension: receipt_date
+numerator: {aggregation: sum, attribute: landed_cost_usd}
+denominator: {aggregation: sum, attribute: qty_received}
+format: currency_usd
+synonyms: [landed cost, landed unit cost, unit landed cost]
+not_to_be_confused_with: [purchase_price_per_unit]

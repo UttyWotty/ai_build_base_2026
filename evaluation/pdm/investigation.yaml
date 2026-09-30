@@ -1,0 +1,14 @@
+# Evaluation questions for the investigation layer: at least one expected tool, terms the answer must mention,
+# and (by default) every number in the answer traced to a tool result. Run with `make investigate-eval` against a live model.
+# Expected findings follow the planted stories in the default seed's data (see data/manifest.json).
+cases:
+  - {question: "Which asset lost the most time to small stops between 2026-06-01 and 2026-09-01?", any_of_tools: [top_loss_contributors], must_mention: [US1-L1-04]}
+  - {question: "Why did quality drop on line DE1-L2 in summer 2026? Look at 2026-01-01 to 2026-09-01.", any_of_tools: [quality_drivers], must_mention: [coolant]}
+  - {question: "What was OEE on line US1-L1 in August 2026?", any_of_tools: [oee_summary, oee_trend], must_mention: [US1-L1]}
+  - {question: "What failures did asset US1-L2-01 have between 2026-06-01 and 2026-09-01?", any_of_tools: [failures], must_mention: [spindle]}
+  - {question: "How did spindle vibration on US1-L2-01 develop from 2026-07-15 to 2026-07-27?", any_of_tools: [sensor_trend], must_mention: [vibration]}
+  - {question: "Which predictive alerts were raised for line US1-L2 in June 2026?", any_of_tools: [alerts], must_mention: [US1-L2-01]}
+  - {question: "What were the biggest OEE losses for the whole plant from 2026-07-01 to 2026-09-01?", any_of_tools: [loss_breakdown], must_mention: [speed]}
+  - {question: "What maintenance was done on DE1-L1-03 in August 2026?", any_of_tools: [work_order_history], must_mention: [pump]}
+  - {question: "Compare availability of lines US1-L2 and US1-L3 from 2026-01-01 to 2026-09-01.", any_of_tools: [oee_summary, oee_trend], must_mention: [US1-L2, US1-L3]}
+  - {question: "Which line had the most breakdown hours between 2026-06-01 and 2026-09-01?", any_of_tools: [top_loss_contributors, loss_breakdown]}

@@ -1,0 +1,92 @@
+# Governed plant model: kinds of sensors and kinds of equipment, with their components, sensors, and failure modes.
+# Individual sites, lines, and assets are generated master data; this file describes what every asset of a class has.
+# Symptoms list the sensors that react to a failure mode, in the order they react; no symptoms means no sensor warning.
+sensor_types:
+  vibration: {label: Vibration velocity (RMS), unit: mm_per_s}
+  temperature: {label: Temperature, unit: deg_c}
+  speed: {label: Rotational speed, unit: rpm}
+  pressure: {label: Pressure, unit: bar}
+  current: {label: Motor current, unit: ampere}
+
+asset_classes:
+  cnc_machining_centre:
+    label: CNC machining centre
+    components:
+      spindle_bearing: {label: Spindle bearing}
+      coolant_pump: {label: Coolant pump}
+      tool_changer: {label: Tool changer}
+    sensors:
+      spindle_vibration: {label: Spindle vibration, type: vibration, component: spindle_bearing, normal_range: [0.4, 2.8]}
+      spindle_temperature: {label: Spindle temperature, type: temperature, component: spindle_bearing, normal_range: [25, 55]}
+      spindle_speed: {label: Spindle speed, type: speed, component: spindle_bearing, normal_range: [0, 15000]}
+      coolant_temperature: {label: Coolant temperature, type: temperature, component: coolant_pump, normal_range: [16, 28]}
+    failure_modes:
+      spindle_bearing_wear:
+        label: Spindle bearing wear
+        component: spindle_bearing
+        symptoms: [spindle_vibration, spindle_temperature]
+        pf_interval_days: 6
+        repair_hours: 10
+        recommended_action: "Replace the spindle bearing set and check spindle alignment and preload."
+      coolant_pump_cavitation:
+        label: Coolant pump cavitation
+        component: coolant_pump
+        symptoms: [coolant_temperature]
+        pf_interval_days: 4
+        repair_hours: 4
+        recommended_action: "Check the coolant level and suction filter, then replace the pump impeller."
+      tool_changer_jam:
+        label: Tool changer jam
+        component: tool_changer
+        repair_hours: 2
+        recommended_action: "Clear the jam, inspect the gripper fingers, and re-reference the tool magazine."
+
+  hydraulic_press:
+    label: Hydraulic press
+    components:
+      hydraulic_pump: {label: Hydraulic pump}
+      main_seal: {label: Main cylinder seal}
+    sensors:
+      hydraulic_pressure: {label: System pressure, type: pressure, component: main_seal, normal_range: [180, 220]}
+      pressure_ripple: {label: Pressure ripple, type: pressure, component: hydraulic_pump, normal_range: [0, 4]}
+      oil_temperature: {label: Oil temperature, type: temperature, component: hydraulic_pump, normal_range: [35, 60]}
+    failure_modes:
+      hydraulic_pump_wear:
+        label: Hydraulic pump wear
+        component: hydraulic_pump
+        symptoms: [pressure_ripple, oil_temperature]
+        pf_interval_days: 21
+        repair_hours: 16
+        recommended_action: "Replace the hydraulic pump and flush the oil circuit; send an oil sample for analysis."
+      main_seal_leak:
+        label: Main cylinder seal leak
+        component: main_seal
+        symptoms: [hydraulic_pressure]
+        pf_interval_days: 5
+        repair_hours: 6
+        recommended_action: "Replace the main cylinder seal kit and inspect the rod surface for scoring."
+
+  conveyor_drive:
+    label: Conveyor drive
+    components:
+      gearbox: {label: Gearbox}
+      drive_motor: {label: Drive motor}
+    sensors:
+      motor_current: {label: Motor current, type: current, component: drive_motor, normal_range: [4, 12]}
+      gearbox_vibration: {label: Gearbox vibration, type: vibration, component: gearbox, normal_range: [0.3, 3.5]}
+      motor_temperature: {label: Motor temperature, type: temperature, component: drive_motor, normal_range: [30, 75]}
+    failure_modes:
+      gearbox_wear:
+        label: Gearbox wear
+        component: gearbox
+        symptoms: [gearbox_vibration]
+        pf_interval_days: 10
+        repair_hours: 8
+        recommended_action: "Replace the gearbox bearings and gear set; check oil level and alignment."
+      motor_overheating:
+        label: Drive motor overheating
+        component: drive_motor
+        symptoms: [motor_temperature, motor_current]
+        pf_interval_days: 3
+        repair_hours: 5
+        recommended_action: "Clean the motor cooling fins, check the belt tension, and test the winding insulation."

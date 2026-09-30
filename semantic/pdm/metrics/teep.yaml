@@ -1,0 +1,9 @@
+id: teep
+label: Total effective equipment performance
+description: "Ideal time for the good parts, as a share of all calendar time including planned stops. Measures capacity use, not how well planned time was used."
+owner: production
+numerator: valuable_operating_time
+denominator: calendar_time
+format: percent
+synonyms: [TEEP, capacity utilisation]
+not_to_be_confused_with: [oee]

@@ -1,0 +1,17 @@
+# Canonical fill rate: the unit fill rate on the first shipment of each customer order line.
+# It measures how much of the ordered quantity we could ship immediately, not whether it arrived on time.
+# Lines are attributed to the period of their first ship date.
+id: fill_rate
+label: Fill rate
+description: "Units shipped on each line's first outbound shipment divided by units ordered, over non-cancelled customer order lines."
+owner: planning
+type: ratio
+grain: sales_order_line
+time_dimension: first_ship_date
+numerator: {aggregation: sum, attribute: qty_on_first_shipment}
+denominator: {aggregation: sum, attribute: qty_ordered}
+filters:
+  - {attribute: status, operator: not_equals, value: cancelled}
+format: percent
+synonyms: [unit fill rate, fill rate units, first shipment fill rate]
+not_to_be_confused_with: [line_fill_rate, order_fill_rate]
