@@ -7,6 +7,15 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 ## [Unreleased]
 
 ### Added
+- Value backtest (`make value`, `GET /api/value`, the Track record page): every alert of the test period analysed as it
+  was raised and scored at its real outcome, the copilot against the site acting alone. On the default data: net
+  197,949 USD, 662.1 h of downtime avoided, 1,860 USD spent on false alerts.
+
+### Changed
+- `create_app` takes the frontend build directory, so tests never depend on a local build.
+- Negative money renders as "−$620".
+
+### Added
 - React frontend in `src/frontend/` (Vite, TypeScript, Tailwind, Recharts): control room, a copilot page with the
   agent's tool calls streamed live, approvals, and How it works; `make web` with a dev proxy to `make api`.
 - The backend serves the built frontend with client-side routes, so one Cloud Run service hosts the whole app.

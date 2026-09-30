@@ -1,7 +1,7 @@
 // The app shell: a navigation rail, and a top bar with the scenario picker, the demo clock, and the model in use.
 // Every page renders inside it, so the demo clock is always visible and one click away from change.
 // The model chip reads the backend's engine status, so it always shows what really answers.
-import { Bot, ClipboardCheck, Factory, Network } from 'lucide-react'
+import { Bot, ClipboardCheck, Factory, Network, TrendingUp } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 import { api } from '../api/client'
@@ -13,6 +13,7 @@ const NAV = [
   { to: '/', label: 'Control room', icon: Factory },
   { to: '/copilot', label: 'Copilot', icon: Bot },
   { to: '/approvals', label: 'Approvals', icon: ClipboardCheck },
+  { to: '/track-record', label: 'Track record', icon: TrendingUp },
   { to: '/how-it-works', label: 'How it works', icon: Network },
 ]
 

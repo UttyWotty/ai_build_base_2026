@@ -167,3 +167,41 @@ export interface AgentDoneEvent {
 }
 
 export type AgentEvent = AgentStepEvent | AgentDoneEvent
+
+export interface RealisedCost {
+  extra_cost_usd: number
+  lost_hours: number
+  lost_contribution_usd: number
+  total_usd: number
+}
+
+export interface ValueCase {
+  alert_id: string
+  asset_id: string
+  site_id: string
+  raised_at: string
+  failed_at: string | null
+  recommended_kind: string
+  baseline_kind: string
+  copilot: RealisedCost
+  baseline: RealisedCost
+  hours_saved: number
+  usd_saved: number
+}
+
+export interface TrackRecord {
+  summary: {
+    alerts: number
+    real_failures: number
+    false_alerts: number
+    plans_that_differ: number
+    hours_saved: number
+    usd_saved_on_failures: number
+    usd_spent_on_false_alerts: number
+    net_usd: number
+    by_site: Record<string, number>
+    period: { first: string | null; last: string | null }
+  }
+  cases: ValueCase[]
+  method: string[]
+}

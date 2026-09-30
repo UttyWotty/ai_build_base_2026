@@ -23,6 +23,7 @@ from copilot.services.settings import (
     SUPPLY_CONFORMED_DIR,
 )
 from copilot.services.supplier_reliability import SupplierReliabilityService
+from copilot.services.value_service import ValueService
 from pdm_oee.core.catalog import PlantCatalog
 from pdm_oee.data_pipeline.replay_store import read_replay_alerts
 from pdm_oee.data_pipeline.semantic_files import load_catalog
@@ -61,6 +62,7 @@ class CopilotServices:
     plant_catalog: PlantCatalog
     reliability: SupplierReliabilityService
     proposals: ProposalStore
+    value: ValueService
 
     def tools_at(self, as_of: datetime) -> CopilotTools:
         return CopilotTools(as_of, self.impact, self.plant_tools, self.plant_catalog, self.reliability, self.proposals)
@@ -74,7 +76,8 @@ def default_services() -> CopilotServices:
     plant_catalog = load_catalog(PLANT_SEMANTIC_DIR)
     impact = ImpactService(load_bridge(BRIDGE_SEMANTIC_DIR), plant_catalog, alerts, reliability, store)
     plant_tools = ToolBox(plant_catalog, OEEService(plant_catalog), read_replay_alerts(REPLAY_PATH))
-    return CopilotServices(impact, plant_tools, plant_catalog, reliability, ProposalStore(PROPOSALS_PATH))
+    return CopilotServices(impact, plant_tools, plant_catalog, reliability, ProposalStore(PROPOSALS_PATH),
+                           ValueService(impact))
 
 
 def default_copilot_tools(as_of: datetime) -> CopilotTools:

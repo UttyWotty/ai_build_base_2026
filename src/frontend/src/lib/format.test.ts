@@ -9,6 +9,8 @@ describe('format', () => {
     expect(money(93174.7)).toBe('$93,175')
     expect(compactMoney(93174.7)).toBe('$93.2k')
     expect(compactMoney(650)).toBe('$650')
+    expect(money(-620)).toBe('\u2212$620')
+    expect(compactMoney(-35000)).toBe('\u2212$35.0k')
     expect(hours(180.25)).toBe('180.3 h')
     expect(percent(66.14)).toBe('66.1%')
     expect([money(null), hours(undefined), percent(null)]).toEqual([MISSING, MISSING, MISSING])

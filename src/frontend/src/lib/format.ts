@@ -15,13 +15,17 @@ const OPTION_LABELS: Record<string, string> = {
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
+const MINUS = '\u2212'
+
 export function money(value: number | null | undefined): string {
   if (value === null || value === undefined) return MISSING
-  return `$${Math.round(value).toLocaleString('en-US')}`
+  const sign = value < 0 ? MINUS : ''
+  return `${sign}$${Math.abs(Math.round(value)).toLocaleString('en-US')}`
 }
 
 export function compactMoney(value: number): string {
-  return value >= 1000 ? `$${(value / 1000).toFixed(1)}k` : money(value)
+  if (Math.abs(value) < 1000) return money(value)
+  return `${value < 0 ? MINUS : ''}$${(Math.abs(value) / 1000).toFixed(1)}k`
 }
 
 export function hours(value: number | null | undefined): string {

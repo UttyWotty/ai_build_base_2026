@@ -127,6 +127,21 @@ The top bar sets the demo clock: a named scenario or any time in the data. Every
 
 The earlier Streamlit version still runs with `make app` until the React app has been deployed once.
 
+## Track record
+
+`make value` (and the Track record page) scores the copilot against what really happened. Every alert that opened a draft in the test period is analysed at the moment it was raised. The copilot's recommendation and the site's own choice are then priced at the real outcome. On the default data:
+
+| | |
+|---|---|
+| Alerts scored | 38 (26 followed by the failure, 12 false) |
+| Plans that differed from the site's own choice | 6 |
+| Downtime avoided on real failures | 662.1 h |
+| Saved on real failures | $199,809 |
+| Spent on false alerts (express buys that were not needed) | $1,860 |
+| **Net** | **$197,949** |
+
+Outcomes are used only for this evaluation, never by the recommendations. Alerts are scored independently, so a transfer is not charged for the sister site's later needs.
+
 ## Operations agent
 
 The copilot is a Gemini agent built with Google's Agent Development Kit (ADK). `make ask Q="..."` asks it one question at the demo clock (`AS_OF`, default 2026-07-25 02:00), and prints the trace and the answer.

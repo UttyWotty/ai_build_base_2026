@@ -14,7 +14,7 @@ FRONTEND := src/frontend
 -include .env
 export
 
-.PHONY: setup settings test lint data models bridge impact ask eval app api web web-build image deploy pdm-data supply-data pdm-oee pdm-predict pdm-alerts pdm-ask pdm-eval pdm-ui \
+.PHONY: setup settings test lint data models bridge impact value ask eval app api web web-build image deploy pdm-data supply-data pdm-oee pdm-predict pdm-alerts pdm-ask pdm-eval pdm-ui \
 	supply-eval supply-demo supply-demo-offline supply-ui
 
 setup:
@@ -44,6 +44,9 @@ bridge:
 
 impact:
 	$(PYTHON) -m copilot.api.impact_cli $(A) $(if $(AS_OF),--as-of $(AS_OF))
+
+value:
+	$(PYTHON) -m copilot.api.value_cli
 
 ask:
 	$(PYTHON) -m copilot.api.agent_cli "$(Q)" $(if $(AS_OF),--as-of $(AS_OF))
