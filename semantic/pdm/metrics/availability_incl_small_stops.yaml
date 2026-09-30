@@ -1,0 +1,9 @@
+id: availability_incl_small_stops
+label: Availability including small stops
+description: "Share of planned production time the asset was running, counting every stop as lost however short. Not the canonical availability."
+owner: production
+numerator: run_time_all_stops
+denominator: planned_production_time
+format: percent
+synonyms: [strict availability]
+not_to_be_confused_with: [availability]

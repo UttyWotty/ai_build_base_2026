@@ -1,0 +1,60 @@
+# Project metadata and tool configuration for the operations copilot monorepo.
+# It ships the predictive maintenance and OEE package, the governed supply chain package, and the copilot that joins them.
+# pandas stays below 3 because 3.0 turns None into NaN in string columns, which the generators rely on.
+# Lint and test settings apply to every package so one `make lint` and `make test` cover the whole repository.
+[project]
+name = "ai-build-base-2026"
+version = "0.0.0"
+description = "AI operations copilot for manufacturing: predicts failures, traces their impact through parts, suppliers, and customer orders, and drafts actions for approval."
+requires-python = ">=3.11"
+readme = "README.md"
+dependencies = [
+  "duckdb",
+  "pyarrow",
+  "pandas>=2.2,<3",
+  "numpy",
+  "openpyxl",
+  "httpx",
+  "pyyaml",
+  "scikit-learn",
+  "streamlit",
+]
+
+[project.scripts]
+pdm-generate-data = "pdm_oee.data_pipeline.synthetic.cli:main"
+pdm-conform-data = "pdm_oee.data_pipeline.conform.cli:main"
+pdm-oee-report = "pdm_oee.api.oee_cli:main"
+pdm-predict-failures = "pdm_oee.api.predict_cli:main"
+pdm-replay-alerts = "pdm_oee.api.alerts_cli:main"
+pdm-investigate = "pdm_oee.api.investigate_cli:main"
+supply-generate-data = "supply_ontology.data_pipeline.synthetic.cli:main"
+supply-conform-data = "supply_ontology.data_pipeline.conform.cli:main"
+supply-query-metric = "supply_ontology.api.query_cli:main"
+supply-eval-nl = "supply_ontology.api.eval_cli:main"
+supply-consistency-demo = "supply_ontology.api.demo_cli:main"
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+src = ["src", "."]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "."]

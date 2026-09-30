@@ -1,0 +1,8 @@
+id: mttr
+label: Mean time to repair
+description: "Hours from failure to restoration per corrective repair."
+owner: maintenance
+numerator: repair_hours
+denominator: repairs
+format: hours
+synonyms: [MTTR, mean repair time]

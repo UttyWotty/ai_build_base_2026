@@ -1,0 +1,26 @@
+# Governed loss taxonomy: every lost minute or part is booked to exactly one loss, and every loss to one OEE factor.
+# Stops with a loss reason lasting at least the small-stop threshold (a run_time parameter) are availability losses;
+# shorter ones are small stops whatever their reason. Planned stop reasons are not losses: they leave planned production time.
+losses:
+  breakdowns: {label: Breakdowns, factor: availability, source: stop_reason}
+  setup_and_adjustments: {label: Setup and adjustments, factor: availability, source: stop_reason}
+  external_stops: {label: "External stops (starved, blocked, no operator)", factor: availability, source: stop_reason}
+  small_stops: {label: Small stops, factor: performance, source: short_stop}
+  reduced_speed: {label: Reduced speed, factor: performance, source: speed_gap}
+  startup_rejects: {label: Startup rejects, factor: quality, source: startup_scrap}
+  production_rejects: {label: Production rejects, factor: quality, source: production_scrap}
+
+planned_stop_reasons:
+  scheduled_break: {label: Scheduled break}
+  planned_maintenance: {label: Planned maintenance}
+  no_production_scheduled: {label: No production scheduled}
+
+loss_reasons:
+  equipment_failure: {label: Equipment failure, loss: breakdowns}
+  electrical_fault: {label: Electrical fault, loss: breakdowns}
+  changeover: {label: Product changeover, loss: setup_and_adjustments}
+  tool_change: {label: Tool change, loss: setup_and_adjustments}
+  adjustment: {label: Process adjustment, loss: setup_and_adjustments}
+  material_starved: {label: Starved of material, loss: external_stops}
+  output_blocked: {label: Blocked downstream, loss: external_stops}
+  no_operator: {label: No operator available, loss: external_stops}

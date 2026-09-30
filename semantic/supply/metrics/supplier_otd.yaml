@@ -1,0 +1,17 @@
+# Supplier on-time delivery, measured on purchase order lines against the supplier's latest confirmed date.
+# A line counts as on time only when its full quantity is received by the promised date.
+# Lines are attributed to the period of their promised date.
+id: supplier_otd
+label: Supplier on-time delivery
+description: "Share of non-cancelled purchase order lines whose full quantity was received on or before the supplier's promised date."
+owner: procurement
+type: ratio
+grain: purchase_order_line
+time_dimension: promised_date
+numerator: {aggregation: count_if, attribute: is_received_complete_by_promised}
+denominator: {aggregation: count}
+filters:
+  - {attribute: status, operator: not_equals, value: cancelled}
+format: percent
+synonyms: [supplier on time delivery, supplier OTD, vendor on time delivery, vendor OTD, supplier delivery performance]
+not_to_be_confused_with: [otd, carrier_on_time]

@@ -1,0 +1,28 @@
+# Evaluation questions for the natural-language layer, each with the outcome a governed answer must have.
+# "expect" is answer, clarify, or refuse; for answers, metrics must match exactly and any listed details must match too.
+# Run with `make eval` against a live local model; results are written to data/eval/.
+cases:
+  - {persona: planning, question: "What was our service level last quarter?", expect: answer, metrics: [otd], dimensions: [], anchor: last quarter}
+  - {persona: procurement, question: "How did customer delivery performance look last quarter?", expect: answer, metrics: [otd], dimensions: [], anchor: last quarter}
+  - {persona: logistics, question: "What was the customer on time delivery rate last quarter?", expect: answer, metrics: [otd], dimensions: [], anchor: last quarter}
+  - {persona: logistics, question: "What share of customer orders arrived on time last quarter?", expect: answer, metrics: [otd], anchor: last quarter}
+  - {persona: logistics, question: "Were we on time for suppliers last quarter?", expect: answer, metrics: [supplier_otd], anchor: last quarter}
+  - {persona: planning, question: "How are we doing on time?", expect: clarify}
+  - {persona: procurement, question: "Supplier reliability by vendor by quarter this year", expect: answer, metrics: [supplier_otd], dimensions: [supplier.supplier_id], time_grain: quarter, anchor: this year to date}
+  - {persona: planning, question: "Show days of inventory by plant for bearings", expect: answer, metrics: [days_of_inventory], dimensions: [plant.plant_id], filters: [{dimension: part.category, value: Bearings}]}
+  - {persona: planning, question: "Fill rate by customer segment by month this year", expect: answer, metrics: [fill_rate], dimensions: [customer.segment], time_grain: month}
+  - {persona: procurement, question: "Landed cost per unit by part family for US01", expect: answer, metrics: [landed_cost_per_unit], dimensions: [part.family], filters: [{dimension: plant.plant_id, value: US01}]}
+  - {persona: logistics, question: "Carrier reliability by carrier this year", expect: answer, metrics: [carrier_on_time], dimensions: [shipment.carrier], anchor: this year to date}
+  - {persona: planning, question: "What is our employee headcount?", expect: refuse}
+  - {persona: planning, question: "How much stock cover do we have at DE01?", expect: answer, metrics: [days_of_inventory], filters: [{dimension: plant.plant_id, value: DE01}]}
+  - {persona: procurement, question: "What is our unit cost for fasteners?", expect: clarify}
+  - {persona: procurement, question: "What was the all in unit cost for fasteners last year?", expect: answer, metrics: [landed_cost_per_unit], anchor: last year, filters: [{dimension: part.category, value: Fasteners}]}
+  - {persona: planning, question: "Order fill rate by plant", expect: refuse}
+  - {persona: logistics, question: "OTD vs request by customer region last year", expect: answer, metrics: [otd_vs_request], dimensions: [customer.region], anchor: last year}
+  - {persona: planning, question: "Monthly OTD trend for aftermarket customers", expect: answer, metrics: [otd], time_grain: month, filters: [{dimension: customer.segment, value: Aftermarket}]}
+  - {persona: procurement, question: "Purchase price per unit by supplier country in 2025", expect: answer, metrics: [purchase_price_per_unit], dimensions: [supplier.country]}
+  - {persona: logistics, question: "How many late deliveries did carriers have last month?", expect: answer, metrics: [carrier_on_time], anchor: last month}
+  - {persona: planning, question: "Line fill rate by site last quarter", expect: answer, metrics: [line_fill_rate], dimensions: [plant.plant_id], anchor: last quarter}
+  - {persona: planning, question: "What's the weather in Stuttgart?", expect: refuse}
+  - {persona: logistics, question: "Days on hand by warehouse", expect: answer, metrics: [days_of_inventory], dimensions: [plant.plant_id]}
+  - {persona: procurement, question: "Which suppliers had the worst supplier OTD last quarter?", expect: answer, metrics: [supplier_otd], dimensions: [supplier.supplier_id], anchor: last quarter}

@@ -1,0 +1,16 @@
+# Canonical days of inventory: period-end stock value divided by average daily cost of goods shipped.
+# Both sides are summed before dividing, so plant and category totals are never averages of ratios.
+# The trailing window is a governed parameter; zero demand yields null, reported as no demand.
+id: days_of_inventory
+label: Days of inventory
+description: "On-hand value at standard cost at period end divided by average daily COGS over the trailing window ending at period end."
+owner: planning
+type: ratio
+grain: inventory_snapshot
+time_dimension: snapshot_date
+time_aggregation: period_end
+numerator: {aggregation: sum, attribute: on_hand_value_usd}
+denominator: {aggregation: sum, attribute: trailing_daily_cogs_usd}
+format: days
+parameters: {trailing_window_days: 90}
+synonyms: [DOI, days on hand, DOH, inventory days]

@@ -1,0 +1,68 @@
+# Governed source mappings: how each site's systems print states, reasons, quality, and units, and how the CMMS codes work.
+# The conform step reads the source systems only through these declarations; an undeclared code makes it fail loudly.
+# Asset numbers encode the site number, the two-digit line, and the two-digit position (10201 is site 1, line 2, position 1).
+sites:
+  US1:
+    number: 1
+    timezone: America/Chicago
+    quality: {good: ["192"], bad: ["0"]}
+    states: {RUN: running, PLN: planned_stop, DWN: unplanned_stop}
+    reasons:
+      BRK: scheduled_break
+      PM: planned_maintenance
+      NOSCHED: no_production_scheduled
+      BD-MECH: equipment_failure
+      BD-ELEC: electrical_fault
+      CO: changeover
+      TC: tool_change
+      ADJ: adjustment
+      STRV: material_starved
+      BLKD: output_blocked
+      NOOP: no_operator
+  DE1:
+    number: 2
+    timezone: Europe/Berlin
+    quality: {good: ["Good"], bad: ["Bad"]}
+    states: {PROD: running, GEPLANT: planned_stop, STOERUNG: unplanned_stop}
+    reasons:
+      P01: scheduled_break
+      P02: planned_maintenance
+      P03: no_production_scheduled
+      S10: equipment_failure
+      S11: electrical_fault
+      R20: changeover
+      R21: tool_change
+      R22: adjustment
+      E30: material_starved
+      E31: output_blocked
+      E32: no_operator
+
+# canonical = (printed + offset) x scale
+printed_units:
+  degC: {unit: deg_c, scale: 1}
+  degF: {unit: deg_c, offset: -32, scale: 0.5555555555555556}
+  bar: {unit: bar, scale: 1}
+  psi: {unit: bar, scale: 0.06894757293168361}
+  mm/s: {unit: mm_per_s, scale: 1}
+  rpm: {unit: rpm, scale: 1}
+  A: {unit: ampere, scale: 1}
+
+cmms:
+  work_types: {CM: corrective, PM: preventive, INST: instrument}
+  failure_codes:
+    SPB-WEAR: spindle_bearing_wear
+    CLP-CAV: coolant_pump_cavitation
+    TCH-JAM: tool_changer_jam
+    HYP-WEAR: hydraulic_pump_wear
+    SEAL-LEAK: main_seal_leak
+    GBX-WEAR: gearbox_wear
+    MOT-HOT: motor_overheating
+  # Used only when a corrective order has no failure code: the asset class's one mode whose keyword is in the text.
+  failure_keywords:
+    spindle_bearing_wear: [spindle bearing]
+    coolant_pump_cavitation: [coolant pump]
+    tool_changer_jam: [tool changer]
+    hydraulic_pump_wear: [hydraulic pump]
+    main_seal_leak: [seal]
+    gearbox_wear: [gearbox]
+    motor_overheating: [motor]

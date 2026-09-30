@@ -1,0 +1,9 @@
+id: oee
+label: Overall equipment effectiveness
+description: "Ideal time for the good parts, as a share of planned production time. Equals availability x performance x quality for one asset and shift."
+owner: production
+numerator: valuable_operating_time
+denominator: planned_production_time
+format: percent
+synonyms: [OEE, equipment effectiveness]
+not_to_be_confused_with: [teep, oee_nameplate]

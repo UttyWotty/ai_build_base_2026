@@ -1,0 +1,17 @@
+# Declared variant of customer on-time delivery, measured against the date the customer requested.
+# It exists so that teams asking about the customer's requested date get a named, separate answer.
+# It is never substituted for otd, which measures against the committed date.
+id: otd_vs_request
+label: On-time delivery vs request
+description: "Share of non-cancelled customer order lines whose full quantity was delivered on or before the customer's requested date."
+owner: planning
+type: ratio
+grain: sales_order_line
+time_dimension: requested_date
+numerator: {aggregation: count_if, attribute: is_delivered_complete_by_requested}
+denominator: {aggregation: count}
+filters:
+  - {attribute: status, operator: not_equals, value: cancelled}
+format: percent
+synonyms: [on time to request, OTD vs request, requested date OTD, on time vs requested date]
+not_to_be_confused_with: [otd]

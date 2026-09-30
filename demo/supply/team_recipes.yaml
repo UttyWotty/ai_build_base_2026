@@ -1,0 +1,45 @@
+# Illustrative team recipes: how each team might compute "customer on-time delivery" from its own corner of the raw sources.
+# They are not governed and never feed an answer; the consistency demo runs them to show the disagreement deterministically.
+# Each lists the choices that differ from the governed `otd` definition and the declared metric it effectively computes.
+# Parameters: $1 is the first day of the period and $2 the last, both ISO dates.
+recipes:
+  planning:
+    label: Planning's service-level report
+    closest_metric: otd_vs_request
+    choices:
+      - Measures against the date the customer requested, not the date we committed.
+      - Takes the delivery date in UTC, not the plant's local date.
+    sql: |
+      WITH delivered AS (
+        SELECT l.ORDER_REF, max(CAST(left(s.DELIVERED_TS_UTC, 10) AS DATE)) AS delivered_on
+        FROM tms_outbound_lines l JOIN tms_shipments s USING (TMS_REF)
+        GROUP BY l.ORDER_REF)
+      SELECT avg(CASE WHEN d.delivered_on <= CAST(i.REQ_DELIV_DATE AS DATE) THEN 1.0 ELSE 0.0 END) AS answer
+      FROM erp_sales_order_items i
+      LEFT JOIN delivered d ON d.ORDER_REF = i.SALES_DOC || '/' || CAST(i.ITEM AS VARCHAR)
+      WHERE i.STATUS <> 'X' AND CAST(i.REQ_DELIV_DATE AS DATE) BETWEEN CAST($1 AS DATE) AND CAST($2 AS DATE)
+  procurement:
+    label: Procurement's delivery-performance extract
+    closest_metric: null
+    choices:
+      - Uses the date the goods left the plant, not the date the customer received them.
+      - Keeps cancelled lines, which count as late because they never ship.
+    sql: |
+      WITH shipped AS (
+        SELECT l.ORDER_REF, max(CAST(left(s.PICKUP_TS_UTC, 10) AS DATE)) AS shipped_on
+        FROM tms_outbound_lines l JOIN tms_shipments s USING (TMS_REF)
+        GROUP BY l.ORDER_REF)
+      SELECT avg(CASE WHEN sh.shipped_on <= CAST(i.CONFIRMED_DELIV_DATE AS DATE) THEN 1.0 ELSE 0.0 END) AS answer
+      FROM erp_sales_order_items i
+      LEFT JOIN shipped sh ON sh.ORDER_REF = i.SALES_DOC || '/' || CAST(i.ITEM AS VARCHAR)
+      WHERE CAST(i.CONFIRMED_DELIV_DATE AS DATE) BETWEEN CAST($1 AS DATE) AND CAST($2 AS DATE)
+  logistics:
+    label: Logistics' transport dashboard
+    closest_metric: carrier_on_time
+    choices:
+      - Counts shipments, not customer order lines.
+      - Compares delivery with the carrier's planned date, not the date committed to the customer.
+    sql: |
+      SELECT avg(CASE WHEN DELIVERED_TS_UTC <= PLANNED_DELIVERY_TS_UTC THEN 1.0 ELSE 0.0 END) AS answer
+      FROM tms_shipments
+      WHERE DIRECTION = 'OB' AND CAST(left(DELIVERED_TS_UTC, 10) AS DATE) BETWEEN CAST($1 AS DATE) AND CAST($2 AS DATE)

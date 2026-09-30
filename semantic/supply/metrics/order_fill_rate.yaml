@@ -1,0 +1,17 @@
+# Declared variant of fill rate that counts whole customer orders.
+# An order counts as filled only when every non-cancelled line shipped complete on its first shipment.
+# Orders are attributed to the period of their first ship date.
+id: order_fill_rate
+label: Order fill rate
+description: "Share of non-cancelled customer orders whose lines all shipped complete on their first outbound shipment."
+owner: planning
+type: ratio
+grain: sales_order
+time_dimension: first_ship_date
+numerator: {aggregation: count_if, attribute: is_complete_on_first_shipment}
+denominator: {aggregation: count}
+filters:
+  - {attribute: status, operator: not_equals, value: cancelled}
+format: percent
+synonyms: [complete order fill rate, orders filled complete]
+not_to_be_confused_with: [fill_rate, line_fill_rate]
