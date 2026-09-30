@@ -50,6 +50,16 @@ class ImpactService:
         self.pf_days = {mode_id: mode.pf_interval_days for cls in plant_catalog.plant.asset_classes.values()
                         for mode_id, mode in cls.failure_modes.items() if mode.pf_interval_days is not None}
         self.asset_sites = q.site_assets(connection_manager)
+        self.asset_lines = q.asset_lines(connection_manager)
+
+    def open_alerts(self, as_of: datetime) -> list[AlertFacts]:
+        """Alerts that opened a draft and were still waiting for their repair at as_of, earliest deadline first."""
+        claims = open_claims(self.alerts.drafting, self._repairs(as_of), self.pf_days, as_of)
+        return [self.alerts.get(c.alert_id) for c in claims]
+
+    def _repairs(self, as_of: datetime) -> list[Repair]:
+        return [Repair(r.asset_id, r.component, pd.Timestamp(r.failed_at).to_pydatetime())
+                for r in q.repairs_until(self.connection_manager, as_of).itertuples()]
 
     def analyse(self, alert_id: str, as_of: datetime | None = None) -> ImpactReport:
         """The impact report for an alert at as_of (default: when it was raised)."""
@@ -82,8 +92,8 @@ class ImpactService:
 
     def _positions(self, alert: AlertFacts, site_id: str, spare: SparePart, supplier: SupplierReliability | None,
                    now: datetime) -> tuple[SparePosition, tuple[SparePosition, ...]]:
-        repairs = [Repair(r.asset_id, r.component, pd.Timestamp(r.failed_at).to_pydatetime())
-                   for r in q.repairs_until(self.connection_manager, now).itertuples()]
+        repairs = self._repairs(now)
+
         def position(site: str) -> SparePosition:
             candidates = [a for a in self.alerts.drafting if self.asset_sites.get(a.asset_id) == site
                           and a.component == spare.component]

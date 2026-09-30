@@ -47,6 +47,11 @@ def site_assets(connection_manager: WorldStore) -> dict[str, str]:
     return dict(zip(frame["asset_id"], frame["site_id"]))
 
 
+def asset_lines(connection_manager: WorldStore) -> dict[str, str]:
+    frame = connection_manager.execute("SELECT asset_id, line_id FROM plant_asset")
+    return dict(zip(frame["asset_id"], frame["line_id"]))
+
+
 def line_units_per_hour(connection_manager: WorldStore, line_id: str, as_of: datetime) -> float:
     """The running production order's rate, or the line's average over the lookback when none is running."""
     running = connection_manager.execute(

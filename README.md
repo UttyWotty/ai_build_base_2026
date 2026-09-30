@@ -23,7 +23,7 @@ The agent never writes SQL and never invents a number. Details and milestones ar
 | 0.1.0 | Monorepo foundation | Done |
 | 0.2.0 | Model layer (Gemini and local models) | In progress |
 | 0.3.0 | Bridge and impact analysis | In progress |
-| 0.4.0 | Operations agent | Planned |
+| 0.4.0 | Operations agent | In progress |
 | 0.5.0 | Web app | Planned |
 | 0.6.0 | Cloud-ready (Cloud Run, Vertex AI) | Planned |
 | 0.7.0 | Submission kit | Planned |
@@ -32,11 +32,11 @@ The agent never writes SQL and never invents a number. Details and milestones ar
 
 ```
 semantic/pdm/, semantic/supply/   governed definitions per component
-evaluation/, demo/                evaluation sets and demo recipes per component
+evaluation/, demo/                evaluation sets (including the agent's scenarios) and demo recipes
 src/pdm_oee/                      plant: simulation, conform, OEE, failure prediction, alerts, investigation
 src/supply_ontology/              supply: simulation, conform, ontology and metrics, compiler, governed questions
 src/llm_gateway/                  model gateway: Gemini or local model behind one interface
-src/copilot/                      bridge, spares simulation, impact analysis (agent and app to come)
+src/copilot/                      bridge, spares simulation, impact analysis, operations agent (app to come)
 semantic/bridge/                  governed links between the plant and the supply network
 tests/<package>/                  tests per package
 tools/check_code_rules.py         file length, function length, and summary docstring rules
@@ -89,6 +89,27 @@ supplier V10001: on time 66.1%, expected 2 days late (sql 59337a47eb2e9a5d)
 ```
 
 The bridge (`semantic/bridge/bridge.yaml`) links sites to supply plants, components to spares and suppliers, and lines to the customer parts they make. `make bridge` simulates each site's spares store from the plant's repair history and the suppliers' real delivery record in the supply world.
+
+## Operations agent
+
+The copilot is a Gemini agent built with Google's Agent Development Kit (ADK). `make ask Q="..."` asks it one question at the demo clock (`AS_OF`, default 2026-07-25 02:00), and prints the trace and the answer.
+
+Its tools are governed and point-in-time: plant history is cut at the demo clock, and work order closures after it are hidden.
+
+| Tool | What it returns |
+|---|---|
+| `list_open_alerts` | Alerts still waiting for a repair, earliest deadline first |
+| `analyse_alert_impact` | The impact analysis above, as the agent sees it |
+| `get_sensor_evidence` | Daily means of the failure mode's symptom sensors over 7 days, with normal ranges |
+| `get_supplier_record` | Governed `supplier_otd` with its SQL fingerprint, and the expected lateness |
+| `oee_summary`, `failures`, `work_order_history` | Plant history from the OEE engine |
+| `propose_action_plan` | A proposal for a person to approve: work order, parts action, customer note. Nothing is executed |
+
+Guardrails:
+- **Proposals only.** A proposal takes its numbers from the impact report; the model only chooses an option and writes the notes. Proposals wait in `data/copilot/proposals.json` for approval.
+- **Verified answers.** Every number in the final answer is checked against the tool results, and the run is marked verified only when all of them match.
+
+`make eval` runs the eight scenarios in `evaluation/copilot/scenarios.yaml`: triage, the bearing conflict, the recommended plan, the sensor evidence, the supplier record, creating a proposal, the calm hydraulic-pump case, and plant history. It checks the tools called, required phrases, the number check, and the proposal.
 
 ## Ground rules
 

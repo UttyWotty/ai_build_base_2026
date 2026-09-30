@@ -1,5 +1,6 @@
 # Project metadata and tool configuration for the operations copilot monorepo.
-# Gemini is reached through google-genai (AI Studio key locally, Vertex AI on Google Cloud).
+# Gemini is reached through google-genai (AI Studio key locally, Vertex AI on Google Cloud); the copilot agent runs on
+# the Agent Development Kit, with LiteLLM as its bridge to a local model.
 # It ships the predictive maintenance and OEE package, the governed supply chain package, and the copilot that joins them.
 # pandas stays below 3 because 3.0 turns None into NaN in string columns, which the generators rely on;
 # scikit-learn stays on 1.7 because 1.9 trains a different classifier than the one the documented backtest used.
@@ -18,6 +19,8 @@ dependencies = [
   "openpyxl",
   "httpx",
   "google-genai>=1.50",
+  "google-adk>=2.10",
+  "litellm>=1.80",
   "pyyaml",
   "scikit-learn>=1.7,<1.8",
   "streamlit",
@@ -61,3 +64,7 @@ ignore = ["E501"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src", "."]
+filterwarnings = [
+  "ignore::DeprecationWarning:opentelemetry.*",
+  "ignore:.*EXPERIMENTAL.*:UserWarning",
+]

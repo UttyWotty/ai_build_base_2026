@@ -15,6 +15,10 @@ from supply_ontology.services.settings import CONFORMED_DIR as SUPPLY_CONFORMED_
 BRIDGE_DATA_DIR = Path(os.getenv("BRIDGE_DATA_DIR", "data/bridge"))
 BRIDGE_SEMANTIC_DIR = Path(os.getenv("BRIDGE_SEMANTIC_DIR", "semantic/bridge"))
 BRIDGE_SEED = int(os.getenv("BRIDGE_SEED", "20261018"))
+# Where the agent's action proposals wait for approval.
+PROPOSALS_PATH = Path(os.getenv("PROPOSALS_PATH", "data/copilot/proposals.json"))
+# The demo clock: the moment the copilot treats as now. The planted bearing alert was raised at this time.
+DEMO_AS_OF = os.getenv("DEMO_AS_OF", "2026-07-25T02:00")
 
-__all__ = ["BRIDGE_DATA_DIR", "BRIDGE_SEED", "BRIDGE_SEMANTIC_DIR", "PLANT_CONFORMED_DIR", "PLANT_SEMANTIC_DIR",
+__all__ = ["BRIDGE_DATA_DIR", "BRIDGE_SEED", "BRIDGE_SEMANTIC_DIR", "DEMO_AS_OF", "PROPOSALS_PATH", "PLANT_CONFORMED_DIR", "PLANT_SEMANTIC_DIR",
            "SUPPLY_CONFORMED_DIR"]

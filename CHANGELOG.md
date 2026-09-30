@@ -7,6 +7,15 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 ## [Unreleased]
 
 ### Added
+- Operations agent on the Agent Development Kit: Gemini by default, a local model through LiteLLM as the fallback;
+  `make ask Q="..."` at the demo clock (`DEMO_AS_OF`, default 2026-07-25 02:00).
+- Eight point-in-time tools: open alerts, impact analysis, sensor evidence, supplier record (governed
+  `supplier_otd`), OEE summary, failures, work order history, and `propose_action_plan`.
+- Action proposals that wait for approval in `data/copilot/proposals.json`, with numbers taken from the impact report.
+- Answer verification: every number in the final answer must appear in a tool result.
+- Agent evaluation (`make eval`): eight scenarios scored on tools, phrases, numbers, and proposals.
+
+### Added
 - `semantic/bridge/bridge.yaml`: sites to supply plants, components to spares with suppliers and min/max policies,
   urgent transfer terms, lines to customer parts with their contribution, and the customer-risk rule.
 - Bridge builder (`make bridge`): validates every bridge id against both worlds, then simulates each site's spares
