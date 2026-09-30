@@ -1,0 +1,10 @@
+# Keep the build context small and free of local state: data is regenerated inside the image, and secrets stay local.
+.git
+.venv
+data
+.env
+**/__pycache__
+.pytest_cache
+.ruff_cache
+tests
+docs

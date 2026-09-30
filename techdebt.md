@@ -8,6 +8,10 @@ Component-level limitations carried over from the imported packages are listed i
 
 ## P0 - Next
 
+- [ ] **Run the container once before the deadline.** `make image` (Docker Desktop) and one real `make deploy` have
+  not run yet; the Dockerfile and the script were checked only for syntax. See `docs/HANDOVER.md`.
+- [ ] **Proposals live in the container's file system** and reset when a Cloud Run instance restarts. Fine for a
+  demo; Firestore or a Cloud Storage object would make approvals durable.
 - [ ] **CI once GitHub Actions minutes reset on 2026-10-01.** `make setup`, `make lint`, and `make test` on every PR
   into `develop` and `main`. The tests need no model and no generated data.
 

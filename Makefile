@@ -13,7 +13,7 @@ BOOTSTRAP_PYTHON := python3.11
 -include .env
 export
 
-.PHONY: setup settings test lint data models bridge impact ask eval app pdm-data supply-data pdm-oee pdm-predict pdm-alerts pdm-ask pdm-eval pdm-ui \
+.PHONY: setup settings test lint data models bridge impact ask eval app image deploy pdm-data supply-data pdm-oee pdm-predict pdm-alerts pdm-ask pdm-eval pdm-ui \
 	supply-eval supply-demo supply-demo-offline supply-ui
 
 setup:
@@ -48,6 +48,14 @@ eval:
 
 app:
 	$(VENV)/bin/streamlit run src/copilot/ui/app.py
+
+# Local container check, then Cloud Run deployment (see docs/HANDOVER.md).
+image:
+	docker build -t ops-copilot .
+	docker run --rm -p 8080:8080 --env-file .env -e LLM_PROVIDER=gemini ops-copilot
+
+deploy:
+	deploy/cloudrun.sh
 
 pdm-data:
 	$(PYTHON) -m pdm_oee.data_pipeline.synthetic.cli
