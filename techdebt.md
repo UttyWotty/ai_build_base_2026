@@ -21,6 +21,14 @@ Component-level limitations carried over from the imported packages are listed i
 - [ ] **The line-stops rule is coarse:** any asset outage stops its whole line, and lost output uses the running
   production order's rate. Good enough for ranking options; not a capacity model.
 
+- [ ] **The web app test needs generated data** and is skipped without it, so CI will not run it. A small
+  three-world fixture would let it run everywhere.
+
+## P2 - Process
+
+- [ ] **The 0.4.0 agent commit (4e40fe5) landed on develop without a PR.** Rewriting develop was not allowed, so it
+  stays; every later change goes through a feature branch.
+
 ## P2 - Carried over from the components
 
 - [ ] **pdm_oee:** the model store uses pickle; early warnings for long P-F modes score as false; the simulated plant is

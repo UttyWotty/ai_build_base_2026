@@ -12,7 +12,7 @@ from pathlib import Path
 from copilot.core.agent_eval import RunOutcome, parse_cases, score
 from copilot.data_pipeline.proposal_store import ProposalStore
 from copilot.services.agent_runner import run_copilot
-from copilot.services.factory import default_copilot_tools
+from copilot.services.factory import default_services
 from copilot.services.settings import PROPOSALS_PATH
 from llm_gateway.cli_args import add_model_arguments, selection_from_args
 from pdm_oee.data_pipeline.semantic_files import load_yaml_document
@@ -30,11 +30,12 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     selection = selection_from_args(args)
     eval_store = ProposalStore(REPORT_DIR / "proposals.json")
+    services = default_services()
     rows = []
     for case in parse_cases(load_yaml_document(CASES_FILE)):
         if args.only and case.case_id not in args.only:
             continue
-        tools = default_copilot_tools(case.as_of)
+        tools = services.tools_at(case.as_of)
         tools.proposals = eval_store
         run = run_copilot(case.question, tools, selection)
         calls = tuple((s.name, dict(s.payload)) for s in run.steps if s.kind == "tool_call")

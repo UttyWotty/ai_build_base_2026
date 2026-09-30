@@ -1,7 +1,7 @@
 # Developer entry points for setup, tests, linting, data generation, and the component UIs.
 # Every target runs inside the project virtualenv at .venv so the system Python stays untouched.
 # `make data` generates and conforms both worlds and the bridge; `make models` trains the failure model and replays its alerts.
-# `make impact A=<alert id>` analyses one alert, `make ask Q="..."` asks the copilot agent, and `make eval` scores it.
+# `make app` opens the copilot web app; `make impact A=<alert id>` analyses one alert, `make ask Q="..."` asks the copilot agent, and `make eval` scores it.
 # pdm-* and supply-* targets run one component package.
 VENV := .venv
 PYTHON := $(VENV)/bin/python
@@ -13,7 +13,7 @@ BOOTSTRAP_PYTHON := python3.11
 -include .env
 export
 
-.PHONY: setup settings test lint data models bridge impact ask eval pdm-data supply-data pdm-oee pdm-predict pdm-alerts pdm-ask pdm-eval pdm-ui \
+.PHONY: setup settings test lint data models bridge impact ask eval app pdm-data supply-data pdm-oee pdm-predict pdm-alerts pdm-ask pdm-eval pdm-ui \
 	supply-eval supply-demo supply-demo-offline supply-ui
 
 setup:
@@ -45,6 +45,9 @@ ask:
 
 eval:
 	$(PYTHON) -m copilot.api.agent_eval_cli
+
+app:
+	$(VENV)/bin/streamlit run src/copilot/ui/app.py
 
 pdm-data:
 	$(PYTHON) -m pdm_oee.data_pipeline.synthetic.cli
