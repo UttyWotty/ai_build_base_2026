@@ -6,6 +6,10 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+### Fixed
+- The Streamlit page test used the live proposals file, so a demo approval broke it; `default_services` now takes the
+  proposals path and the test passes an empty temporary one.
+
 ### Added
 - Closed loop: approved proposals become decisions that change stock and queues from their moment on (a transfer leaves
   the sister shelf at once and arrives when promised; covered alerts stop competing for the spare).
