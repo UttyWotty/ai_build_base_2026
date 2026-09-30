@@ -9,13 +9,10 @@ from pathlib import Path
 
 from pdm_oee.core.catalog import PlantCatalog
 from pdm_oee.data_pipeline.cmms_outbox import read_outbox, set_status
-from pdm_oee.data_pipeline.llm_client import LLMClient, OpenAICompatibleClient
+from pdm_oee.data_pipeline.llm_client import LLMClient, build_llm_client
 from pdm_oee.data_pipeline.replay_store import read_replay_alerts
 from pdm_oee.data_pipeline.semantic_files import load_catalog, load_yaml_document
 from pdm_oee.services.settings import (
-    LLM_BASE_URL,
-    LLM_MODEL,
-    LLM_TIMEOUT_SECONDS,
     MODEL_DIR,
     OUTBOX_PATH,
     REPLAY_PATH,
@@ -33,8 +30,8 @@ def load_default_catalog() -> PlantCatalog:
 
 
 def default_llm_client() -> LLMClient:
-    """The configured local model; nothing is sent until a question is asked."""
-    return OpenAICompatibleClient(LLM_BASE_URL, LLM_MODEL, LLM_TIMEOUT_SECONDS)
+    """The configured model (Gemini or local); nothing is sent until a question is asked."""
+    return build_llm_client()
 
 
 def draft_orders(path: Path = OUTBOX_PATH) -> list[dict[str, object]]:

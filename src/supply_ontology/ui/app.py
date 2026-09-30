@@ -7,8 +7,8 @@ from __future__ import annotations
 
 import streamlit as st
 
+from llm_gateway.factory import default_selection
 from supply_ontology.services.service_factory import load_saved_demo_runs
-from supply_ontology.services.settings import LLM_BASE_URL, LLM_MODEL
 from supply_ontology.ui.answer_view import PENDING_QUESTION_KEY, render_response
 from supply_ontology.ui.catalog_view import render_catalog
 from supply_ontology.ui.demo_view import render_recipe_comparison, render_saved_demo
@@ -29,7 +29,7 @@ def main() -> None:
     with st.sidebar:
         persona = st.selectbox("Team", [None, *personas],
                                format_func=lambda p: NO_PERSONA_LABEL if p is None else personas[p].label)
-        st.caption(f"Model: {LLM_MODEL} at {LLM_BASE_URL}")
+        st.caption(f"Model: {default_selection().label} ({default_selection().provider.value})")
     ask_tab, demo_tab, catalog_tab = st.tabs(TAB_NAMES)
     with ask_tab:
         render_ask(persona)

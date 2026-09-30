@@ -6,6 +6,16 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+### Added
+- `llm_gateway` package: one `LLMClient` interface with a Gemini adapter (google-genai, AI Studio key or Vertex AI) and
+  the OpenAI-compatible local adapter. `LLM_PROVIDER` chooses between them.
+- The Gemini adapter retries rate limits and server errors with capped exponential backoff, and reports an empty reply
+  with its finish reason.
+- `--provider`, `--model`, and `--base-url` on every command that calls a model; evaluation reports record the provider.
+
+### Changed
+- Both component packages build their model client through the gateway; their own model settings are gone.
+
 ## [0.1.0] - 2026-09-30
 
 ### Added

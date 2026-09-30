@@ -8,7 +8,7 @@ from __future__ import annotations
 import pandas as pd
 import streamlit as st
 
-from pdm_oee.services.settings import LLM_MODEL
+from llm_gateway.factory import default_selection
 from pdm_oee.ui.ask_view import render_ask
 from pdm_oee.ui.asset_view import render_asset
 from pdm_oee.ui.model_view import render_model
@@ -25,7 +25,7 @@ def main() -> None:
     st.title(PAGE_TITLE)
     last = pd.to_datetime(oee().measures["shift_date"]).max().date()
     with st.sidebar:
-        st.caption(f"Data up to {last}. Language model: {LLM_MODEL}.")
+        st.caption(f"Data up to {last}. Language model: {default_selection().label}.")
     queue, asset, losses, ask, model = st.tabs(TAB_NAMES)
     with queue:
         render_queue()

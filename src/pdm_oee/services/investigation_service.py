@@ -21,9 +21,8 @@ from pdm_oee.core.investigation_protocol import (
 )
 from pdm_oee.core.number_check import unverified_numbers
 from pdm_oee.core.tool_catalog import validate_call
-from pdm_oee.data_pipeline.llm_client import LLMClient, LLMError, OpenAICompatibleClient
+from pdm_oee.data_pipeline.llm_client import LLMClient, LLMError, build_llm_client
 from pdm_oee.services.investigation_tools import ToolBox, ToolError
-from pdm_oee.services.settings import LLM_BASE_URL, LLM_MODEL, LLM_TIMEOUT_SECONDS
 
 MAX_TOOL_CALLS = 6
 EXTRA_TURNS = 3
@@ -58,7 +57,7 @@ class InvestigationService:
 
     def __init__(self, toolbox: ToolBox, llm_client: LLMClient | None = None, max_tool_calls: int = MAX_TOOL_CALLS) -> None:
         self.toolbox = toolbox
-        self.llm_client = llm_client or OpenAICompatibleClient(LLM_BASE_URL, LLM_MODEL, LLM_TIMEOUT_SECONDS)
+        self.llm_client = llm_client or build_llm_client()
         self.max_tool_calls = max_tool_calls
         dates = pd.to_datetime(toolbox.oee.measures["shift_date"])
         self.system = system_message(toolbox.vocabularies(), dates.min().date(), dates.max().date())

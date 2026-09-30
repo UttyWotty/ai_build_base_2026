@@ -10,7 +10,7 @@ from pathlib import Path
 
 from supply_ontology.core.catalog import SemanticCatalog
 from supply_ontology.core.team_recipes import TeamRecipe, parse_recipes
-from supply_ontology.data_pipeline.llm_client import LLMClient, OpenAICompatibleClient
+from supply_ontology.data_pipeline.llm_client import LLMClient, build_llm_client
 from supply_ontology.data_pipeline.raw_source_database import RawSourceDatabase
 from supply_ontology.data_pipeline.semantic_files import (
     load_catalog,
@@ -18,9 +18,6 @@ from supply_ontology.data_pipeline.semantic_files import (
 )
 from supply_ontology.services.settings import (
     DEMO_DIR,
-    LLM_BASE_URL,
-    LLM_MODEL,
-    LLM_TIMEOUT_SECONDS,
     SEMANTIC_DIR,
     SOURCES_DIR,
 )
@@ -40,8 +37,8 @@ def load_default_catalog() -> SemanticCatalog:
 
 
 def default_llm_client() -> LLMClient:
-    """The HTTP client for the configured local model; nothing is sent until a question is asked."""
-    return OpenAICompatibleClient(LLM_BASE_URL, LLM_MODEL, LLM_TIMEOUT_SECONDS)
+    """The client for the configured model (Gemini or local); nothing is sent until a question is asked."""
+    return build_llm_client()
 
 
 def load_team_recipes(catalog: SemanticCatalog, path: Path = RECIPES_FILE) -> tuple[TeamRecipe, ...]:
