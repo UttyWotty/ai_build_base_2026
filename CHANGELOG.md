@@ -7,6 +7,14 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 ## [Unreleased]
 
 ### Added
+- `Dockerfile`: a self-contained image that generates both worlds, the bridge, and the failure model at build time
+  and serves the app on Cloud Run's port.
+- `deploy/cloudrun.sh` (`make deploy`): enables the APIs, creates a service account limited to Vertex AI, and deploys
+  from source with Gemini on Vertex AI; `make image` runs the container locally.
+- `docs/HANDOVER.md`: the step-by-step move to Google Cloud, with checks, costs, teardown, and troubleshooting.
+- `.streamlit/config.toml`: light theme, no usage statistics.
+
+### Added
 - Web app (`make app`): demo clock with named scenarios, control room with headline savings, spare conflicts,
   supplier record, priced options, customers at risk and sensor evidence, the Ask tab with verified answers and
   traces, Approvals, and How it works.
