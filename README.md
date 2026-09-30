@@ -21,12 +21,12 @@ The agent never writes SQL and never invents a number. Details and milestones ar
 | Version | Milestone | Status |
 |---|---|---|
 | 0.1.0 | Monorepo foundation | Done |
-| 0.2.0 | Model layer (Gemini and local models) | In progress |
-| 0.3.0 | Bridge and impact analysis | In progress |
-| 0.4.0 | Operations agent | In progress |
-| 0.5.0 | Web app | In progress |
-| 0.6.0 | Cloud-ready (Cloud Run, Vertex AI) | In progress |
-| 0.7.0 | Submission kit | In progress |
+| 0.2.0 | Model layer (Gemini and local models) | Done |
+| 0.3.0 | Bridge and impact analysis | Done |
+| 0.4.0 | Operations agent | Done |
+| 0.5.0 | Web app | Done |
+| 0.6.0 | Cloud-ready (Cloud Run, Vertex AI) | Done; first real deploy pending a Google Cloud account |
+| 0.7.0 | Submission kit | Done |
 
 ## Project layout
 
