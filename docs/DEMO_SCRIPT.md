@@ -1,22 +1,25 @@
 # Demo script (3 minutes)
 
 The video and the live demo follow this script. Every click is in the deployed app; nothing is edited in between.
-Times are targets. Keep the top-bar clock on "Bearing squeeze at US1" unless a step says otherwise.
+Times are targets. The story is one week at the US plant, then one number for the whole period.
 
 | Time | Screen | Say |
 |---|---|---|
-| 0:00 | Title card, then Live at "Bearing week at US1", press Run at 3 h/s | "A failure alert is only useful if the repair can happen in time. That depends on stores, purchasing, and customer service, and that is where plants lose days." |
-| 0:20 | The feed streams; at 25 Jul 02:00 the alert arrives, the clock pauses, the autopilot starts | "The plant runs; machines stop and restart. At 02:00 a new alert arrives, and the copilot picks it up on its own." |
-| 0:35 | Conflict banner, spare and supplier cards | "One bearing set on the shelf, two spindles wearing out. The replacement is with a supplier who was on time 66% of the time in the last 90 days. That comes from a governed metric, and here is its SQL fingerprint." |
-| 0:55 | Select the US1-L2-01 alert; options table | "Here is every way to get the part, priced. Waiting for the open order costs 190 hours and 94 thousand dollars, with four customer orders at risk. An air transfer from our German site costs 650 dollars." |
-| 1:20 | Sensor chart | "This is why the model raised the alert: spindle vibration climbing past its normal range over the week." |
-| 1:35 | Click "Draft the plan with the copilot" | "Now Gemini, through Google's Agent Development Kit, investigates on its own. Watch each tool call appear as it happens: impact, sensors, the supplier, then the proposal." |
-| 2:00 | The live tool timeline, then the answer and the verified badge | "Every number in the answer is checked against the tools. The trace shows exactly what it looked at. It did not order anything; it made a proposal." |
-| 2:20 | Approve in the autopilot panel, press Run; at 26 Jul 10:00 the feed shows the outcome | "A person approves. DE1's bearing is on its way. The next morning the spindle fails, as predicted, and the line is back in 26 hours instead of 230." |
-| 2:35 | Top bar: "Hydraulic pump wear at DE1" | "On a calm day it stays calm: the spare is in stock, so the repair goes into a planned slot at no extra cost." |
-| 2:50 | How it works tab | "Gemini on Vertex AI, the Agent Development Kit, Cloud Run. From an alert to an approved plan in under a minute." |
+| 0:00 | Title card, then **Live**: "Bearing week at US1", autopilot on, press Run at 3 h/s | "A failure alert only helps if the repair can happen in time. That depends on stores, purchasing, and customer service, and that is where plants lose days." |
+| 0:15 | The feed streams: stops, restarts, spare orders | "This is a plant running: machines stop and restart, spares get used and reordered." |
+| 0:25 | At 25 Jul 02:00 the alert arrives; the clock pauses; the autopilot starts | "At two in the morning a new alert comes in: a spindle bearing wearing out on line 2. Nobody is awake. The copilot picks it up." |
+| 0:35 | The team's tool calls appear with their names; the three briefs | "Gemini works as a team, built on Google's Agent Development Kit. A maintenance planner reads the vibration, a procurement lead checks spares and suppliers, a customer lead checks orders. All three at once." |
+| 1:00 | The lead's answer, the verified line, the proposal with Approve | "The operations lead weighs them. The one bearing set on the shelf goes to the other line, whose alert is overdue. This one gets an air transfer from Germany for 650 dollars, because the supplier's order is late one time in three. Every number here was checked against the tools." |
+| 1:25 | **Control room**, US1-L2-01: options table and customers at risk | "Here is what it weighed: every way to get the part, priced. Waiting for the supplier means 190 hours down and four customer orders at risk." |
+| 1:40 | Scroll to the vibration chart; the **Supplier inbox**: read the Everline delay notice | "Why the alert: vibration climbing out of its normal band. And this morning the supplier wrote that the order slips to 8 August. Gemini reads it, and the plan updates." |
+| 2:00 | Back to **Live**: Approve, press Run; at 26 Jul 10:00 the outcome appears in the feed | "A person approves. The next morning the spindle fails, as predicted, and the line is back in 26 hours instead of 230. 100,000 dollars saved on one alert." |
+| 2:25 | **Track record** | "And not just once. Every alert of four months, scored against what really happened, including the times it was wrong: 662 hours of downtime avoided, 198 thousand dollars net." |
+| 2:45 | **How it works** | "Gemini on Vertex AI, a team of agents on the Agent Development Kit, one service on Cloud Run. From an alert at 2 a.m. to an approved plan before anyone arrives." |
+
+If the inspection photos are ready, add this after 1:40: on the Control room, open **Field inspection** on US1-L2-01 and click the sample photo. Say: "The technician sends a photo, and Gemini vision confirms the wear before any money is spent." A healthy photo on US1-L3-02 shows the opposite: "Not confirmed; check before paying for express."
 
 Before recording:
+- Use a paid key or the deployed service on Vertex AI; a team run needs about twelve model calls.
 - Warm the Cloud Run instance (`MIN_INSTANCES=1`) and load the page once.
-- Clear old proposals if needed. They live in the container and reset on restart.
-- Run `make eval` the same day and quote the score only if it is current.
+- Press **Reset demo** on Approvals and **Reset** on the Supplier inbox, so the week starts clean.
+- Rehearse once at 3 h/s: the alert arrives about 5 seconds after pressing Run.

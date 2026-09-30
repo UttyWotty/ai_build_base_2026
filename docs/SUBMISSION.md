@@ -17,22 +17,29 @@ department's question. The expensive mistakes happen between departments.
 
 ## 2. How the solution addresses it
 
-emoldinounited runs a sense, reason, act loop over governed data from the plant and the supply network:
+emoldinounited runs a sense, reason, act loop over governed data from a plant and its supply network, and closes it:
 
 1. **Sense.** A gradient-boosted failure model scores every asset from its sensors. On the last four months of data it
    caught 27 of 41 failures, at 0.16 false alerts per asset-month and a median warning of 86 hours (`make models`).
-2. **Reason.** A Gemini agent investigates each alert with governed tools: sensor evidence, spare stock at both sites and
-   the queue of alerts waiting for it, the supplier's on-time delivery from the governed metric, and the customer order
-   lines at risk. Each way of getting the spare is priced as extra spend plus lost contribution.
-3. **Act.** The agent proposes the work order, the parts action, and the customer note. A person approves or rejects it.
+2. **Reason.** A team of Gemini agents investigates each alert with governed tools. The team looks at sensor
+   evidence, inspection photos, spare stock at both sites and the queue of alerts waiting for it, the supplier's
+   governed on-time delivery, and the customer order lines at risk. Every way of getting the spare is priced as extra
+   spend plus lost contribution.
+3. **Act.** The team proposes the work order, the parts action, and the customer note. A person approves, and the
+   approval changes the world: a transfer leaves the sister site's shelf, conflicts clear, and once the clock passes
+   the failure, the outcome is shown against what would have happened without the plan.
 
-**The demo moment (2026-07-25 02:00, `make impact A=AL-US1-L2-01-2026072502`).**
+**It runs on its own.** In live mode the plant is replayed as it happens. Each new alert pauses the clock while the
+agents triage it and leave a proposal, so at 2 a.m. the plan is ready before anyone arrives.
+
+**The demo moment (2026-07-25 02:00).**
 - Two spindle-bearing alerts at site US1 need the one bearing set on the shelf.
-- The replacement was ordered from supplier V10001, which was on time for 66.1% of its lines in the last 90 days.
+- The replacement was ordered from supplier V10001, which was on time for 66.1% of its lines in the last 90 days, and
+  whose delay notice Gemini reads from the supplier inbox (new date: 8 August).
 - The copilot gives the set to the overdue alert and covers the other with an air transfer from site DE1 for 650 USD.
-- Waiting for the open order would mean 190 hours of downtime, 93,825 USD of lost contribution, and four customer
-  order lines at risk.
-- Across the open alerts, the plan avoids 180 hours of downtime and 93,175 USD, shown in the control room.
+- Waiting for the open order would mean 190 hours of downtime and four customer order lines at risk.
+- After approval, the spindle fails as predicted the next morning. With the transfer the line is down 26 hours instead
+  of 230, saving 100,077 USD.
 
 **The track record (`make value`).** Every alert of the last four months was scored at its real outcome, comparing
 the copilot's plan with what the site would have done alone. The plan differed six times: three air transfers on real
@@ -41,39 +48,44 @@ Net value: **197,949 USD in four months**, with the losses counted, not hidden.
 
 ## 3. How Google AI is integrated
 
-- **Gemini** is the reasoning model, called through the **Agent Development Kit** (`src/backend/copilot/services/agent_runner.py`)
-  as an `LlmAgent` with eight typed function tools (`agent_functions.py`).
-- The agent decides which tools to call and in what order. For example, it analyses both competing alerts in parallel
-  before recommending an allocation.
-- **A multi-agent team on ADK.** Plans come from four agents. A `ParallelAgent` runs a maintenance planner, a
-  procurement lead, and a customer service lead at once, each with only its role's tools. A `SequentialAgent` then
-  hands their briefs, through session state, to an operations lead who balances them and proposes.
-- **Multimodal Gemini.** Gemini reads suppliers' delay notices, as text or PDF, into structured delivery updates with a
-  strict JSON schema. A new date revises the open order in every later analysis, and a price-list letter is correctly
-  read as no change. Gemini vision reads a technician's inspection photo against the predicted failure mode, so a
-  person sees whether the part confirms the prediction before money is spent.
-- **Guardrails around the model.** It never writes SQL; supplier figures come from a governed metric compiler and carry
-  a SQL fingerprint. Every number in its answer is checked against the tool results before the answer is marked
-  verified. Actions only become proposals, and their numbers come from the analysis, not from the model's text.
+- **A multi-agent team on the Agent Development Kit** (`src/backend/copilot/services/agent_team.py`).
+  - A `ParallelAgent` runs a maintenance planner, a procurement lead, and a customer service lead at once, each with
+    only its role's tools and a brief in session state.
+  - A `SequentialAgent` then hands the briefs to an operations lead, who balances urgency, cost, and customer exposure,
+    and proposes.
+  - Free questions go to a single `LlmAgent` with all nine typed tools.
+- **Streaming and transparency.** Every tool call, result, and brief streams to the browser with the agent's name, so
+  people watch the team work rather than wait for a spinner.
+- **Multimodal Gemini** (`src/backend/llm_gateway/multimodal.py`).
+  - Gemini reads suppliers' messages, text or PDF, into delivery updates that follow a strict JSON schema. A new date
+    revises the open order in every later analysis, and a price-list letter is read as "no delivery change", with no
+    invented order.
+  - Gemini vision reads a technician's inspection photo against the predicted failure mode, so a person sees whether
+    the part confirms the prediction before money is spent.
+- **Guardrails around the models.**
+  - No SQL from the model: supplier figures come from a governed metric compiler and carry a SQL fingerprint.
+  - Every number in an answer is checked against the tool results before the answer is marked verified.
+  - Actions are proposals only, and their numbers come from the analysis, not from the model's text.
+  - Every tool is point-in-time.
+- **Resilience.** Backup Gemini models take over when one is out of quota. Errors reach people in plain words, and the
+  autopilot stops itself instead of failing repeatedly.
+- **Evaluation.** `make eval` runs eight scenarios, from triage to creating a proposal, and scores the tools called,
+  the required facts, the number check, and the proposal.
 - On Google Cloud, Gemini runs on **Vertex AI** under the Cloud Run service account, so no API key is deployed.
-- The agent is evaluated: `make eval` runs eight scenarios, from triage to creating a proposal, and scores the tools
-  called, required facts, the number check, and the proposal.
 
 ## 4. A functional prototype
 
-- `make setup data models`, then `make api` and `make web`, builds everything from seeds and opens the web app.
-- The React frontend streams the agent's tool calls live from the FastAPI backend.
-- **Control room:** the headline savings, then per alert the spare conflict, the supplier record, the priced options,
-  the customers at risk, and the sensor evidence. One button asks the agent to draft the plan.
-- **Ask the copilot:** free questions, with a verified badge and the full tool trace.
-- **Approvals:** approve or reject proposals.
-- **How it works:** the loop, the architecture, and the guardrails.
-- Quality: 401 backend and 5 frontend automated tests, a code-rule checker, and point-in-time tools, so no answer uses information from after
-  the demo clock.
+- `make setup data models`, then `make api` and `make web`, builds everything from seeds and opens the app.
+- The React frontend (Vite, TypeScript) talks to a FastAPI backend and has seven pages: Live, Control room, Copilot,
+  Supplier inbox, Approvals, Track record, and How it works. The pages are described in `README.md`.
+- Quality: 423 backend and 7 frontend automated tests, a code-rule checker, strict TypeScript, and offline tests of
+  the real ADK runner and the agent team with scripted models.
 
 ## 5. Deployment on Google Cloud
 
-- One container (`Dockerfile`) builds the React app, generates all data at build time, and serves the API and the app on **Cloud Run**.
+- One container (`Dockerfile`). A Node stage builds the React app; the Python stage generates all data at build time;
+  uvicorn serves the API, the agent stream, and the app on **Cloud Run**. One service, one URL, and the stream is
+  never buffered.
 - `deploy/cloudrun.sh` enables the APIs, creates a service account allowed only to call Vertex AI, and deploys from
   source with Cloud Build.
 - `docs/HANDOVER.md` lists every step with checks, costs, and teardown.
@@ -85,23 +97,27 @@ flowchart LR
   subgraph Data["Synthetic data, generated from seeds"]
     P["Plant: sensors, MES, CMMS"]
     S["Supply network: ERP, TMS, supplier portal"]
+    F["Field inputs: supplier messages, inspection photos"]
   end
   P --> M["Failure prediction"]
   P --> B["Governed bridge: sites, spares, suppliers, lines"]
   S --> B
+  S --> G["Governed metrics compiler"]
+  F --> R["Gemini multimodal reader"]
   M --> I["Impact analysis, point in time"]
   B --> I
-  S --> G["Governed metrics compiler"]
   G --> I
-  I -->|governed tools| A["Gemini agent (Agent Development Kit)"]
-  A -->|proposals| H["Person approves"]
+  R --> I
+  I -->|governed tools| T["Agent team on ADK: 3 specialists in parallel, then a lead"]
+  T -->|proposals| H["Person approves"]
+  H -->|decisions| I
   subgraph GCP["Google Cloud"]
-    A
-    V["Vertex AI"]
-    R["Cloud Run"]
+    T
+    V["Gemini on Vertex AI"]
+    C["Cloud Run: FastAPI and React"]
   end
-  A --- V
-  R --- A
+  T --- V
+  C --- T
 ```
 
 ## Honest limits
@@ -109,4 +125,6 @@ flowchart LR
 - The data is synthetic: a two-site plant and a four-plant supply network simulated from seeds, with no real company data.
 - The spares store is simulated from the plant's own repairs and each supplier's delivery record; costs and
   contribution per unit are declared assumptions in `semantic/bridge/bridge.yaml`.
-- Approvals are stored in the container and reset when it restarts.
+- The track record scores each alert independently.
+- Approvals and field inputs are stored in the container and reset when it restarts; Firestore is the next step.
+- The full evaluation on Gemini needs more quota than the free tier gives; single runs are verified.

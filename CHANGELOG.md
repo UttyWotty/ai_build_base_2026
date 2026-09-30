@@ -6,6 +6,12 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+### Changed
+- README, plan, submission write-up, demo script, handover, and techdebt rewritten for the 0.8.0 scope; the inspection
+  photo prompts are recorded in `demo/field/README.md`.
+- The deploy script passes `GEMINI_FALLBACK_MODELS` to Cloud Run (with "@" as the list separator, since the value has
+  commas).
+
 ### Added
 - `GEMINI_FALLBACK_MODELS`: when a Gemini model is out of quota or unavailable, the run restarts on the next backup
   model and the trace says so.
