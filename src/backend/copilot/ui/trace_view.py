@@ -14,7 +14,7 @@ VERIFIED_TEXT = "Verified: every number in this answer comes from a tool result.
 
 def render_run(run: AgentRun, key: str) -> None:
     if run.error:
-        st.error(f"The model could not answer: {run.error}")
+        st.error(run.error_message or f"The model could not answer: {run.error}")
         return
     st.markdown(run.answer or "_No answer._")
     if run.verified:

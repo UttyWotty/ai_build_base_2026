@@ -147,7 +147,7 @@ export interface Proposal {
   status: 'pending' | 'approved' | 'rejected'
 }
 
-export type AgentStepType = 'tool_call' | 'tool_result' | 'text' | 'brief' | 'error'
+export type AgentStepType = 'tool_call' | 'tool_result' | 'text' | 'brief' | 'notice' | 'error'
 
 export type AgentMode = 'single' | 'team'
 
@@ -163,6 +163,8 @@ export interface AgentDoneEvent {
   answer: string
   verified: boolean
   error: string
+  error_message: string
+  error_kind: '' | 'quota' | 'overloaded' | 'auth' | 'model_unavailable' | 'other'
   unexplained_numbers: string[]
   seconds: number
   model: string

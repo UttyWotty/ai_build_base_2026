@@ -11,6 +11,8 @@ import os
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "gemini")
 # Gemini model id; credentials come from GEMINI_API_KEY, or from Vertex AI settings on Google Cloud.
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+# Backup Gemini models, comma-separated, tried in order when the current one is out of quota or unavailable.
+GEMINI_FALLBACK_MODELS = tuple(m.strip() for m in os.getenv("GEMINI_FALLBACK_MODELS", "").split(",") if m.strip())
 # Local OpenAI-compatible endpoint and the model that server is serving.
 LLM_BASE_URL = os.getenv("LLM_BASE_URL", "http://127.0.0.1:8080/v1")
 LLM_MODEL = os.getenv("LLM_MODEL", "ailexleon/Huihui-Qwen3.8-27B-abliterated-mlx-6Bit")

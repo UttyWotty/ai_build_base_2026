@@ -9,14 +9,19 @@ import type { AgentDoneEvent, Proposal } from '../api/types'
 import { AgentRunView, Answer } from './AgentRunView'
 import { Badge, Card } from './ui'
 
-export function AutopilotPanel({ triages, enabled, onFinished, pending, onDecide }:
+export function AutopilotPanel({ triages, enabled, onFinished, pending, onDecide, stoppedReason }:
   { triages: Triage[]; enabled: boolean; onFinished: (alertId: string, result: AgentDoneEvent | null) => void;
-    pending: Proposal[]; onDecide: (id: string, status: 'approved' | 'rejected') => void }) {
+    pending: Proposal[]; onDecide: (id: string, status: 'approved' | 'rejected') => void; stoppedReason: string | null }) {
   const active = triages.find((t) => !t.done)
   const finished = triages.filter((t) => t.done)
   return (
     <Card title={<span className="inline-flex items-center gap-2"><Bot className="h-4 w-4 text-brand-600" />Autopilot</span>}
       action={<Badge tone={enabled ? 'good' : 'neutral'}>{enabled ? 'on' : 'off'}</Badge>}>
+      {stoppedReason && (
+        <p className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          Autopilot stopped and the clock paused: {stoppedReason} The replay itself keeps working; switch the autopilot back on when the model is available.
+        </p>
+      )}
       {!active && finished.length === 0 && (
         <p className="text-sm text-slate-500">
           {enabled ? 'Watching for new alerts. Each one is triaged by Gemini as soon as it arrives.' : 'Switch the autopilot on to triage new alerts automatically.'}
@@ -40,7 +45,7 @@ export function AutopilotPanel({ triages, enabled, onFinished, pending, onDecide
       )}
       {finished.length > 0 && (
         <ul className="mt-4 space-y-1 border-t border-slate-100 pt-3 text-xs text-slate-600">
-          {finished.map((t) => <li key={t.event.alert_id}>Triaged {t.event.subject} ({shortTime(t.event.at)}): {t.result?.error ? 'the model could not answer' : 'proposal sent for approval'}</li>)}
+          {finished.map((t) => <li key={t.event.alert_id}>Triaged {t.event.subject} ({shortTime(t.event.at)}): {t.result?.error ? 'not triaged, the model could not answer' : 'proposal sent for approval'}</li>)}
         </ul>
       )}
     </Card>

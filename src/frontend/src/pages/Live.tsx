@@ -22,6 +22,8 @@ const STARTS = [
   { label: 'Pump wear at DE1', at: '2026-08-18T12:00' },
 ]
 const FEED_LOOKBACK_HOURS = -24
+// Errors that would repeat on every alert: stop the autopilot rather than fail each triage.
+const STOPPING_KINDS = new Set(['quota', 'auth'])
 
 export function Live() {
   const { asOf, setAsOf } = useClock()
@@ -31,6 +33,7 @@ export function Live() {
   const [windowStart, setWindowStart] = useState(() => addHours(asOf, FEED_LOOKBACK_HOURS))
   const [triages, setTriages] = useState<Triage[]>([])
   const [decisions, setDecisions] = useState(0)
+  const [stoppedReason, setStoppedReason] = useState<string | null>(null)
   const resumeAfterTriage = useRef(false)
   const stop = useCallback(() => setRunning(false), [])
   useLiveClock(running, speed, stop)
@@ -45,6 +48,12 @@ export function Live() {
   })
   const finishTriage = useCallback((alertId: string, result: AgentDoneEvent | null) => {
     setTriages((all) => all.map((t) => (t.event.alert_id === alertId ? { ...t, done: true, result } : t)))
+    if (result && STOPPING_KINDS.has(result.error_kind)) {
+      resumeAfterTriage.current = false
+      setAutopilot(false)
+      setStoppedReason(result.error_message)
+      return
+    }
     if (resumeAfterTriage.current) { resumeAfterTriage.current = false; setRunning(true) }
   }, [])
   const jumpTo = (at: string) => { setRunning(false); setTriages([]); setAsOf(at); setWindowStart(addHours(at, FEED_LOOKBACK_HOURS)) }
@@ -60,7 +69,7 @@ export function Live() {
           <div className="flex rounded-lg bg-slate-100 p-1 text-sm">
             {SPEEDS.map((s) => <button key={s} onClick={() => setSpeed(s)} className={`rounded-md px-2.5 py-1 ${s === speed ? 'bg-white shadow-sm' : 'text-slate-600'}`}>{s} h/s</button>)}
           </div>
-          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={autopilot} onChange={(e) => setAutopilot(e.target.checked)} />Autopilot</label>
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={autopilot} onChange={(e) => { setAutopilot(e.target.checked); if (e.target.checked) setStoppedReason(null) }} />Autopilot</label>
           <div className="ml-auto text-right">
             <div className="text-lg font-semibold tabular-nums">{longClock(asOf)}</div>
             <div className="flex gap-2 text-xs text-slate-500">{STARTS.map((s) => <button key={s.at} onClick={() => jumpTo(s.at)} className="underline-offset-2 hover:underline">{s.label}</button>)}</div>
@@ -78,7 +87,7 @@ export function Live() {
             <Kpi label="Downtime avoided" value={h ? hours(h.downtime_avoided_hours) : '–'} tone="good" />
             <Kpi label="Cost avoided" value={h ? compactMoney(h.cost_avoided_usd) : '–'} tone="good" />
           </div>
-          <AutopilotPanel triages={triages} enabled={autopilot} onFinished={finishTriage} pending={pending.data ?? []} onDecide={decide} />
+          <AutopilotPanel triages={triages} enabled={autopilot} onFinished={finishTriage} pending={pending.data ?? []} onDecide={decide} stoppedReason={stoppedReason} />
           <Link to="/approvals" className="block rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm hover:border-brand-500">
             <span className="font-semibold">{plural(pending.data?.length ?? 0, 'proposal')}</span> waiting for approval →
           </Link>

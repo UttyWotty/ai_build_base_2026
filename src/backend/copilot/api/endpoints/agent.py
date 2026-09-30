@@ -58,6 +58,7 @@ def _step_event(step: AgentStep) -> dict[str, object]:
 
 def _done_event(run: AgentRun) -> dict[str, object]:
     return {"type": "done", "answer": run.answer, "verified": run.verified, "error": run.error,
+            "error_message": run.error_message, "error_kind": run.error_kind,
             "unexplained_numbers": list(run.unexplained_numbers), "seconds": run.seconds, "model": run.model,
             "tools_used": list(run.tools_used)}
 
