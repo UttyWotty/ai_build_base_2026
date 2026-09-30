@@ -6,6 +6,10 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+### Changed
+- The app is named emoldinounited.
+- The agent's model calls retry rate limits and server errors with backoff (five attempts), for free-tier quotas.
+
 ### Added
 - `Dockerfile`: a self-contained image that generates both worlds, the bridge, and the failure model at build time
   and serves the app on Cloud Run's port.
