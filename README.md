@@ -73,6 +73,8 @@ Every language feature goes through `src/backend/llm_gateway`, and one setting c
 - **`LLM_PROVIDER=gemini`** (default) uses Gemini through the google-genai SDK. Locally it needs `GEMINI_API_KEY`, a free key from aistudio.google.com. On Google Cloud it uses Vertex AI with the service account instead. `GEMINI_MODEL` picks the model (default `gemini-3.8-flash`; `gemini-2.5-flash` is no longer offered to new users).
 - **`LLM_PROVIDER=local`** uses an OpenAI-compatible server such as `mlx_lm.server` at `LLM_BASE_URL`, serving `LLM_MODEL`. It is the offline fallback.
 
+`GEMINI_FALLBACK_MODELS` lists backup models, tried in order when one is out of quota or unavailable. Each Gemini model has its own free-tier quota, and the trace says when a run switches. Errors reach people in plain words: quota used up, Gemini overloaded, a credential problem, or a model that is not available, each with what to do. The raw provider text sits behind a details toggle. The autopilot stops itself, and pauses the clock, on quota and credential errors instead of failing on every alert.
+
 Command lines accept `--provider`, `--model`, and `--base-url` for one run, for example `make pdm-eval` or `.venv/bin/supply-eval-nl --provider local`. The unit tests use scripted models and never call a real one.
 
 Component commands carry a prefix, for example `make pdm-predict`, `make pdm-ui`, `make supply-demo-offline`, and `make supply-ui`. See `docs/components/pdm.md` and `docs/components/supply.md`.

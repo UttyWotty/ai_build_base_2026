@@ -7,6 +7,16 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 ## [Unreleased]
 
 ### Added
+- `GEMINI_FALLBACK_MODELS`: when a Gemini model is out of quota or unavailable, the run restarts on the next backup
+  model and the trace says so.
+- Provider errors in plain language (quota, overloaded, credentials, model unavailable), each with what to do; the raw
+  text sits behind a details toggle.
+
+### Changed
+- The autopilot stops itself and pauses the clock on quota or credential errors, with a banner, instead of failing on
+  every new alert.
+
+### Added
 - Operations team on the Agent Development Kit: a `ParallelAgent` of three specialists (maintenance, procurement,
   customer service), each with only its role's tools and a brief in session state, then an operations lead in a
   `SequentialAgent` who reads the briefs and proposes. `mode=team` on the stream endpoint; the plan button, the

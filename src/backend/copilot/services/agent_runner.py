@@ -9,7 +9,7 @@ import asyncio
 import re
 import time
 from collections.abc import AsyncIterator
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime
 
 from google.adk.agents import BaseAgent, LlmAgent
@@ -19,11 +19,13 @@ from google.genai import types
 from copilot.core.agent_instructions import copilot_instruction
 from copilot.core.answer_check import unexplained_numbers
 from copilot.core.errors import CopilotError
+from copilot.core.provider_errors import classify
 from copilot.data_pipeline.adk_models import adk_model
 from copilot.services.agent_functions import adk_functions
 from copilot.services.agent_team import answering_agents, build_team
 from copilot.services.agent_tools import CopilotTools
-from llm_gateway.selection import ModelSelection
+from llm_gateway.selection import ModelSelection, Provider
+from llm_gateway.settings import GEMINI_FALLBACK_MODELS
 
 APP_NAME = "operations_copilot"
 SINGLE = "single"
@@ -64,6 +66,9 @@ class AgentRun:
     tool_results: tuple[object, ...] = field(default=())
     # Why the run failed before answering, for example a quota limit; empty when it answered.
     error: str = ""
+    # The plain-language issue behind the error, and its kind (quota, overloaded, auth, model_unavailable, other).
+    error_message: str = ""
+    error_kind: str = ""
 
     @property
     def verified(self) -> bool:
@@ -96,21 +101,40 @@ def run_copilot(question: str, tools: CopilotTools, selection: ModelSelection, m
 
 async def stream_copilot(question: str, tools: CopilotTools, selection: ModelSelection,
                          mode: str = SINGLE) -> AsyncIterator[AgentStep | AgentRun]:
-    """Yield each step as the agent (or the team) takes it, then the finished, checked run."""
+    """Yield each step as the agent (or the team) takes it, then the finished, checked run.
+
+    When a Gemini model is out of quota or unavailable, the run restarts on the next backup model and says so.
+    """
     started = time.monotonic()
-    steps: list[AgentStep] = []
     answerers = answering_agents() if mode == TEAM else frozenset({AGENT_NAME})
-    try:
-        async for step in _steps(build_agent(tools, selection, mode), question, answerers):
-            steps.append(step)
-            yield step
-    except Exception as error:  # the model provider can fail in many ways; the run records it instead of crashing
-        failed = AgentStep("error", type(error).__name__, _short(error))
-        yield failed
-        yield AgentRun(question, tools.as_of, selection.label, tuple(steps) + (failed,), "", (),
-                       round(time.monotonic() - started, 1), error=_short(error))
+    candidates = _candidates(selection)
+    for index, current in enumerate(candidates):
+        steps: list[AgentStep] = []
+        try:
+            async for step in _steps(build_agent(tools, current, mode), question, answerers):
+                steps.append(step)
+                yield step
+        except Exception as error:  # the model provider can fail in many ways; the run records it instead of crashing
+            issue = classify(_short(error), current.label)
+            if issue.try_another_model and index + 1 < len(candidates):
+                yield AgentStep("notice", "fallback", f"{issue.message} Switching to {candidates[index + 1].label}.")
+                continue
+            failed = AgentStep("error", type(error).__name__, _short(error))
+            yield failed
+            yield AgentRun(question, tools.as_of, current.label, tuple(steps) + (failed,), "", (),
+                           round(time.monotonic() - started, 1), error=_short(error), error_message=issue.message,
+                           error_kind=issue.kind.value)
+            return
+        yield finish_run(question, tools, current, steps, started)
         return
-    yield finish_run(question, tools, selection, steps, started)
+
+
+def _candidates(selection: ModelSelection) -> list[ModelSelection]:
+    """The selected model, then the configured Gemini backups."""
+    if selection.provider is not Provider.GEMINI:
+        return [selection]
+    backups = [m for m in GEMINI_FALLBACK_MODELS if m != selection.model]
+    return [selection] + [replace(selection, model=m) for m in backups]
 
 
 def finish_run(question: str, tools: CopilotTools, selection: ModelSelection, steps: list[AgentStep],

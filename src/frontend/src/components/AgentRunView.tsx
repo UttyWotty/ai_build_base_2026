@@ -35,6 +35,7 @@ export function AgentRunView({ question, asOf, onFinished, mode = 'single' }:
   { question: string; asOf: string; onFinished?: (done: AgentDoneEvent | null) => void; mode?: AgentMode }) {
   const [steps, setSteps] = useState<ToolStep[]>([])
   const [briefs, setBriefs] = useState<Brief[]>([])
+  const [notices, setNotices] = useState<string[]>([])
   const [done, setDone] = useState<AgentDoneEvent | null>(null)
   const [failure, setFailure] = useState<string | null>(null)
   const started = useRef(false)
@@ -46,12 +47,14 @@ export function AgentRunView({ question, asOf, onFinished, mode = 'single' }:
       if (event.type === 'tool_call') setSteps((s) => [...s, { name: event.name, args: event.payload, author: event.author }])
       else if (event.type === 'tool_result') setSteps((s) => attachResult(s, event.name, event.payload, event.author))
       else if (event.type === 'brief') setBriefs((b) => [...b, { author: event.author, text: String(event.payload) }])
+      else if (event.type === 'notice') { setNotices((n) => [...n, String(event.payload)]); setSteps([]); setBriefs([]) }
       else if (event.type === 'done') { final = event; setDone(event) }
     }
     streamAgent(question, asOf, handle, mode).catch((e: Error) => setFailure(e.message)).finally(() => onFinished?.(final))
   }, [question, asOf, onFinished, mode])
   return (
     <div className="space-y-4">
+      {notices.map((n) => <p key={n} className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">{n}</p>)}
       {mode === 'team' && <p className="text-xs text-slate-500">Three specialists work in parallel, then the operations lead decides.</p>}
       <ol className="space-y-2">
         {steps.map((step, index) => <StepRow key={index} step={step} showAuthor={mode === 'team'} />)}
@@ -109,7 +112,7 @@ function BriefRow({ brief }: { brief: Brief }) {
 }
 
 export function Answer({ done }: { done: AgentDoneEvent }) {
-  if (done.error) return <ErrorLine text={`The model could not answer: ${done.error}`} />
+  if (done.error) return <ErrorLine text={done.error_message || 'The model could not answer.'} details={done.error} />
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5">
       <div className="text-sm leading-relaxed [overflow-wrap:anywhere] [&_code]:rounded [&_code]:bg-slate-100 [&_code]:px-1 [&_code]:font-mono [&_code]:text-xs [&_h1]:mt-3 [&_h1]:text-base [&_h1]:font-semibold [&_h2]:mt-3 [&_h2]:text-base [&_h2]:font-semibold [&_h3]:mt-3 [&_h3]:font-semibold [&_hr]:my-3 [&_hr]:border-slate-200 [&_li]:my-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:my-2 [&_strong]:font-semibold [&_strong]:text-ink [&_ul]:list-disc [&_ul]:pl-5">
@@ -126,6 +129,16 @@ export function Answer({ done }: { done: AgentDoneEvent }) {
   )
 }
 
-function ErrorLine({ text }: { text: string }) {
-  return <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">{text}</div>
+function ErrorLine({ text, details }: { text: string; details?: string }) {
+  return (
+    <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">
+      {text}
+      {details && (
+        <details className="mt-1 text-xs text-rose-700">
+          <summary className="cursor-pointer">Details</summary>
+          <pre className="mt-1 whitespace-pre-wrap break-all font-mono">{details}</pre>
+        </details>
+      )}
+    </div>
+  )
 }
