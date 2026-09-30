@@ -33,10 +33,11 @@ The agent never writes SQL and never invents a number. Details and milestones ar
 ```
 semantic/pdm/, semantic/supply/   governed definitions per component
 evaluation/, demo/                evaluation sets (including the agent's scenarios) and demo recipes
-src/pdm_oee/                      plant: simulation, conform, OEE, failure prediction, alerts, investigation
-src/supply_ontology/              supply: simulation, conform, ontology and metrics, compiler, governed questions
-src/llm_gateway/                  model gateway: Gemini or local model behind one interface
-src/copilot/                      bridge, spares simulation, impact analysis, operations agent, web app
+src/backend/pdm_oee/              plant: simulation, conform, OEE, failure prediction, alerts, investigation
+src/backend/supply_ontology/      supply: simulation, conform, ontology and metrics, compiler, governed questions
+src/backend/llm_gateway/          model gateway: Gemini or local model behind one interface
+src/backend/copilot/              bridge, spares simulation, impact analysis, operations agent, HTTP API
+src/frontend/                     React web app (Vite, TypeScript)
 semantic/bridge/                  governed links between the plant and the supply network
 tests/<package>/                  tests per package
 tools/check_code_rules.py         file length, function length, and summary docstring rules
@@ -67,7 +68,7 @@ Per-machine settings go in `.env`, copied from `.env.example`. The Makefile load
 
 ## Models
 
-Every language feature goes through `src/llm_gateway`, and one setting chooses the model:
+Every language feature goes through `src/backend/llm_gateway`, and one setting chooses the model:
 - **`LLM_PROVIDER=gemini`** (default) uses Gemini through the google-genai SDK. Locally it needs `GEMINI_API_KEY`, a free key from aistudio.google.com. On Google Cloud it uses Vertex AI with the service account instead. `GEMINI_MODEL` picks the model (default `gemini-3.8-flash`; `gemini-2.5-flash` is no longer offered to new users).
 - **`LLM_PROVIDER=local`** uses an OpenAI-compatible server such as `mlx_lm.server` at `LLM_BASE_URL`, serving `LLM_MODEL`. It is the offline fallback.
 

@@ -36,7 +36,7 @@ emoldinounited runs a sense, reason, act loop over governed data from the plant 
 
 ## 3. How Google AI is integrated
 
-- **Gemini** is the reasoning model, called through the **Agent Development Kit** (`src/copilot/services/agent_runner.py`)
+- **Gemini** is the reasoning model, called through the **Agent Development Kit** (`src/backend/copilot/services/agent_runner.py`)
   as an `LlmAgent` with eight typed function tools (`agent_functions.py`).
 - The agent decides which tools to call and in what order. For example, it analyses both competing alerts in parallel
   before recommending an allocation.

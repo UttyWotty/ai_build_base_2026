@@ -18,7 +18,7 @@ from pdm_oee.services.oee_service import OEEService
 from pdm_oee.ui import resources as keys
 from tests.pdm_oee.investigation.scripted_model import ScriptedModel
 
-APP_PATH = Path(__file__).resolve().parents[3] / "src" / "pdm_oee" / "ui" / "app.py"
+APP_PATH = Path(__file__).resolve().parents[3] / "src" / "backend" / "pdm_oee" / "ui" / "app.py"
 TIMEOUT_SECONDS = 120
 
 

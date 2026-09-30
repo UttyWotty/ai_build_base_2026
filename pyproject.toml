@@ -47,12 +47,12 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["src/backend"]
 
 [tool.ruff]
 target-version = "py311"
 line-length = 88
-src = ["src", "."]
+src = ["src/backend", "."]
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
@@ -63,7 +63,7 @@ ignore = ["E501"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src", "."]
+pythonpath = ["src/backend", "."]
 filterwarnings = [
   "ignore::DeprecationWarning:opentelemetry.*",
   "ignore:.*EXPERIMENTAL.*:UserWarning",

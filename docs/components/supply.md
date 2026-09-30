@@ -1,6 +1,6 @@
 <!-- Component reference, imported unchanged from the standalone repository at the version named below. -->
 
-> **Imported from supply-chain-ontology v0.7.2.** In this repository, this package lives in `src/supply_ontology`, its governed files in `semantic/supply/`, its data in `data/supply/`, and its tests in `tests/supply_ontology/`. Make targets and console scripts carry a `supply-` prefix (for example `make supply-data`, `supply-generate-data`). `make data` builds both worlds.
+> **Imported from supply-chain-ontology v0.7.2.** In this repository, this package lives in `src/backend/supply_ontology`, its governed files in `semantic/supply/`, its data in `data/supply/`, and its tests in `tests/supply_ontology/`. Make targets and console scripts carry a `supply-` prefix (for example `make supply-data`, `supply-generate-data`). `make data` builds both worlds.
 
 # Supply Chain Ontology and Governed Conversational Analytics
 
