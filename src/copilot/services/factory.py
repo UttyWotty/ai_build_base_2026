@@ -5,6 +5,7 @@ Tests build services directly with in-memory stores instead.
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime
 
 from copilot.data_pipeline.bridge_files import load_bridge
@@ -22,6 +23,7 @@ from copilot.services.settings import (
     SUPPLY_CONFORMED_DIR,
 )
 from copilot.services.supplier_reliability import SupplierReliabilityService
+from pdm_oee.core.catalog import PlantCatalog
 from pdm_oee.data_pipeline.replay_store import read_replay_alerts
 from pdm_oee.data_pipeline.semantic_files import load_catalog
 from pdm_oee.services.investigation_tools import ToolBox
@@ -50,12 +52,31 @@ def default_impact_service(connection_manager: WorldStore | None = None, alerts:
                          alerts or default_alert_book(), reliability, store)
 
 
-def default_copilot_tools(as_of: datetime) -> CopilotTools:
-    """The agent's tools over the configured data, at one analysis time."""
+@dataclass(frozen=True)
+class CopilotServices:
+    """The long-lived services; tools for a given analysis time are cheap to build from them."""
+
+    impact: ImpactService
+    plant_tools: ToolBox
+    plant_catalog: PlantCatalog
+    reliability: SupplierReliabilityService
+    proposals: ProposalStore
+
+    def tools_at(self, as_of: datetime) -> CopilotTools:
+        return CopilotTools(as_of, self.impact, self.plant_tools, self.plant_catalog, self.reliability, self.proposals)
+
+
+def default_services() -> CopilotServices:
+    """Every copilot service over the configured data."""
     store = default_world_store()
     alerts = default_alert_book()
     reliability = SupplierReliabilityService(QueryService(load_supply_catalog()), store)
     plant_catalog = load_catalog(PLANT_SEMANTIC_DIR)
     impact = ImpactService(load_bridge(BRIDGE_SEMANTIC_DIR), plant_catalog, alerts, reliability, store)
     plant_tools = ToolBox(plant_catalog, OEEService(plant_catalog), read_replay_alerts(REPLAY_PATH))
-    return CopilotTools(as_of, impact, plant_tools, plant_catalog, reliability, ProposalStore(PROPOSALS_PATH))
+    return CopilotServices(impact, plant_tools, plant_catalog, reliability, ProposalStore(PROPOSALS_PATH))
+
+
+def default_copilot_tools(as_of: datetime) -> CopilotTools:
+    """The agent's tools over the configured data, at one analysis time."""
+    return default_services().tools_at(as_of)

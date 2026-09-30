@@ -7,6 +7,12 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 ## [Unreleased]
 
 ### Added
+- Web app (`make app`): demo clock with named scenarios, control room with headline savings, spare conflicts,
+  supplier record, priced options, customers at risk and sensor evidence, the Ask tab with verified answers and
+  traces, Approvals, and How it works.
+- Presenter tests, and a headless test of the real page on the generated data (skipped without data).
+
+### Added
 - Operations agent on the Agent Development Kit: Gemini by default, a local model through LiteLLM as the fallback;
   `make ask Q="..."` at the demo clock (`DEMO_AS_OF`, default 2026-07-25 02:00).
 - Eight point-in-time tools: open alerts, impact analysis, sensor evidence, supplier record (governed

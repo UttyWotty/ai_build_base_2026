@@ -24,7 +24,7 @@ The agent never writes SQL and never invents a number. Details and milestones ar
 | 0.2.0 | Model layer (Gemini and local models) | In progress |
 | 0.3.0 | Bridge and impact analysis | In progress |
 | 0.4.0 | Operations agent | In progress |
-| 0.5.0 | Web app | Planned |
+| 0.5.0 | Web app | In progress |
 | 0.6.0 | Cloud-ready (Cloud Run, Vertex AI) | Planned |
 | 0.7.0 | Submission kit | Planned |
 
@@ -36,7 +36,7 @@ evaluation/, demo/                evaluation sets (including the agent's scenari
 src/pdm_oee/                      plant: simulation, conform, OEE, failure prediction, alerts, investigation
 src/supply_ontology/              supply: simulation, conform, ontology and metrics, compiler, governed questions
 src/llm_gateway/                  model gateway: Gemini or local model behind one interface
-src/copilot/                      bridge, spares simulation, impact analysis, operations agent (app to come)
+src/copilot/                      bridge, spares simulation, impact analysis, operations agent, web app
 semantic/bridge/                  governed links between the plant and the supply network
 tests/<package>/                  tests per package
 tools/check_code_rules.py         file length, function length, and summary docstring rules
@@ -56,6 +56,7 @@ make models     # trains the failure model and replays its alerts (about 20 seco
 make test       # runs the test suite
 make lint       # runs ruff and the code rule checks
 make settings   # prints the model endpoint and data directories in effect
+make app        # opens the copilot web app
 ```
 
 Per-machine settings go in `.env`, copied from `.env.example`. The Makefile loads it for every target.
@@ -89,6 +90,14 @@ supplier V10001: on time 66.1%, expected 2 days late (sql 59337a47eb2e9a5d)
 ```
 
 The bridge (`semantic/bridge/bridge.yaml`) links sites to supply plants, components to spares and suppliers, and lines to the customer parts they make. `make bridge` simulates each site's spares store from the plant's repair history and the suppliers' real delivery record in the supply world.
+
+## Web app
+
+`make app` opens the copilot in the browser. The sidebar sets the demo clock, either a named scenario or any time in the data, and every view answers as of that moment.
+- **Control room.** Headline numbers (open alerts, alerts in a spare conflict, downtime and cost the plan avoids), then per alert: the conflict banner, the spare position across sites, the supplier's governed on-time delivery, every priced option, the customer lines at risk without the plan, and the sensor evidence against its normal range. **Draft the plan with the copilot** asks the agent to create the proposal.
+- **Ask the copilot.** Free questions, with suggested ones; each answer shows the verified badge and the full tool trace.
+- **Approvals.** The proposals, with approve and reject.
+- **How it works.** The sense, reason, act loop, the architecture, the guardrails, and the Google Cloud mapping.
 
 ## Operations agent
 
