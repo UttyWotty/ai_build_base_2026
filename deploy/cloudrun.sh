@@ -9,6 +9,8 @@ REGION="${REGION:-europe-west1}"                 # Cloud Run region
 VERTEX_LOCATION="${VERTEX_LOCATION:-global}"     # Gemini endpoint location on Vertex AI
 SERVICE="${SERVICE:-ops-copilot}"
 GEMINI_MODEL="${GEMINI_MODEL:-gemini-3.8-flash}"
+# Backups when a model is unavailable; comma-separated, so the env list below uses "@" as its separator.
+GEMINI_FALLBACK_MODELS="${GEMINI_FALLBACK_MODELS:-gemini-3.7-flash,gemini-3.6-flash,gemini-3.5-flash}"
 SA_NAME="${SA_NAME:-ops-copilot-run}"
 MIN_INSTANCES="${MIN_INSTANCES:-0}"              # set to 1 while judges are looking, to avoid cold starts
 SA_EMAIL="${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
@@ -28,7 +30,7 @@ gcloud run deploy "${SERVICE}" \
   --source . \
   --region "${REGION}" \
   --service-account "${SA_EMAIL}" \
-  --set-env-vars "LLM_PROVIDER=gemini,GEMINI_MODEL=${GEMINI_MODEL},GOOGLE_GENAI_USE_VERTEXAI=true,GOOGLE_CLOUD_PROJECT=${PROJECT_ID},GOOGLE_CLOUD_LOCATION=${VERTEX_LOCATION}" \
+  --set-env-vars "^@^LLM_PROVIDER=gemini@GEMINI_MODEL=${GEMINI_MODEL}@GEMINI_FALLBACK_MODELS=${GEMINI_FALLBACK_MODELS}@GOOGLE_GENAI_USE_VERTEXAI=true@GOOGLE_CLOUD_PROJECT=${PROJECT_ID}@GOOGLE_CLOUD_LOCATION=${VERTEX_LOCATION}" \
   --memory 2Gi --cpu 2 --timeout 900 --concurrency 20 \
   --min-instances "${MIN_INSTANCES}" --max-instances 3 \
   --session-affinity \
