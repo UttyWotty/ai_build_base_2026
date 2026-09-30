@@ -26,6 +26,9 @@ AGENT_NAME = "operations_copilot"
 USER_ID = "operator"
 USER_ROLE = "user"
 TEMPERATURE = 0.0
+# Free-tier and shared quotas answer 429 under bursts; the SDK retries these with backoff before the run fails.
+RETRY_OPTIONS = types.HttpRetryOptions(attempts=5, initial_delay=2.0, max_delay=30.0,
+                                       http_status_codes=[429, 500, 502, 503, 504])
 
 
 @dataclass(frozen=True)
@@ -63,7 +66,8 @@ def build_agent(tools: CopilotTools, selection: ModelSelection) -> LlmAgent:
     """The copilot agent for one analysis time."""
     return LlmAgent(name=AGENT_NAME, model=adk_model(selection), instruction=copilot_instruction(tools.as_of),
                     tools=adk_functions(tools),
-                    generate_content_config=types.GenerateContentConfig(temperature=TEMPERATURE))
+                    generate_content_config=types.GenerateContentConfig(
+                        temperature=TEMPERATURE, http_options=types.HttpOptions(retry_options=RETRY_OPTIONS)))
 
 
 def run_copilot(question: str, tools: CopilotTools, selection: ModelSelection) -> AgentRun:

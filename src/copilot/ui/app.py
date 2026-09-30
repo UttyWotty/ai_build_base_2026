@@ -17,7 +17,7 @@ from copilot.ui.control_view import render_control_room
 from copilot.ui.resources import AS_OF_KEY, services
 from llm_gateway.factory import default_selection
 
-PRODUCT_NAME = "Operations Copilot"
+PRODUCT_NAME = "emoldinounited"
 TAGLINE = "From a failure alert to an approved plan: spares, suppliers, and customers in one view."
 TAB_NAMES = ("Control room", "Ask the copilot", "Approvals", "How it works")
 CUSTOM = "Custom time"
