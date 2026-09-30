@@ -217,3 +217,15 @@ export interface PlantEvent {
   severity: EventSeverity
   alert_id: string | null
 }
+
+export interface Outcome {
+  proposal_id: string
+  alert_id: string
+  status: 'pending' | 'failed' | 'no_failure'
+  settled_at: string | null
+  with_plan_hours: number | null
+  without_plan_hours: number | null
+  hours_saved: number | null
+  usd_saved: number | null
+  extra_cost_usd: number | null
+}

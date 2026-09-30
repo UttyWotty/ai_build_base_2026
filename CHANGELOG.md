@@ -7,6 +7,16 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 ## [Unreleased]
 
 ### Added
+- Closed loop: approved proposals become decisions that change stock and queues from their moment on (a transfer leaves
+  the sister shelf at once and arrives when promised; covered alerts stop competing for the spare).
+- Outcomes settle once the clock passes the real failure or the end of the warning window: hours down with and without
+  the plan, and the money saved. They show on the Approvals page and in the live feed with the approval and arrival.
+- Approve and reject in the autopilot panel; Reset demo; `GET /api/proposals/outcomes`, `POST /api/proposals/reset`.
+
+### Changed
+- The track record scores the analysis without demo approvals, so approving in the app never changes it.
+
+### Added
 - Live mode (the Live page): the demo clock runs at 1, 3, or 6 hours per second; a plant event feed streams alerts,
   breakdowns, restorations, and spare orders and receipts; with the autopilot on, every alert that opens a work order
   pauses the clock while Gemini triages it and creates a proposal, then the clock runs on.

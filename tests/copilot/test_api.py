@@ -56,10 +56,16 @@ class FakeValue:
         return [case], summarise([case])
 
 
+class FakeOutcomes:
+    def outcomes(self, now):
+        return []
+
+
 class FakeServices:
     def __init__(self, proposals: ProposalStore) -> None:
         self.proposals = proposals
         self.value = FakeValue()
+        self.outcomes = FakeOutcomes()
 
     def tools_at(self, as_of: datetime) -> FakeTools:
         return FakeTools(as_of)
@@ -131,3 +137,9 @@ def test_track_record_reports_the_net_value_and_the_method(client: TestClient) -
     body = client.get("/api/value").json()
     assert body["summary"]["real_failures"] == 1 and body["summary"]["hours_saved"] == 144.0
     assert body["cases"][0]["recommended_kind"] == "transfer" and len(body["method"]) == 4
+
+
+def test_outcomes_and_reset(client: TestClient) -> None:
+    assert client.get("/api/proposals/outcomes", params={"as_of": "2026-07-26T12:00"}).json() == {"outcomes": []}
+    assert client.post("/api/proposals/reset").json() == {"removed": 1}
+    assert client.get("/api/proposals").json()["proposals"] == []

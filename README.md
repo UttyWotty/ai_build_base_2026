@@ -115,6 +115,7 @@ The app ships as one container. `Dockerfile` builds the React app in a Node stag
 | `GET /api/events?start=&end=` | The plant event feed for a window (at most 31 days): alerts, breakdowns, restorations, spare movements |
 | `GET /api/value` | The track record |
 | `GET /api/proposals`, `POST /api/proposals/{id}/status` | The approval queue |
+| `GET /api/proposals/outcomes?as_of=`, `POST /api/proposals/reset` | Outcomes of approved decisions at the clock; clear the queue |
 | `POST /api/agent/stream` | The agent's run as server-sent events: each tool call and result live, then the checked answer |
 
 ## Web app
@@ -125,7 +126,7 @@ The top bar sets the demo clock: a named scenario or any time in the data. Every
 - **Live.** The plant replayed as it happens. Press Run and the clock advances 1, 3, or 6 hours per second. Alerts, breakdowns, restorations, and spare orders and receipts stream into the event feed. With **Autopilot** on, every alert that opens a work order pauses the clock while Gemini triages it: impact, conflicts, the best option, and a proposal for approval. Then the clock runs on.
 - **Control room.** Headline numbers (open alerts, spare conflicts, and the downtime and cost the plan avoids), then the alert list and the selected alert. It shows the conflict, the spare across sites, the supplier's governed on-time delivery, the rules' pick against what the site would do alone, every priced option, the sensor evidence against its normal band, and the customers at risk. **Draft the plan with the copilot** runs Gemini and streams each tool call as it happens.
 - **Copilot.** Free questions, with suggested ones. Each run shows its live tool timeline, the answer, and the verified badge.
-- **Approvals.** The proposals, with approve and reject.
+- **Approvals.** The proposals, with approve and reject. An approved plan becomes a decision: a transfer leaves the sister site's shelf at once and arrives when promised, and other alerts stop competing for it. Once the clock passes the real failure, or the end of the warning window, the outcome appears, for example "down 26.0 h with the plan instead of 230.3 h, $100,077 saved". **Reset demo** clears the proposals.
 - **How it works.** The sense, reason, act loop, the architecture, the guardrails, and the Google Cloud setup.
 
 The earlier Streamlit version still runs with `make app` until the React app has been deployed once.

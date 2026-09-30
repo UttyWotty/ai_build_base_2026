@@ -45,7 +45,7 @@ export function AlertDetail({ alertId, asOf }: { alertId: string; asOf: string }
         <SpareCard data={data} />
         <SupplierCard data={data} />
         <Card title="Recommended by the rules">
-          <Stat label={`${optionLabel(best.kind)} · ${best.source}`} value={money(best.total_cost_usd)}
+          <Stat label={`${optionLabel(best.kind, best.source)} · ${best.source.startsWith('DEC-') ? 'approved' : best.source}`} value={money(best.total_cost_usd)}
             sub={`Spare ready ${shortTime(best.ready_at)} · ${hours(best.downtime_hours)} down`} />
           {data.baseline.kind !== best.kind && (
             <p className="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">

@@ -12,7 +12,7 @@ Times are targets. Keep the top-bar clock on "Bearing squeeze at US1" unless a s
 | 1:20 | Sensor chart | "This is why the model raised the alert: spindle vibration climbing past its normal range over the week." |
 | 1:35 | Click "Draft the plan with the copilot" | "Now Gemini, through Google's Agent Development Kit, investigates on its own. Watch each tool call appear as it happens: impact, sensors, the supplier, then the proposal." |
 | 2:00 | The live tool timeline, then the answer and the verified badge | "Every number in the answer is checked against the tools. The trace shows exactly what it looked at. It did not order anything; it made a proposal." |
-| 2:20 | Approvals tab, approve | "A person approves. The agent recommends; people decide." |
+| 2:20 | Approve in the autopilot panel, press Run; at 26 Jul 10:00 the feed shows the outcome | "A person approves. DE1's bearing is on its way. The next morning the spindle fails, as predicted, and the line is back in 26 hours instead of 230." |
 | 2:35 | Top bar: "Hydraulic pump wear at DE1" | "On a calm day it stays calm: the spare is in stock, so the repair goes into a planned slot at no extra cost." |
 | 2:50 | How it works tab | "Gemini on Vertex AI, the Agent Development Kit, Cloud Run. From an alert to an approved plan in under a minute." |
 

@@ -9,10 +9,12 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from copilot.data_pipeline.bridge_files import load_bridge
+from copilot.data_pipeline.impact_queries import site_assets
 from copilot.data_pipeline.proposal_store import ProposalStore
 from copilot.data_pipeline.world_store import WorldStore
 from copilot.services.agent_tools import CopilotTools
 from copilot.services.alert_book import AlertBook
+from copilot.services.decisions import DecisionBook, OutcomeService
 from copilot.services.impact_service import ImpactService
 from copilot.services.settings import (
     BRIDGE_DATA_DIR,
@@ -46,7 +48,7 @@ def default_alert_book() -> AlertBook:
 
 
 def default_impact_service(connection_manager: WorldStore | None = None, alerts: AlertBook | None = None) -> ImpactService:
-    """The impact service over the configured data."""
+    """The impact service over the configured data, without approvals applied (the pure analysis)."""
     store = connection_manager or default_world_store()
     reliability = SupplierReliabilityService(QueryService(load_supply_catalog()), store)
     return ImpactService(load_bridge(BRIDGE_SEMANTIC_DIR), load_catalog(PLANT_SEMANTIC_DIR),
@@ -63,6 +65,7 @@ class CopilotServices:
     reliability: SupplierReliabilityService
     proposals: ProposalStore
     value: ValueService
+    outcomes: OutcomeService
 
     def tools_at(self, as_of: datetime) -> CopilotTools:
         return CopilotTools(as_of, self.impact, self.plant_tools, self.plant_catalog, self.reliability, self.proposals)
@@ -74,10 +77,15 @@ def default_services() -> CopilotServices:
     alerts = default_alert_book()
     reliability = SupplierReliabilityService(QueryService(load_supply_catalog()), store)
     plant_catalog = load_catalog(PLANT_SEMANTIC_DIR)
-    impact = ImpactService(load_bridge(BRIDGE_SEMANTIC_DIR), plant_catalog, alerts, reliability, store)
+    bridge = load_bridge(BRIDGE_SEMANTIC_DIR)
+    proposals = ProposalStore(PROPOSALS_PATH)
+    book = DecisionBook(proposals, alerts, bridge, site_assets(store))
+    impact = ImpactService(bridge, plant_catalog, alerts, reliability, store, decisions=book.decisions)
+    # The track record scores the pure analysis, so demo approvals never change it.
+    pure = ImpactService(bridge, plant_catalog, alerts, reliability, store)
     plant_tools = ToolBox(plant_catalog, OEEService(plant_catalog), read_replay_alerts(REPLAY_PATH))
-    return CopilotServices(impact, plant_tools, plant_catalog, reliability, ProposalStore(PROPOSALS_PATH),
-                           ValueService(impact))
+    return CopilotServices(impact, plant_tools, plant_catalog, reliability, proposals, ValueService(pure),
+                           OutcomeService(book, pure.analyse, pure.pf_days))
 
 
 def default_copilot_tools(as_of: datetime) -> CopilotTools:

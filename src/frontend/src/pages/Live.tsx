@@ -30,12 +30,14 @@ export function Live() {
   const [autopilot, setAutopilot] = useState(true)
   const [windowStart, setWindowStart] = useState(() => addHours(asOf, FEED_LOOKBACK_HOURS))
   const [triages, setTriages] = useState<Triage[]>([])
+  const [decisions, setDecisions] = useState(0)
   const resumeAfterTriage = useRef(false)
   const stop = useCallback(() => setRunning(false), [])
   useLiveClock(running, speed, stop)
-  const feed = useAsync(() => api.events(windowStart, asOf), [windowStart, asOf])
-  const overview = useAsync(() => api.overview(asOf), [asOf])
-  const pending = useAsync(async () => (await api.proposals()).filter((p) => p.status === 'pending').length, [asOf, triages.length])
+  const feed = useAsync(() => api.events(windowStart, asOf), [windowStart, asOf, decisions])
+  const overview = useAsync(() => api.overview(asOf), [asOf, decisions])
+  const pending = useAsync(async () => (await api.proposals()).filter((p) => p.status === 'pending'), [asOf, triages, decisions])
+  const decide = async (id: string, status: 'approved' | 'rejected') => { await api.setProposalStatus(id, status); setDecisions((n) => n + 1) }
   const fresh = useFreshKeys(feed.data?.map(eventKey) ?? [])
   useAutopilotTrigger(feed.data ?? [], autopilot, running, setTriages, () => {
     resumeAfterTriage.current = true
@@ -76,9 +78,9 @@ export function Live() {
             <Kpi label="Downtime avoided" value={h ? hours(h.downtime_avoided_hours) : '–'} tone="good" />
             <Kpi label="Cost avoided" value={h ? compactMoney(h.cost_avoided_usd) : '–'} tone="good" />
           </div>
-          <AutopilotPanel triages={triages} enabled={autopilot} onFinished={finishTriage} />
+          <AutopilotPanel triages={triages} enabled={autopilot} onFinished={finishTriage} pending={pending.data ?? []} onDecide={decide} />
           <Link to="/approvals" className="block rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm hover:border-brand-500">
-            <span className="font-semibold">{plural(pending.data ?? 0, 'proposal')}</span> waiting for approval →
+            <span className="font-semibold">{plural(pending.data?.length ?? 0, 'proposal')}</span> waiting for approval →
           </Link>
         </div>
       </div>
