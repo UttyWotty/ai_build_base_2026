@@ -6,6 +6,8 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-09-30
+
 ### Added
 - `pdm_oee` package, imported from pdm-oee-command-center v0.8.3, with its governed files in `semantic/pdm/`, data in
   `data/pdm/`, and tests in `tests/pdm_oee/`.
