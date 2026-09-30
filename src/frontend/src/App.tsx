@@ -1,4 +1,4 @@
-// Root component: the router, the demo clock, and the shell around the five pages.
+// Root component: the router, the demo clock, and the shell around the six pages.
 // Routes are plain paths so a page can be linked and reloaded directly; Firebase Hosting serves index.html for all of them.
 // Data loading happens inside each page, never here.
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
@@ -7,6 +7,7 @@ import { Approvals } from './pages/Approvals'
 import { Copilot } from './pages/Copilot'
 import { ControlRoom } from './pages/ControlRoom'
 import { HowItWorks } from './pages/HowItWorks'
+import { Live } from './pages/Live'
 import { TrackRecord } from './pages/TrackRecord'
 import { ClockProvider } from './state/clock'
 
@@ -16,6 +17,7 @@ export default function App() {
       <ClockProvider>
         <Layout>
           <Routes>
+            <Route path="/live" element={<Live />} />
             <Route path="/" element={<ControlRoom />} />
             <Route path="/copilot" element={<Copilot />} />
             <Route path="/approvals" element={<Approvals />} />

@@ -24,7 +24,8 @@ const TOOL_LABELS: Record<string, string> = {
   propose_action_plan: 'Drafted a proposal',
 }
 
-export function AgentRunView({ question, asOf, onFinished }: { question: string; asOf: string; onFinished?: () => void }) {
+export function AgentRunView({ question, asOf, onFinished }:
+  { question: string; asOf: string; onFinished?: (done: AgentDoneEvent | null) => void }) {
   const [steps, setSteps] = useState<ToolStep[]>([])
   const [done, setDone] = useState<AgentDoneEvent | null>(null)
   const [failure, setFailure] = useState<string | null>(null)
@@ -32,12 +33,13 @@ export function AgentRunView({ question, asOf, onFinished }: { question: string;
   useEffect(() => {
     if (started.current) return
     started.current = true
+    let final: AgentDoneEvent | null = null
     const handle = (event: AgentEvent) => {
       if (event.type === 'tool_call') setSteps((s) => [...s, { name: event.name, args: event.payload }])
       else if (event.type === 'tool_result') setSteps((s) => attachResult(s, event.name, event.payload))
-      else if (event.type === 'done') setDone(event)
+      else if (event.type === 'done') { final = event; setDone(event) }
     }
-    streamAgent(question, asOf, handle).catch((e: Error) => setFailure(e.message)).finally(() => onFinished?.())
+    streamAgent(question, asOf, handle).catch((e: Error) => setFailure(e.message)).finally(() => onFinished?.(final))
   }, [question, asOf, onFinished])
   return (
     <div className="space-y-4">
@@ -81,7 +83,7 @@ function StepRow({ step }: { step: ToolStep }) {
   )
 }
 
-function Answer({ done }: { done: AgentDoneEvent }) {
+export function Answer({ done }: { done: AgentDoneEvent }) {
   if (done.error) return <ErrorLine text={`The model could not answer: ${done.error}`} />
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5">
