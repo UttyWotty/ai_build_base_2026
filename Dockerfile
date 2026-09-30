@@ -1,28 +1,37 @@
-# Container for the operations copilot on Cloud Run: installs the package, generates both synthetic worlds, the bridge,
-# and the failure model at build time, then serves the Streamlit app on the port Cloud Run provides.
-# The image is self-contained: no data volume, no database, and the model is reached through Vertex AI at run time.
+# Container for emoldinounited on Cloud Run: stage one builds the React frontend, stage two installs the Python backend,
+# generates both synthetic worlds, the bridge, and the failure model, then serves the API and the frontend with uvicorn.
+# The image is self-contained: no data volume, no database, and Gemini is reached through Vertex AI at run time.
+FROM node:22-slim AS frontend
+WORKDIR /frontend
+COPY src/frontend/package.json src/frontend/package-lock.json ./
+RUN npm ci --silent
+COPY src/frontend ./
+RUN npm run build
+
 FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PORT=8080 \
-    LLM_PROVIDER=gemini
+    LLM_PROVIDER=gemini \
+    FRONTEND_DIST_DIR=/app/frontend
 
 WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends make && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml README.md ./
-COPY src ./src
+COPY src/backend ./src/backend
 RUN python -m venv .venv && .venv/bin/pip install -q .
 
 COPY Makefile ./
 COPY semantic ./semantic
 COPY evaluation ./evaluation
 COPY demo ./demo
-COPY .streamlit ./.streamlit
 RUN make data models
 
+COPY --from=frontend /frontend/dist ./frontend
+
 EXPOSE 8080
-# The shell expands the PORT Cloud Run injects; exec hands signals straight to Streamlit for a clean shutdown.
-CMD ["sh", "-c", "exec .venv/bin/streamlit run src/backend/copilot/ui/app.py --server.port=${PORT} --server.address=0.0.0.0 --server.headless=true"]
+# The shell expands the PORT Cloud Run injects; exec hands signals straight to uvicorn for a clean shutdown.
+CMD ["sh", "-c", "exec .venv/bin/uvicorn copilot.api.server:app --host 0.0.0.0 --port ${PORT}"]

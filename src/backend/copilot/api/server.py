@@ -1,7 +1,7 @@
 """The copilot's HTTP API: FastAPI application with a lifespan that loads the services once.
 
-Run locally with `make api` (uvicorn on port 8000). The React frontend calls it under /api; in production Firebase
-Hosting forwards /api to this service on Cloud Run, so the browser sees one origin.
+Run locally with `make api` (uvicorn on port 8000), with the React dev server proxying /api to it. In the container
+the same service also serves the built frontend, so the browser sees one origin and the agent stream is never buffered.
 """
 from __future__ import annotations
 
@@ -13,7 +13,9 @@ from fastapi import FastAPI
 
 from copilot.api.dependencies import SELECTION_STATE, SERVICES_STATE
 from copilot.api.endpoints import agent, alerts, catalog, health, proposals
+from copilot.api.static_site import mount_frontend
 from copilot.services.factory import CopilotServices, default_services
+from copilot.services.settings import FRONTEND_DIST_DIR
 from llm_gateway.factory import default_selection
 
 logger = logging.getLogger(__name__)
@@ -33,6 +35,7 @@ def create_app(load_services: Callable[[], CopilotServices] = default_services) 
     app = FastAPI(title=TITLE, lifespan=lifespan)
     for module in (health, catalog, alerts, proposals, agent):
         app.include_router(module.router)
+    mount_frontend(app, FRONTEND_DIST_DIR)
     return app
 
 

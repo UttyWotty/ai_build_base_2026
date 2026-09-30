@@ -7,6 +7,16 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 ## [Unreleased]
 
 ### Added
+- React frontend in `src/frontend/` (Vite, TypeScript, Tailwind, Recharts): control room, a copilot page with the
+  agent's tool calls streamed live, approvals, and How it works; `make web` with a dev proxy to `make api`.
+- The backend serves the built frontend with client-side routes, so one Cloud Run service hosts the whole app.
+- Frontend unit tests (Vitest) for formatting and the event-stream parser; `make lint` and `make test` cover both sides.
+- The impact endpoint returns the baseline option, so the frontend does not repeat that rule.
+
+### Changed
+- The container builds the frontend in a Node stage and serves everything with uvicorn instead of Streamlit.
+
+### Added
 - HTTP API (FastAPI, `make api`): health, engine status, scenarios, overview with headline, alert impact and
   evidence, proposals with approval, and the agent run streamed as server-sent events.
 - `stream_copilot` yields each agent step as it happens; `run_copilot` is built on it.

@@ -73,7 +73,7 @@ Google Cloud mapping (see `docs/HANDOVER.md` for the steps):
 |---|---|---|
 | Reasoning model | Gemini through an AI Studio key, or a local OpenAI-compatible model | Gemini on Vertex AI, authenticated by the Cloud Run service account |
 | Agent | Google Agent Development Kit | Same code |
-| App hosting | `make app` | Cloud Run, one container |
+| App hosting | `make api` and `make web` | Cloud Run, one container serving the API and the React app |
 | Analytical data | DuckDB over Parquet | DuckDB inside the container first; BigQuery as the warehouse mode |
 | Files | `data/` | Cloud Storage |
 | Sensor events (stretch) | Replay from Parquet | Pub/Sub topic feeding the alert service |

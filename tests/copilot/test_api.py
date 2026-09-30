@@ -14,6 +14,7 @@ from fastapi.testclient import TestClient
 
 from copilot.api import server
 from copilot.api.endpoints import agent as agent_endpoint
+from copilot.api.static_site import mount_frontend
 from copilot.data_pipeline.proposal_store import ProposalStore
 from copilot.services.agent_runner import AgentRun, AgentStep
 from tests.copilot.test_presenters import IMPACT
@@ -98,3 +99,19 @@ def test_agent_run_streams_steps_then_the_checked_answer(client: TestClient, mon
     events = [json.loads(line[len("data: "):]) for line in response.text.splitlines() if line.startswith("data: ")]
     assert [e["type"] for e in events] == ["tool_call", "tool_result", "done"]
     assert events[-1]["verified"] is True and events[-1]["answer"] == "1 alert is open."
+
+
+def test_the_built_frontend_is_served_with_client_side_routes(tmp_path: Path) -> None:
+    dist = tmp_path / "dist"
+    (dist / "assets").mkdir(parents=True)
+    (dist / "index.html").write_text("<div id=root></div>")
+    (dist / "assets" / "app.js").write_text("console.log(1)")
+    (dist / "favicon.svg").write_text("<svg/>")
+    app = server.create_app(lambda: FakeServices(ProposalStore(tmp_path / "p.json")))
+    assert mount_frontend(app, dist) and not mount_frontend(server.create_app(), tmp_path / "none")
+    with TestClient(app) as test_client:
+        assert test_client.get("/approvals").text == "<div id=root></div>"
+        assert test_client.get("/assets/app.js").text == "console.log(1)"
+        assert test_client.get("/favicon.svg").text == "<svg/>"
+        assert test_client.get("/api/unknown").status_code == 404
+        assert test_client.get("/health").json() == {"status": "ok"}
