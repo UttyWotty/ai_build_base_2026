@@ -54,9 +54,11 @@ The copilot's answer: the overdue US1-L3-01 alert takes the set, and an air tran
 
 ```
 semantic/{pdm,supply,bridge}     governed definitions: plant model, ontology, metrics, cross-domain links
-src/pdm_oee                      plant: simulation, conform, OEE, prediction, alerts
-src/supply_ontology              supply: simulation, conform, metric compiler, governed questions
-src/copilot                      bridge, impact analysis, Gemini agent, web app
+src/backend/pdm_oee              plant: simulation, conform, OEE, prediction, alerts
+src/backend/supply_ontology      supply: simulation, conform, metric compiler, governed questions
+src/backend/llm_gateway          model gateway: Gemini or local model
+src/backend/copilot              bridge, impact analysis, Gemini agent, HTTP API
+src/frontend                     React web app
   core/                          pure logic: impact rules, action planning, presenters
   data_pipeline/                 adapters: model clients, bridge loading, warehouse access
   services/                      impact service, agent tools, agent runner

@@ -8,7 +8,7 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-ROOTS = ("src", "tests", "tools")
+ROOTS = ("src/backend", "tests", "tools")
 MAX_FILE_LINES = 500
 MAX_FUNCTION_LINES = 50
 SUMMARY_PREFIXES = ('"""', "#")

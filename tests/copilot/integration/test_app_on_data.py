@@ -15,7 +15,7 @@ from copilot.services.settings import BRIDGE_DATA_DIR
 from copilot.ui import resources
 
 ROOT = Path(__file__).resolve().parents[3]
-APP_PATH = ROOT / "src" / "copilot" / "ui" / "app.py"
+APP_PATH = ROOT / "src" / "backend" / "copilot" / "ui" / "app.py"
 REPLAY = ROOT / "data" / "pdm" / "alerts" / "replay.json"
 TIMEOUT_SECONDS = 300
 

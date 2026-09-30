@@ -47,7 +47,7 @@ eval:
 	$(PYTHON) -m copilot.api.agent_eval_cli
 
 app:
-	$(VENV)/bin/streamlit run src/copilot/ui/app.py
+	$(VENV)/bin/streamlit run src/backend/copilot/ui/app.py
 
 # Local container check, then Cloud Run deployment (see docs/HANDOVER.md).
 image:
@@ -81,7 +81,7 @@ pdm-eval:
 	$(PYTHON) -m pdm_oee.api.investigate_cli eval
 
 pdm-ui:
-	$(VENV)/bin/streamlit run src/pdm_oee/ui/app.py
+	$(VENV)/bin/streamlit run src/backend/pdm_oee/ui/app.py
 
 supply-eval:
 	$(PYTHON) -m supply_ontology.api.eval_cli
@@ -93,4 +93,4 @@ supply-demo-offline:
 	$(PYTHON) -m supply_ontology.api.demo_cli --offline
 
 supply-ui:
-	$(VENV)/bin/streamlit run src/supply_ontology/ui/app.py
+	$(VENV)/bin/streamlit run src/backend/supply_ontology/ui/app.py

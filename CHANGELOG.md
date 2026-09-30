@@ -6,6 +6,9 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+### Changed
+- Python packages live under `src/backend/`, leaving `src/frontend/` for the React app; imports are unchanged.
+
 ## [0.7.0] - 2026-09-30
 
 Milestones 0.2.0 to 0.7.0 were built together on develop and ship in this one release.

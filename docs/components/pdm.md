@@ -1,6 +1,6 @@
 <!-- Component reference, imported unchanged from the standalone repository at the version named below. -->
 
-> **Imported from pdm-oee-command-center v0.8.3.** In this repository, this package lives in `src/pdm_oee`, its governed files in `semantic/pdm/`, its data in `data/pdm/`, and its tests in `tests/pdm_oee/`. Make targets and console scripts carry a `pdm-` prefix (for example `make pdm-data`, `pdm-generate-data`). `make data` builds both worlds.
+> **Imported from pdm-oee-command-center v0.8.3.** In this repository, this package lives in `src/backend/pdm_oee`, its governed files in `semantic/pdm/`, its data in `data/pdm/`, and its tests in `tests/pdm_oee/`. Make targets and console scripts carry a `pdm-` prefix (for example `make pdm-data`, `pdm-generate-data`). `make data` builds both worlds.
 
 # Predictive Maintenance and OEE Command Center
 
