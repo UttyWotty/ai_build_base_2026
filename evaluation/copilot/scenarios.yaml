@@ -1,0 +1,52 @@
+# Evaluation scenarios for the operations copilot agent. Each case fixes the demo clock, asks one question, and states
+# what a good run does: the tools it must call, phrases its answer must contain (case-insensitive), and for action
+# requests the proposal it must create. Every answer must also pass the number check (all numbers from tools).
+cases:
+  - id: triage
+    as_of: "2026-07-25T02:00"
+    question: "Which alerts need attention right now?"
+    tools: [list_open_alerts]
+    answer_contains: [US1-L3-01, US1-L2-01, DE1-L2-04]
+
+  - id: bearing_conflict
+    as_of: "2026-07-25T02:00"
+    question: "Two spindle bearing alerts are open at US1. Who gets the bearing set on the shelf, and how is the other one covered?"
+    tools: [analyse_alert_impact]
+    answer_contains: [US1-L3-01, DE1, transfer]
+
+  - id: bearing_plan
+    as_of: "2026-07-25T02:00"
+    question: "What should we do about the spindle bearing alert on US1-L2-01, and what does waiting for the open order cost?"
+    tools: [analyse_alert_impact]
+    answer_contains: [DE1, "650"]
+
+  - id: evidence
+    as_of: "2026-07-25T02:00"
+    question: "Why did the model raise the alert on US1-L2-01?"
+    tools: [get_sensor_evidence]
+    answer_contains: [vibration]
+
+  - id: supplier
+    as_of: "2026-07-25T02:00"
+    question: "How reliable has supplier V10001 been lately?"
+    tools: [get_supplier_record]
+    answer_contains: ["66.1", supplier_otd]
+
+  - id: act
+    as_of: "2026-07-25T02:00"
+    question: "Prepare the action plan for the spindle bearing alert on US1-L2-01 using the transfer from DE1."
+    tools: [propose_action_plan]
+    answer_contains: [approv]
+    proposal: {alert_id: AL-US1-L2-01-2026072502, option_kind: transfer, option_source: DE1}
+
+  - id: calm_pump
+    as_of: "2026-08-19T01:00"
+    question: "What does the hydraulic pump alert on DE1-L1-03 mean for us?"
+    tools: [analyse_alert_impact]
+    answer_contains: [stock, planned]
+
+  - id: line_history
+    as_of: "2026-07-25T02:00"
+    question: "What was the OEE of line US1-L2 in June 2026?"
+    tools: [oee_summary]
+    answer_contains: [US1-L2]

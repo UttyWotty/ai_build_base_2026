@@ -9,8 +9,9 @@ import argparse
 import json
 from pathlib import Path
 
+from llm_gateway import build_llm_client
+from llm_gateway.cli_args import add_model_arguments, selection_from_args
 from supply_ontology.core.eval_cases import parse_cases
-from supply_ontology.data_pipeline.llm_client import OpenAICompatibleClient
 from supply_ontology.data_pipeline.semantic_files import (
     load_catalog,
     load_yaml_document,
@@ -20,9 +21,6 @@ from supply_ontology.services.nl_service import NLService
 from supply_ontology.services.query_service import QueryService
 from supply_ontology.services.settings import (
     DATA_DIR,
-    LLM_BASE_URL,
-    LLM_MODEL,
-    LLM_TIMEOUT_SECONDS,
     SEMANTIC_DIR,
 )
 
@@ -34,12 +32,12 @@ SLUG_REPLACEMENTS = str.maketrans({"/": "__", ":": "_"})
 def main(argv: list[str] | None = None) -> int:
     """Run the evaluation; exit code 0 regardless of accuracy (the report is the result)."""
     parser = argparse.ArgumentParser(description="Evaluate the natural-language layer against a live model.")
-    parser.add_argument("--base-url", default=LLM_BASE_URL)
-    parser.add_argument("--model", default=LLM_MODEL)
+    add_model_arguments(parser)
     parser.add_argument("--cases", type=Path, default=CASES_FILE)
     args = parser.parse_args(argv)
+    selection = selection_from_args(args)
     catalog = load_catalog(SEMANTIC_DIR)
-    service = NLService(catalog, QueryService(catalog), OpenAICompatibleClient(args.base_url, args.model, LLM_TIMEOUT_SECONDS))
+    service = NLService(catalog, QueryService(catalog), build_llm_client(selection))
     results = run_cases(service, parse_cases(load_yaml_document(args.cases)))
     for result in results:
         mark = "PASS" if result.passed else "FAIL"
@@ -49,15 +47,15 @@ def main(argv: list[str] | None = None) -> int:
         if result.detail:
             print(f"       ({result.detail[:160]})")
     passed = sum(r.passed for r in results)
-    print(f"\n{passed}/{len(results)} passed with {args.model}")
+    print(f"\n{passed}/{len(results)} passed with {selection.label}")
     report = {
-        "model": args.model, "as_of": str(service.query_service.as_of), "passed": passed, "total": len(results),
+        "model": selection.label, "provider": selection.provider.value, "as_of": str(service.query_service.as_of), "passed": passed, "total": len(results),
         "cases": [{"persona": r.case.persona, "question": r.case.question, "expect": r.case.expect,
                    "action": r.outcome.action, "metrics": list(r.outcome.metrics), "detail": r.detail, "passed": r.passed,
                    "problems": list(r.problems), "seconds": round(r.seconds, 2), "model_calls": r.model_calls}
                   for r in results],
     }
-    path = DATA_DIR / REPORT_DIRNAME / f"{args.model.translate(SLUG_REPLACEMENTS)}.json"
+    path = DATA_DIR / REPORT_DIRNAME / f"{selection.label.translate(SLUG_REPLACEMENTS)}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(f"Report: {path}")

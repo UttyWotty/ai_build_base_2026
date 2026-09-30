@@ -1,6 +1,8 @@
 # Developer entry points for setup, tests, linting, data generation, and the component UIs.
 # Every target runs inside the project virtualenv at .venv so the system Python stays untouched.
-# `make data` generates and conforms both synthetic worlds; pdm-* and supply-* targets run one component package.
+# `make data` generates and conforms both worlds and the bridge; `make models` trains the failure model and replays its alerts.
+# `make app` opens the copilot web app; `make impact A=<alert id>` analyses one alert, `make ask Q="..."` asks the copilot agent, and `make eval` scores it.
+# pdm-* and supply-* targets run one component package.
 VENV := .venv
 PYTHON := $(VENV)/bin/python
 BOOTSTRAP_PYTHON := python3.11
@@ -11,7 +13,7 @@ BOOTSTRAP_PYTHON := python3.11
 -include .env
 export
 
-.PHONY: setup settings test lint data pdm-data supply-data pdm-oee pdm-predict pdm-alerts pdm-ask pdm-eval pdm-ui \
+.PHONY: setup settings test lint data models bridge impact ask eval app image deploy pdm-data supply-data pdm-oee pdm-predict pdm-alerts pdm-ask pdm-eval pdm-ui \
 	supply-eval supply-demo supply-demo-offline supply-ui
 
 setup:
@@ -19,7 +21,7 @@ setup:
 	$(PYTHON) -m pip install -q -e ".[dev]"
 
 settings:
-	@$(PYTHON) -c "from pdm_oee.services import settings as p; from supply_ontology.services import settings as s; print('LLM_BASE_URL=' + p.LLM_BASE_URL); print('LLM_MODEL=' + p.LLM_MODEL); print('PDM_DATA_DIR=' + str(p.DATA_DIR)); print('SUPPLY_DATA_DIR=' + str(s.DATA_DIR))"
+	@$(PYTHON) -c "from llm_gateway.factory import default_selection as d; from pdm_oee.services import settings as p; from supply_ontology.services import settings as s; m = d(); print('LLM_PROVIDER=' + m.provider.value); print('MODEL=' + m.label); print('LLM_BASE_URL=' + m.base_url + ' (local only)'); print('PDM_DATA_DIR=' + str(p.DATA_DIR)); print('SUPPLY_DATA_DIR=' + str(s.DATA_DIR))"
 
 test:
 	$(PYTHON) -m pytest -q
@@ -28,7 +30,32 @@ lint:
 	$(VENV)/bin/ruff check .
 	$(PYTHON) tools/check_code_rules.py
 
-data: pdm-data supply-data
+data: pdm-data supply-data bridge
+
+models: pdm-predict pdm-alerts
+
+bridge:
+	$(PYTHON) -m copilot.api.bridge_cli
+
+impact:
+	$(PYTHON) -m copilot.api.impact_cli $(A) $(if $(AS_OF),--as-of $(AS_OF))
+
+ask:
+	$(PYTHON) -m copilot.api.agent_cli "$(Q)" $(if $(AS_OF),--as-of $(AS_OF))
+
+eval:
+	$(PYTHON) -m copilot.api.agent_eval_cli
+
+app:
+	$(VENV)/bin/streamlit run src/copilot/ui/app.py
+
+# Local container check, then Cloud Run deployment (see docs/HANDOVER.md).
+image:
+	docker build -t ops-copilot .
+	docker run --rm -p 8080:8080 --env-file .env -e LLM_PROVIDER=gemini ops-copilot
+
+deploy:
+	deploy/cloudrun.sh
 
 pdm-data:
 	$(PYTHON) -m pdm_oee.data_pipeline.synthetic.cli

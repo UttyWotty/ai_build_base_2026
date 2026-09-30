@@ -1,0 +1,99 @@
+# Governed links between the plant (semantic/pdm) and the supply network (semantic/supply), plus the policies the
+# impact analysis applies. Every id here must resolve in the plant catalog or the generated supply world.
+# Numbers marked "assumption" are declared business inputs, shown with every answer that uses them.
+
+# Each plant site is served by one plant of the supply network: its customer orders ship from there.
+sites:
+  US1: {plant_id: US01, label: "US1 (ships from US01 Lakeside)"}
+  DE1: {plant_id: DE01, label: "DE1 (ships from DE01 Rhein Valley)"}
+
+# Maintenance spares, one per plant component that a repair replaces. Components without a spare (the tool changer is
+# cleared, not replaced) are simply absent. Suppliers are supply-network suppliers: their delivery history there sets
+# how late spare orders arrive.
+spare_parts:
+  spindle_bearing:
+    spare_part_id: SP-1001
+    label: Spindle bearing set
+    unit_cost_usd: 4850        # assumption
+    quantity_per_repair: 1
+    supplier_id: V10001
+    contracted_lead_time_days: 14
+    emergency: {lead_time_hours: 72, price_multiplier: 3.0}   # assumption: specialist broker
+  coolant_pump:
+    spare_part_id: SP-1002
+    label: Coolant pump impeller kit
+    unit_cost_usd: 620
+    quantity_per_repair: 1
+    supplier_id: V10030
+    contracted_lead_time_days: 7
+    emergency: {lead_time_hours: 24, price_multiplier: 2.0}
+  hydraulic_pump:
+    spare_part_id: SP-2001
+    label: Hydraulic pump assembly
+    unit_cost_usd: 12400
+    quantity_per_repair: 1
+    supplier_id: V10010
+    contracted_lead_time_days: 21
+    emergency: {lead_time_hours: 120, price_multiplier: 2.5}
+  main_seal:
+    spare_part_id: SP-2002
+    label: Main cylinder seal kit
+    unit_cost_usd: 780
+    quantity_per_repair: 1
+    supplier_id: V10007
+    contracted_lead_time_days: 10
+    emergency: {lead_time_hours: 48, price_multiplier: 2.0}
+  gearbox:
+    spare_part_id: SP-3001
+    label: Gearbox bearing and gear set
+    unit_cost_usd: 3200
+    quantity_per_repair: 1
+    supplier_id: V10030
+    contracted_lead_time_days: 14
+    emergency: {lead_time_hours: 96, price_multiplier: 2.5}
+  drive_motor:
+    spare_part_id: SP-3002
+    label: Conveyor drive motor
+    unit_cost_usd: 2100
+    quantity_per_repair: 1
+    supplier_id: V10009
+    contracted_lead_time_days: 10
+    emergency: {lead_time_hours: 48, price_multiplier: 2.0}
+
+# Min/max stock policy per site and spare: when stock on hand plus open orders falls to the reorder point, order
+# enough to reach the order-up-to level. Initial stock is the quantity on the shelf at the start of the plant horizon.
+stock_policy:
+  US1:
+    SP-1001: {initial: 2, reorder_point: 1, order_up_to: 2}
+    SP-1002: {initial: 2, reorder_point: 1, order_up_to: 2}
+    SP-2001: {initial: 1, reorder_point: 0, order_up_to: 1}
+    SP-2002: {initial: 2, reorder_point: 1, order_up_to: 2}
+    SP-3001: {initial: 1, reorder_point: 0, order_up_to: 1}
+    SP-3002: {initial: 1, reorder_point: 0, order_up_to: 1}
+  DE1:
+    SP-1001: {initial: 4, reorder_point: 2, order_up_to: 4}
+    SP-1002: {initial: 2, reorder_point: 1, order_up_to: 3}
+    SP-2001: {initial: 1, reorder_point: 0, order_up_to: 1}
+    SP-2002: {initial: 2, reorder_point: 1, order_up_to: 3}
+    SP-3001: {initial: 2, reorder_point: 1, order_up_to: 2}
+    SP-3002: {initial: 1, reorder_point: 0, order_up_to: 1}
+
+# Urgent spare transfers between sites by air freight. assumption
+transfer:
+  lead_time_hours: 48
+  cost_usd: 650
+
+# What each line produces for customers: the supply-network parts it makes, shipped from the site's plant, and the
+# contribution lost per unit not produced. DE1-L3 makes shafts for internal assembly only, so no customer lines.
+lines:
+  US1-L1: {part_ids: [P-000050, P-000113], contribution_usd_per_unit: 38}
+  US1-L2: {part_ids: [P-000156, P-000052], contribution_usd_per_unit: 55}
+  US1-L3: {part_ids: [P-000097, P-000134, P-000159], contribution_usd_per_unit: 22}
+  DE1-L1: {part_ids: [P-000079, P-000095, P-000239, P-000285], contribution_usd_per_unit: 14}
+  DE1-L2: {part_ids: [P-000122, P-000139], contribution_usd_per_unit: 18}
+  DE1-L3: {part_ids: [], contribution_usd_per_unit: 26}
+
+# Customer order lines count as at risk when their committed date falls between the start of the outage and the
+# restoration plus this dispatch buffer (the time to finish, pack, and ship after the line restarts).
+customer_risk:
+  dispatch_buffer_days: 2

@@ -1,0 +1,11 @@
+# Streamlit settings for the copilot app, locally and on Cloud Run: a quiet light theme and no usage statistics.
+[theme]
+base = "light"
+primaryColor = "#1a73e8"
+font = "sans serif"
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"
