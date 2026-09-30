@@ -1,0 +1,9 @@
+id: oee_nameplate
+label: OEE at nameplate speed
+description: "OEE computed with the asset's nameplate cycle time instead of the product's ideal cycle time. Not the canonical OEE."
+owner: production
+numerator: nameplate_valuable_time
+denominator: planned_production_time
+format: percent
+synonyms: [nameplate OEE]
+not_to_be_confused_with: [oee]

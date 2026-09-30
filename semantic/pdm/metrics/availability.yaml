@@ -1,0 +1,9 @@
+id: availability
+label: Availability
+description: "Share of planned production time the asset was running, counting stops of at least five minutes as lost."
+owner: production
+numerator: run_time
+denominator: planned_production_time
+format: percent
+synonyms: [uptime share, availability rate]
+not_to_be_confused_with: [availability_incl_small_stops]

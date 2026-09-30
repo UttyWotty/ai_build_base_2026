@@ -1,0 +1,22 @@
+# Governed query dimensions: the ontology attributes people may slice and filter by, under the names they use.
+# Every synonym must be unique across dimensions and must never collide with a metric term.
+# The natural-language layer may only group or filter by dimensions listed here.
+dimensions:
+  plant.plant_id: {label: plant, synonyms: [site, facility, warehouse, plant code]}
+  plant.plant_name: {label: plant name, synonyms: [site name]}
+  plant.region: {label: plant region, synonyms: [operating region]}
+  plant.country: {label: plant country}
+  supplier.supplier_id: {label: supplier, synonyms: [vendor, vendor number, supplier id]}
+  supplier.supplier_name: {label: supplier name, synonyms: [vendor name]}
+  supplier.country: {label: supplier country, synonyms: [country of origin, sourcing country]}
+  supplier.region: {label: supplier region, synonyms: [sourcing region]}
+  part.part_id: {label: part, synonyms: [part number, sku, item, material]}
+  part.category: {label: part category, synonyms: [category, commodity]}
+  part.family: {label: part family, synonyms: [family, product line]}
+  customer.customer_id: {label: customer, synonyms: [account, sold to]}
+  customer.customer_name: {label: customer name, synonyms: [account name]}
+  customer.segment: {label: customer segment, synonyms: [segment, channel]}
+  customer.region: {label: customer region, synonyms: [sales region, market]}
+  customer.country: {label: customer country, synonyms: [destination country]}
+  shipment.carrier: {label: carrier, synonyms: [transport provider, haulier]}
+  shipment.direction: {label: shipment direction, synonyms: [inbound or outbound]}

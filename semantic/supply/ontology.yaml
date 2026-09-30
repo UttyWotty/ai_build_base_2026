@@ -1,0 +1,208 @@
+# Supply chain ontology: the business entities, their attributes, and the declared relationships between them.
+# Attributes marked derived: true are computed by the conform pipeline; their description is the governing definition.
+# Relationships run child -> parent on the parent's full key; the compiler joins only along these declared paths.
+
+entities:
+  supplier:
+    label: Supplier
+    description: "A company that sells parts to our plants."
+    key: [supplier_id]
+    attributes:
+      supplier_id: {type: string, description: "Canonical supplier identifier (ERP vendor number)."}
+      supplier_name: {type: string, description: "Legal name as held in the ERP vendor master."}
+      country: {type: string, description: "ISO 3166 alpha-2 country the supplier ships from."}
+      region: {type: string, description: "Sales region grouping of the supplier country."}
+      tier: {type: integer, description: "Supply tier: 1 ships directly to our plants, 2 supplies a tier 1."}
+      currency: {type: string, description: "ISO 4217 currency the supplier invoices in."}
+
+  part:
+    label: Part
+    description: "An item we purchase, stock, and sell, identified by its ERP part number."
+    key: [part_id]
+    attributes:
+      part_id: {type: string, description: "Canonical part number in ERP format (P-000123)."}
+      description: {type: string, description: "Short part description."}
+      category: {type: string, description: "Top level of the product hierarchy."}
+      family: {type: string, description: "Second level of the product hierarchy, within a category."}
+      uom: {type: string, description: "Base unit of measure; all quantities are in this unit."}
+      standard_cost_usd: {type: decimal, description: "Standard cost per base unit in USD, used to value inventory and COGS."}
+
+  supplier_part:
+    label: Supplier part
+    description: "The contracted terms under which a supplier sells a part."
+    key: [supplier_id, part_id]
+    attributes:
+      supplier_id: {type: string, description: "Supplier holding the contract."}
+      part_id: {type: string, description: "Part covered by the contract."}
+      unit_price_local: {type: decimal, description: "Contracted price per base unit in the supplier currency."}
+      moq: {type: integer, description: "Minimum order quantity in base units."}
+      contracted_lead_time_days: {type: integer, description: "Contracted days from order date to delivery."}
+
+  plant:
+    label: Plant
+    description: "A site that receives, stocks, and ships parts."
+    key: [plant_id]
+    attributes:
+      plant_id: {type: string, description: "Canonical plant code."}
+      plant_name: {type: string, description: "Plant display name."}
+      country: {type: string, description: "ISO 3166 alpha-2 country of the plant."}
+      region: {type: string, description: "Operating region of the plant."}
+
+  customer:
+    label: Customer
+    description: "A company that buys parts from us."
+    key: [customer_id]
+    attributes:
+      customer_id: {type: string, description: "Canonical customer identifier (ERP sold-to number)."}
+      customer_name: {type: string, description: "Customer legal name."}
+      segment: {type: string, description: "Commercial segment of the customer."}
+      country: {type: string, description: "ISO 3166 alpha-2 country of the ship-to address."}
+      region: {type: string, description: "Sales region of the customer."}
+
+  purchase_order_line:
+    label: Purchase order line
+    description: "One part ordered from one supplier for delivery to one plant."
+    key: [po_line_id]
+    attributes:
+      po_line_id: {type: string, description: "Purchase order line identifier."}
+      po_id: {type: string, description: "Purchase order header the line belongs to."}
+      supplier_id: {type: string, description: "Supplier the line is placed with."}
+      part_id: {type: string, description: "Part ordered."}
+      plant_id: {type: string, description: "Plant the part is delivered to."}
+      qty_ordered: {type: integer, description: "Ordered quantity in base units."}
+      unit_price_local: {type: decimal, description: "Price per base unit on the order, in the order currency."}
+      currency: {type: string, description: "ISO 4217 currency of the order."}
+      order_date: {type: date, description: "Date the purchase order was issued."}
+      promised_date: {type: date, description: "Latest delivery date confirmed by the supplier (latest confirmation time wins); lines never confirmed fall back to order_date + the contracted lead time."}
+      status: {type: string, description: "open, closed (full quantity received), or cancelled."}
+      qty_received: {type: integer, derived: true, description: "Sum of received quantity across all receipts for the line."}
+      last_receipt_date: {type: date, derived: true, description: "Date of the receipt that brought cumulative received quantity to the ordered quantity; null while incomplete."}
+      is_received_complete_by_promised: {type: boolean, derived: true, description: "True when last_receipt_date is not null and is on or before promised_date."}
+
+  receipt:
+    label: Receipt
+    description: "Goods received at a plant against a purchase order line."
+    key: [receipt_id]
+    attributes:
+      receipt_id: {type: string, description: "Goods receipt identifier."}
+      po_line_id: {type: string, description: "Purchase order line the goods are received against."}
+      inbound_shipment_id: {type: string, description: "Inbound shipment that carried the goods."}
+      qty_received: {type: integer, description: "Received quantity in base units."}
+      receipt_date: {type: date, description: "Date the goods were booked into stock."}
+      goods_value_usd: {type: decimal, derived: true, description: "qty_received x order unit_price_local x FX rate on receipt_date."}
+      freight_allocated_usd: {type: decimal, derived: true, description: "Inbound shipment freight cost allocated to this receipt by goods value share."}
+      duty_usd: {type: decimal, derived: true, description: "goods_value_usd x duty rate for the supplier country and part category when the supplier country differs from the plant country; zero for domestic receipts."}
+      landed_cost_usd: {type: decimal, derived: true, description: "goods_value_usd + freight_allocated_usd + duty_usd."}
+
+  sales_order:
+    label: Sales order
+    description: "A customer order header grouping one or more order lines."
+    key: [so_id]
+    attributes:
+      so_id: {type: string, description: "Sales order identifier."}
+      customer_id: {type: string, description: "Customer that placed the order."}
+      order_date: {type: date, description: "Date the order was booked."}
+      status: {type: string, description: "open, closed (every non-cancelled line shipped in full), or cancelled (every line cancelled)."}
+      first_ship_date: {type: date, derived: true, description: "Earliest ship date of any outbound shipment for the order; null until something ships."}
+      is_complete_on_first_shipment: {type: boolean, derived: true, description: "True when every non-cancelled line shipped its full quantity on its first shipment."}
+
+  sales_order_line:
+    label: Sales order line
+    description: "One part ordered by a customer, fulfilled from one plant."
+    key: [so_line_id]
+    attributes:
+      so_line_id: {type: string, description: "Sales order line identifier."}
+      so_id: {type: string, description: "Sales order header the line belongs to."}
+      part_id: {type: string, description: "Part ordered."}
+      plant_id: {type: string, description: "Plant that fulfils the line."}
+      qty_ordered: {type: integer, description: "Ordered quantity in base units."}
+      order_date: {type: date, description: "Date the line was booked."}
+      requested_date: {type: date, description: "Delivery date the customer asked for."}
+      committed_date: {type: date, description: "Delivery date we committed to the customer."}
+      status: {type: string, description: "open, closed (full quantity shipped), or cancelled."}
+      qty_delivered: {type: integer, derived: true, description: "Quantity on outbound shipments with a delivered_date."}
+      last_delivery_date: {type: date, derived: true, description: "Delivered date of the shipment that brought cumulative delivered quantity to the ordered quantity; null while incomplete."}
+      first_ship_date: {type: date, derived: true, description: "Ship date of the line's first outbound shipment; null until it ships."}
+      qty_on_first_shipment: {type: integer, derived: true, description: "Quantity carried by the line's first outbound shipment."}
+      is_complete_on_first_shipment: {type: boolean, derived: true, description: "True when qty_on_first_shipment equals qty_ordered."}
+      is_delivered_complete_by_committed: {type: boolean, derived: true, description: "True when last_delivery_date is not null and is on or before committed_date."}
+      is_delivered_complete_by_requested: {type: boolean, derived: true, description: "True when last_delivery_date is not null and is on or before requested_date."}
+
+  shipment:
+    label: Shipment
+    description: "A physical movement of goods by a carrier, inbound from a supplier or outbound to a customer."
+    key: [shipment_id]
+    attributes:
+      shipment_id: {type: string, description: "Canonical shipment identifier (mapped from the TMS reference)."}
+      direction: {type: string, description: "inbound or outbound."}
+      carrier: {type: string, description: "Carrier that moved the shipment."}
+      origin: {type: string, description: "Canonical id of the shipping party: supplier_id for inbound, plant_id for outbound."}
+      destination: {type: string, description: "Canonical id of the receiving party: plant_id for inbound, customer_id for outbound."}
+      ship_date: {type: date, description: "Local date at the origin on which the carrier picked up the goods."}
+      planned_delivery_date: {type: date, description: "Local date at the destination planned when the shipment was tendered."}
+      delivered_date: {type: date, description: "Local proof-of-delivery date at the destination; null while in transit."}
+      freight_cost_usd: {type: decimal, description: "Invoiced freight amount (billed in the plant currency) converted to USD at the FX rate on ship_date."}
+      is_delivered_by_planned: {type: boolean, derived: true, description: "True when delivered_date is not null and is on or before planned_delivery_date."}
+
+  outbound_shipment_line:
+    label: Outbound shipment line
+    description: "The quantity of one sales order line carried on one outbound shipment."
+    key: [shipment_line_id]
+    attributes:
+      shipment_line_id: {type: string, description: "Surrogate key: SL + 8-digit sequence over lines ordered by shipment_id, so_line_id."}
+      shipment_id: {type: string, description: "Outbound shipment carrying the goods."}
+      so_line_id: {type: string, description: "Sales order line being fulfilled."}
+      qty_shipped: {type: integer, description: "Shipped quantity in base units."}
+
+  inventory_snapshot:
+    label: Inventory snapshot
+    description: "Weekly on-hand position of a part at a plant."
+    key: [plant_id, part_id, snapshot_date]
+    attributes:
+      plant_id: {type: string, description: "Plant holding the stock."}
+      part_id: {type: string, description: "Part in stock."}
+      snapshot_date: {type: date, description: "Week-ending date (Sunday) of the snapshot."}
+      qty_on_hand: {type: integer, description: "On-hand quantity in base units."}
+      on_hand_value_usd: {type: decimal, derived: true, description: "qty_on_hand x part standard_cost_usd."}
+      trailing_daily_cogs_usd: {type: decimal, derived: true, description: "Outbound shipped quantity x standard_cost_usd over the trailing window ending on snapshot_date, divided by the window length in days."}
+
+  fx_rate:
+    label: FX rate
+    description: "Daily conversion rate from a currency to USD."
+    key: [currency, rate_date]
+    attributes:
+      currency: {type: string, description: "ISO 4217 currency code."}
+      rate_date: {type: date, description: "Date the rate applies to."}
+      usd_per_unit: {type: decimal, description: "USD value of one unit of the currency."}
+
+  duty_rate:
+    label: Duty rate
+    description: "Import duty rate by origin country and part category."
+    key: [origin_country, category]
+    attributes:
+      origin_country: {type: string, description: "ISO 3166 alpha-2 country the goods ship from."}
+      category: {type: string, description: "Part category the rate applies to."}
+      duty_pct: {type: decimal, description: "Duty as a fraction of goods value (0.05 means 5 percent)."}
+
+relationships:
+  - {name: supplier_part_supplier, from: supplier_part, to: supplier, cardinality: many_to_one, join: {supplier_id: supplier_id}}
+  - {name: supplier_part_part, from: supplier_part, to: part, cardinality: many_to_one, join: {part_id: part_id}}
+  - {name: po_line_supplier, from: purchase_order_line, to: supplier, cardinality: many_to_one, join: {supplier_id: supplier_id}}
+  - {name: po_line_part, from: purchase_order_line, to: part, cardinality: many_to_one, join: {part_id: part_id}}
+  - {name: po_line_plant, from: purchase_order_line, to: plant, cardinality: many_to_one, join: {plant_id: plant_id}}
+  - {name: receipt_po_line, from: receipt, to: purchase_order_line, cardinality: many_to_one, join: {po_line_id: po_line_id}}
+  - {name: receipt_shipment, from: receipt, to: shipment, cardinality: many_to_one, join: {inbound_shipment_id: shipment_id}}
+  - {name: sales_order_customer, from: sales_order, to: customer, cardinality: many_to_one, join: {customer_id: customer_id}}
+  - {name: so_line_order, from: sales_order_line, to: sales_order, cardinality: many_to_one, join: {so_id: so_id}}
+  - {name: so_line_part, from: sales_order_line, to: part, cardinality: many_to_one, join: {part_id: part_id}}
+  - {name: so_line_plant, from: sales_order_line, to: plant, cardinality: many_to_one, join: {plant_id: plant_id}}
+  - {name: shipment_line_shipment, from: outbound_shipment_line, to: shipment, cardinality: many_to_one, join: {shipment_id: shipment_id}}
+  - {name: shipment_line_so_line, from: outbound_shipment_line, to: sales_order_line, cardinality: many_to_one, join: {so_line_id: so_line_id}}
+  - {name: inventory_plant, from: inventory_snapshot, to: plant, cardinality: many_to_one, join: {plant_id: plant_id}}
+  - {name: inventory_part, from: inventory_snapshot, to: part, cardinality: many_to_one, join: {part_id: part_id}}
+
+hierarchies:
+  - {name: product, entity: part, levels: [category, family, part_id]}
+  - {name: plant_geography, entity: plant, levels: [region, country, plant_id]}
+  - {name: supplier_geography, entity: supplier, levels: [region, country, supplier_id]}
+  - {name: customer_geography, entity: customer, levels: [region, country, customer_id]}
