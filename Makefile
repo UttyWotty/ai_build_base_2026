@@ -1,6 +1,7 @@
 # Developer entry points for setup, tests, linting, data generation, and the component UIs.
 # Every target runs inside the project virtualenv at .venv so the system Python stays untouched.
-# `make data` generates and conforms both synthetic worlds; pdm-* and supply-* targets run one component package.
+# `make data` generates and conforms both worlds and the bridge; `make models` trains the failure model and replays its alerts.
+# `make impact A=<alert id>` analyses one alert; pdm-* and supply-* targets run one component package.
 VENV := .venv
 PYTHON := $(VENV)/bin/python
 BOOTSTRAP_PYTHON := python3.11
@@ -11,7 +12,7 @@ BOOTSTRAP_PYTHON := python3.11
 -include .env
 export
 
-.PHONY: setup settings test lint data pdm-data supply-data pdm-oee pdm-predict pdm-alerts pdm-ask pdm-eval pdm-ui \
+.PHONY: setup settings test lint data models bridge impact pdm-data supply-data pdm-oee pdm-predict pdm-alerts pdm-ask pdm-eval pdm-ui \
 	supply-eval supply-demo supply-demo-offline supply-ui
 
 setup:
@@ -28,7 +29,15 @@ lint:
 	$(VENV)/bin/ruff check .
 	$(PYTHON) tools/check_code_rules.py
 
-data: pdm-data supply-data
+data: pdm-data supply-data bridge
+
+models: pdm-predict pdm-alerts
+
+bridge:
+	$(PYTHON) -m copilot.api.bridge_cli
+
+impact:
+	$(PYTHON) -m copilot.api.impact_cli $(A) $(if $(AS_OF),--as-of $(AS_OF))
 
 pdm-data:
 	$(PYTHON) -m pdm_oee.data_pipeline.synthetic.cli

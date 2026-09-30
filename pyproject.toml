@@ -1,7 +1,8 @@
 # Project metadata and tool configuration for the operations copilot monorepo.
 # Gemini is reached through google-genai (AI Studio key locally, Vertex AI on Google Cloud).
 # It ships the predictive maintenance and OEE package, the governed supply chain package, and the copilot that joins them.
-# pandas stays below 3 because 3.0 turns None into NaN in string columns, which the generators rely on.
+# pandas stays below 3 because 3.0 turns None into NaN in string columns, which the generators rely on;
+# scikit-learn stays on 1.7 because 1.9 trains a different classifier than the one the documented backtest used.
 # Lint and test settings apply to every package so one `make lint` and `make test` cover the whole repository.
 [project]
 name = "ai-build-base-2026"
@@ -18,7 +19,7 @@ dependencies = [
   "httpx",
   "google-genai>=1.50",
   "pyyaml",
-  "scikit-learn",
+  "scikit-learn>=1.7,<1.8",
   "streamlit",
 ]
 
