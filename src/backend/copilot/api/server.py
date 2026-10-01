@@ -29,7 +29,7 @@ from copilot.services.settings import FRONTEND_DIST_DIR
 from llm_gateway.factory import default_selection
 
 logger = logging.getLogger(__name__)
-TITLE = "emoldinounited API"
+TITLE = "OSI API"
 
 
 def create_app(load_services: Callable[[], CopilotServices] = default_services,

@@ -1,4 +1,4 @@
-# emoldinounited
+# OSI (Opsight Intelligence)
 
 An AI operations copilot for manufacturing. It predicts equipment failures and traces each one through spare parts, suppliers, and customer orders. A team of Gemini agents then drafts the plan, and a person approves it.
 Built for the AI Builder Cup 2026, Manufacturing track (Intelligent Operations and Industrial Efficiency).
