@@ -1,11 +1,9 @@
 # Continuous integration: installs the project and runs the same lint and test gates as a local merge.
 # It uses Python 3.11 and Node 22, needs no model and no generated data, and runs `make setup`, `make lint`, `make test`.
-# Pull requests into develop and main trigger it, and it can also be started by hand from the Actions tab.
+# It runs only when started by hand (Actions tab, Run workflow) to save Actions minutes; add pull_request to re-enable.
 name: CI
 
 on:
-  pull_request:
-    branches: [develop, main]
   workflow_dispatch:
 
 concurrency:
@@ -14,7 +12,7 @@ concurrency:
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
