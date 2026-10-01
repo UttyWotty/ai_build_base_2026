@@ -1,0 +1,33 @@
+# Continuous integration: installs the project and runs the same lint and test gates as a local merge.
+# It uses Python 3.11 and Node 22, needs no model and no generated data, and runs `make setup`, `make lint`, `make test`.
+# It runs only when started by hand (Actions tab, Run workflow) to save Actions minutes; add pull_request to re-enable.
+name: CI
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: src/frontend/package-lock.json
+      - name: Setup
+        run: make setup
+      - name: Lint
+        run: make lint
+      - name: Test
+        run: make test

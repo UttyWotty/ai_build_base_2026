@@ -30,7 +30,7 @@ What makes it trustworthy:
 | 0.2.0 to 0.7.0 | Model layer, bridge and impact, operations agent, web app, Cloud Run kit, submission kit | Released as 0.7.0 |
 | 0.8.0 | React and FastAPI; track record; live mode and autopilot; closed loop; multimodal Gemini; multi-agent team; model fallback | Released |
 
-Open items, in priority order, are in `techdebt.md`: the first real Cloud Run deploy, sample inspection photos, and a full Gemini evaluation on a paid key or Vertex AI.
+Open items, in priority order, are in `techdebt.md`: the first real Cloud Run deploy (waiting on funding for the Google Cloud project), sample inspection photos, and a full Gemini evaluation on a paid key or Vertex AI.
 
 ## Quick start
 
@@ -56,6 +56,8 @@ Other commands:
 | `make eval` | The agent's eight evaluation scenarios against the configured model |
 | `make image`, `make deploy` | Build and run the container locally; deploy to Cloud Run (`docs/HANDOVER.md`) |
 | `make settings` | The model and data directories in effect |
+
+CI (`.github/workflows/ci.yml`) runs `make setup`, `make lint`, and `make test` on Python 3.11 and Node 22. To save Actions minutes it is started by hand from the Actions tab (Run workflow) before a merge or release; the local gate stays `make lint` and `make test`.
 
 ## The app
 
