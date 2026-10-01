@@ -1,4 +1,4 @@
-// Vite configuration for the emoldinounited frontend: React, Tailwind, and a development proxy to the FastAPI backend.
+// Vite configuration for the OSI frontend: React, Tailwind, and a development proxy to the FastAPI backend.
 // In development, /api and /health go to the backend on port 8000, so the browser sees one origin.
 // In production, Firebase Hosting forwards the same paths to Cloud Run, so the frontend code never changes.
 import tailwindcss from '@tailwindcss/vite'
