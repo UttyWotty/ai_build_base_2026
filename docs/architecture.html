@@ -1,6 +1,6 @@
 <!doctype html>
 <!--
-docs/architecture.html explains emoldinounited in plain language: the problem, the sense-reason-act loop, the system
+docs/architecture.html explains OSI (Opsight Intelligence) in plain language: the problem, the sense-reason-act loop, the system
 architecture, the Gemini agent team, and one alert followed from start to finish.
 It also maps every official AI Builder Cup 2026 requirement and judging criterion to the evidence in this repository.
 It is a static, self-contained page with inline SVG diagrams and no scripts; open it directly in a browser.
@@ -9,7 +9,7 @@ It is a static, self-contained page with inline SVG diagrams and no scripts; ope
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>emoldinounited Architecture</title>
+<title>OSI Architecture</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -43,6 +43,7 @@ nav a:hover, nav a:focus-visible { color: var(--accent); }
 a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 header { padding-block: 40px 28px; border-bottom: 1px solid var(--line); }
 .eyebrow { font: 500 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 .h1sub { display: block; font-size: .42em; font-weight: 500; color: var(--muted); letter-spacing: 0; margin-top: 6px; }
 h1 { font: 700 clamp(44px, 8vw, 76px)/1 var(--display); margin: 10px 0 14px; letter-spacing: -.01em; }
 .lede { font-size: 20px; max-width: 46ch; margin: 0; text-wrap: balance; }
 .facts { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-top: 22px; font: 400 13px var(--mono); color: var(--muted); }
@@ -114,7 +115,7 @@ html { scroll-behavior: smooth; }
 
 <header>
   <div class="eyebrow">AI Builder Cup 2026 &middot; Manufacturing track</div>
-  <h1>emoldinounited</h1>
+  <h1>OSI <span class="h1sub">Opsight Intelligence</span></h1>
   <p class="lede">From a failure alert at 2 a.m. to an approved repair plan before anyone arrives.</p>
   <div class="facts">
     <span>Submission due <b>18 Oct 2026</b></span><span>Model <b>Gemini 3.8 Flash</b></span>
@@ -127,7 +128,7 @@ html { scroll-behavior: smooth; }
   <div>
     <blockquote class="pitch">
       <p>Predictive maintenance tools stop at the alert. But whether a repair happens in time depends on stores,
-      purchasing, and customer service. emoldinounited carries the alert across all three. A team of Gemini agents
+      purchasing, and customer service. OSI carries the alert across all three. A team of Gemini agents
       checks the spare part, the supplier, and the customer orders, prices every option, and drafts the plan. A person
       approves it. On four months of plant data it avoided 662 hours of downtime and saved $197,949 net, with its
       mistakes counted.</p>
@@ -366,7 +367,7 @@ html { scroll-behavior: smooth; }
   </div>
 </section>
 
-<footer>emoldinounited &middot; synthetic data only &middot; details in <code>README.md</code>, <code>docs/SUBMISSION.md</code>, and <code>docs/HANDOVER.md</code>.</footer>
+<footer>OSI (Opsight Intelligence) &middot; synthetic data only &middot; details in <code>README.md</code>, <code>docs/SUBMISSION.md</code>, and <code>docs/HANDOVER.md</code>.</footer>
 </div>
 </body>
 </html>
