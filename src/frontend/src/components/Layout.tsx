@@ -26,8 +26,8 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="flex items-center gap-2 px-5 py-5">
           <img src="/favicon.svg" alt="" className="h-8 w-8" />
           <div>
-            <div className="text-sm font-bold tracking-tight">emoldinounited</div>
-            <div className="text-[11px] text-slate-500">Operations copilot</div>
+            <div className="text-sm font-bold tracking-tight">OSI</div>
+            <div className="text-[11px] text-slate-500">Opsight Intelligence</div>
           </div>
         </div>
         <div className="flex flex-col gap-1 px-3">

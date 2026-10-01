@@ -1,6 +1,6 @@
 # Handover: from this laptop to Google Cloud
 
-This is the checklist for moving emoldinounited onto Google Cloud once the team has an account.
+This is the checklist for moving OSI onto Google Cloud once the team has an account.
 Everything the app needs already runs locally; the cloud steps are one-off setup plus one deploy script.
 Work top to bottom; each step says how to check it worked.
 
@@ -28,7 +28,7 @@ Work top to bottom; each step says how to check it worked.
 ## 2. Google Cloud account and project
 
 1. Use a personal Google account (not a work account) at https://console.cloud.google.com.
-2. Create a project, for example `emoldinounited-2026`, and note its project id.
+2. Create a project, for example `opsight-osi-2026`, and note its project id.
 3. Attach billing: the free trial, or the competition credits once they arrive.
 4. **Set a budget alert first:** Billing, then Budgets and alerts, then a budget of 20 USD with alerts at 50%, 90%,
    and 100%.
