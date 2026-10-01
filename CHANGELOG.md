@@ -6,6 +6,10 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+### Added
+- CI on GitHub Actions: `make setup`, `make lint`, and `make test` on Python 3.11 and Node 22, started by hand from
+  the Actions tab to save minutes.
+
 ## [0.8.0] - 2026-09-30
 
 The finals-grade product: React and FastAPI, the track record, live mode, the closed loop, multimodal Gemini, and the agent team.
