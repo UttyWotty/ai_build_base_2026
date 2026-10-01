@@ -1,0 +1,373 @@
+<!doctype html>
+<!--
+docs/architecture.html explains OSI (Opsight Intelligence) in plain language: the problem, the sense-reason-act loop, the system
+architecture, the Gemini agent team, and one alert followed from start to finish.
+It also maps every official AI Builder Cup 2026 requirement and judging criterion to the evidence in this repository.
+It is a static, self-contained page with inline SVG diagrams and no scripts; open it directly in a browser.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OSI Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column with a left section label on wide screens, like an engineering handbook. */
+:root {
+  --bg: #f2f4f3; --panel: #ffffff; --ink: #18212b; --muted: #55616d; --line: #c9d0d4;
+  --accent: #1d5fa8; --accent-soft: #e3ecf6;
+  --ok: #1f7a4c; --ok-soft: #e1f1e8; --warn: #a35f00; --warn-soft: #fbefd9; --bad: #b3261e; --bad-soft: #f9e2e0;
+  --display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+  --body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111820; --panel: #18222c; --ink: #e4e9ee; --muted: #9aa7b3; --line: #2e3b47;
+  --accent: #6aa6ec; --accent-soft: #1b2c40;
+  --ok: #5cc28f; --ok-soft: #15301f; --warn: #e5a54a; --warn-soft: #36280f; --bad: #f08a80; --bad-soft: #3a1a18;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #111820; --panel: #18222c; --ink: #e4e9ee; --muted: #9aa7b3; --line: #2e3b47;
+  --accent: #6aa6ec; --accent-soft: #1b2c40;
+  --ok: #5cc28f; --ok-soft: #15301f; --warn: #e5a54a; --warn-soft: #36280f; --bad: #f08a80; --bad-soft: #3a1a18;
+  color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 16px/1.6 var(--body); padding-inline: 16px; }
+.wrap { max-width: 1060px; margin: 0 auto; padding-block: 24px 64px; }
+nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; background: var(--bg); border-bottom: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; gap: 4px 18px; padding-block: 10px; font: 500 13px var(--body); }
+nav a { color: var(--muted); text-decoration: none; }
+nav a:hover, nav a:focus-visible { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+header { padding-block: 40px 28px; border-bottom: 1px solid var(--line); }
+.eyebrow { font: 500 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 .h1sub { display: block; font-size: .42em; font-weight: 500; color: var(--muted); letter-spacing: 0; margin-top: 6px; }
+h1 { font: 700 clamp(44px, 8vw, 76px)/1 var(--display); margin: 10px 0 14px; letter-spacing: -.01em; }
+.lede { font-size: 20px; max-width: 46ch; margin: 0; text-wrap: balance; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-top: 22px; font: 400 13px var(--mono); color: var(--muted); }
+.facts b { color: var(--ink); font-weight: 500; }
+section { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 8px 36px; padding-block: 44px; border-bottom: 1px solid var(--line); }
+section > h2 { font: 600 28px/1.1 var(--display); margin: 0; text-wrap: balance; }
+section > div { min-width: 0; }
+@media (max-width: 760px) { section { grid-template-columns: minmax(0, 1fr); } }
+h3 { font: 600 20px/1.2 var(--display); margin: 28px 0 8px; letter-spacing: .01em; }
+p, li { max-width: 68ch; }
+p { margin: 0 0 14px; }
+ul, ol { padding-left: 20px; margin: 0 0 14px; }
+li { margin-bottom: 6px; }
+code, .mono { font-family: var(--mono); font-size: .88em; }
+.pitch { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 18px 22px; font-size: 18px; margin: 0; }
+.pitch p:last-child { margin: 0; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 6px 0 16px; }
+.cols > div { background: var(--panel); border: 1px solid var(--line); padding: 16px 18px; min-width: 0; }
+.cols.pair { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.cols h4 { margin: 0 0 6px; font: 600 15px var(--body); }
+.cols p { margin: 0; font-size: 15px; color: var(--muted); }
+figure { margin: 8px 0 18px; }
+.dg { overflow-x: auto; background: var(--panel); border: 1px solid var(--line); padding: 12px; }
+.dg svg { display: block; width: 100%; min-width: 720px; height: auto; color: var(--ink); }
+.dg text { fill: var(--ink); font: 500 13px var(--body); }
+.dg .sub { fill: var(--muted); font: 400 11px var(--mono); }
+.dg .lbl { fill: var(--muted); font: 500 11px var(--body); }
+.dg .box { fill: var(--bg); stroke: var(--line); stroke-width: 1.2; }
+.dg .key { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.4; }
+.dg .zone { fill: none; stroke: var(--muted); stroke-dasharray: 5 4; }
+.dg .arr { fill: none; stroke: var(--ink); stroke-width: 1.3; marker-end: url(#ah); }
+.dg .arr2 { fill: none; stroke: var(--ink); stroke-width: 1.3; marker-end: url(#ah2); }
+.dg .back { fill: none; stroke: var(--accent); stroke-width: 1.6; marker-end: url(#ahb); }
+.dg .dash { stroke: var(--accent); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.dg marker path { fill: var(--ink); }
+.dg marker.b path { fill: var(--accent); }
+figcaption { font-size: 14px; color: var(--muted); margin-top: 8px; max-width: 80ch; }
+.timeline { list-style: none; padding: 0; margin: 0; border-left: 2px solid var(--line); }
+.timeline li { position: relative; padding: 0 0 16px 20px; max-width: 72ch; }
+.timeline li::before { content: ""; position: absolute; left: -6px; top: 8px; width: 10px; height: 10px; background: var(--accent); border-radius: 50%; }
+.timeline time { display: block; font: 500 13px var(--mono); color: var(--accent); }
+.tbl { overflow-x: auto; margin: 6px 0 18px; }
+table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 14.5px; background: var(--panel); }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+th { font: 600 12px var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: var(--bg); }
+td:first-child { font-weight: 500; }
+.num { font-variant-numeric: tabular-nums; }
+.pill { display: inline-block; font: 600 11px var(--mono); letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 3px; white-space: nowrap; }
+.ok { color: var(--ok); background: var(--ok-soft); }
+.warn { color: var(--warn); background: var(--warn-soft); }
+.bad { color: var(--bad); background: var(--bad-soft); }
+dl { display: grid; grid-template-columns: minmax(120px, 190px) minmax(0, 1fr); gap: 10px 20px; margin: 0; }
+dt { font-weight: 600; }
+dd { margin: 0; color: var(--muted); max-width: 64ch; }
+@media (max-width: 520px) { dl { grid-template-columns: minmax(0, 1fr); gap: 2px; } dd { margin-bottom: 10px; } }
+footer { padding-block: 28px; font-size: 13px; color: var(--muted); }
+footer a { color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav aria-label="Sections">
+  <a href="#pitch">Pitch</a><a href="#problem">Problem</a><a href="#loop">Loop</a><a href="#system">System</a>
+  <a href="#team">Agent team</a><a href="#walkthrough">One alert</a><a href="#trust">Trust</a>
+  <a href="#words">Words</a><a href="#match">Challenge match</a>
+</nav>
+
+<header>
+  <div class="eyebrow">AI Builder Cup 2026 &middot; Manufacturing track</div>
+  <h1>OSI <span class="h1sub">Opsight Intelligence</span></h1>
+  <p class="lede">From a failure alert at 2 a.m. to an approved repair plan before anyone arrives.</p>
+  <div class="facts">
+    <span>Submission due <b>18 Oct 2026</b></span><span>Model <b>Gemini 3.8 Flash</b></span>
+    <span>Agents <b>Google ADK</b></span><span>Runs on <b>Cloud Run + Vertex AI</b></span>
+  </div>
+</header>
+
+<section id="pitch">
+  <h2>The 30-second pitch</h2>
+  <div>
+    <blockquote class="pitch">
+      <p>Predictive maintenance tools stop at the alert. But whether a repair happens in time depends on stores,
+      purchasing, and customer service. OSI carries the alert across all three. A team of Gemini agents
+      checks the spare part, the supplier, and the customer orders, prices every option, and drafts the plan. A person
+      approves it. On four months of plant data it avoided 662 hours of downtime and saved $197,949 net, with its
+      mistakes counted.</p>
+    </blockquote>
+    <p style="margin-top:14px">If a judge remembers one sentence: <b>the expensive mistakes happen between departments,
+    and this is an AI team that works between them.</b></p>
+  </div>
+</section>
+
+<section id="problem">
+  <h2>The problem</h2>
+  <div>
+    <p>A sensor says a spindle bearing on line 2 will fail in about a day. That warning window is called the
+    <b>P-F interval</b>: the time between "we can see it failing" and "it failed". The alert is useful only if the
+    repair fits inside that window. Whether it fits depends on three questions that live in three other systems:</p>
+    <div class="cols">
+      <div><h4>Stores</h4><p>Is the bearing on the shelf, or already promised to another machine?</p></div>
+      <div><h4>Purchasing</h4><p>When will the open order really arrive, given how this supplier usually delivers?</p></div>
+      <div><h4>Customer service</h4><p>Which customer orders does this line make in the next few days?</p></div>
+    </div>
+    <p>Today, answering that takes hours of phone calls while the window runs out. Most AI tools answer one
+    department's question. Ours connects them.</p>
+  </div>
+</section>
+
+<section id="loop">
+  <h2>How it works</h2>
+  <div>
+    <p>The product is a loop with four steps. Each step is real code you can point to.</p>
+    <ol>
+      <li><b>Sense.</b> A machine-learning model (gradient boosting, not an LLM) scores every machine from its sensors.
+      It caught 27 of 41 failures, with 0.16 false alerts per machine per month and a median warning of 86 hours.</li>
+      <li><b>Reason.</b> A team of Gemini agents looks into the alert using governed tools only: sensor evidence,
+      inspection photos, spares at both sites, the supplier's delivery record, and the customer orders at risk.</li>
+      <li><b>Act.</b> The team proposes a work order, a parts action, and a note to the customer. Nothing happens until
+      a person approves.</li>
+      <li><b>Close the loop.</b> The approval changes the simulated world: a transfer leaves the other site's shelf,
+      the conflict clears, and once the clock passes the failure, the app shows the outcome against doing nothing.</li>
+    </ol>
+    <p>In <b>Live</b> mode the plant replays in time. With Autopilot on, each new alert pauses the clock while the
+    agents work, so the plan is ready by morning.</p>
+  </div>
+</section>
+
+<section id="system">
+  <h2>The system</h2>
+  <div>
+    <figure>
+      <div class="dg">
+        <svg viewBox="0 0 1000 545" role="img" aria-label="Data from the plant, the supply network, and field inputs flows through four governed services into one impact analysis. The agent team uses it through tools, calls Gemini on Vertex AI, and proposes a plan. A person approves, and the approval feeds back into the analysis. Everything except Gemini runs in one Cloud Run container.">
+          <defs>
+            <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z"/></marker>
+            <marker id="ahb" class="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z"/></marker>
+          </defs>
+          <rect class="zone" x="232" y="90" width="760" height="442"/>
+          <text class="lbl" x="244" y="108">CLOUD RUN SERVICE: ONE CONTAINER</text>
+          <text class="lbl" x="20" y="108">SYNTHETIC DATA (FROM SEEDS)</text>
+          <rect class="box" x="20" y="130" width="170" height="70"/><text x="32" y="156">Plant world</text><text class="sub" x="32" y="176">sensors, MES, CMMS</text>
+          <rect class="box" x="20" y="260" width="170" height="70"/><text x="32" y="286">Supply world</text><text class="sub" x="32" y="306">ERP, TMS, suppliers</text>
+          <rect class="box" x="20" y="390" width="170" height="70"/><text x="32" y="416">Field inputs</text><text class="sub" x="32" y="436">supplier mail, photos</text>
+          <rect class="box" x="250" y="118" width="180" height="58"/><text x="262" y="142">Failure model</text><text class="sub" x="262" y="161">gradient boosting</text>
+          <rect class="box" x="250" y="210" width="180" height="58"/><text x="262" y="234">Governed bridge</text><text class="sub" x="262" y="253">sites, spares, lines</text>
+          <rect class="box" x="250" y="302" width="180" height="58"/><text x="262" y="326">Metric compiler</text><text class="sub" x="262" y="345">supplier on-time, no LLM SQL</text>
+          <rect class="key" x="250" y="394" width="180" height="58"/><text x="262" y="418">Gemini reader</text><text class="sub" x="262" y="437">image, PDF to JSON</text>
+          <rect class="box" x="250" y="478" width="180" height="40"/><text x="262" y="503">FastAPI + React app</text>
+          <path class="arr" d="M190 158 L250 147"/><path class="arr" d="M190 175 L250 232"/>
+          <path class="arr" d="M190 285 L250 246"/><path class="arr" d="M190 305 L250 331"/>
+          <path class="arr" d="M190 425 L250 423"/>
+          <rect class="box" x="490" y="220" width="170" height="130"/>
+          <text x="502" y="246">Impact analysis</text><text class="sub" x="502" y="268">every option priced</text>
+          <text class="sub" x="502" y="286">customers at risk</text><text class="sub" x="502" y="304">as of the demo clock</text>
+          <path class="arr" d="M430 147 L490 240"/><path class="arr" d="M430 239 L490 270"/>
+          <path class="arr" d="M430 331 L490 300"/><path class="arr" d="M430 423 L490 332"/>
+          <rect class="key" x="720" y="220" width="260" height="130"/>
+          <text x="734" y="246">Agent team (ADK)</text><text class="sub" x="734" y="268">3 specialists in parallel</text>
+          <text class="sub" x="734" y="286">then an operations lead</text><text class="sub" x="734" y="304">streams every step to the app</text>
+          <path class="arr" d="M660 285 L720 285"/><text class="lbl" x="664" y="276">9 tools</text>
+          <rect class="key" x="760" y="15" width="180" height="50"/><text x="774" y="45">Gemini on Vertex AI</text>
+          <line class="dash" x1="850" y1="65" x2="850" y2="220"/><text class="lbl" x="858" y="160">model calls</text>
+          <rect class="box" x="720" y="400" width="120" height="50"/><text x="734" y="430">Proposal</text>
+          <rect class="box" x="860" y="400" width="120" height="50"/><text x="874" y="430">Person approves</text>
+          <path class="arr" d="M780 350 L780 400"/><text class="lbl" x="788" y="380">proposes</text>
+          <path class="arr" d="M840 425 L860 425"/>
+          <path class="back" d="M920 450 V490 H575 V350"/>
+          <text class="lbl" x="600" y="508">approval moves stock and clears conflicts</text>
+        </svg>
+      </div>
+      <figcaption>Only the highlighted parts use generative AI. Prediction, pricing, and metrics are ordinary code, so
+      the numbers the agents quote are computed, not generated. The blue arrow is what makes it a loop.</figcaption>
+    </figure>
+    <h3>The parts, in one line each</h3>
+    <ul>
+      <li><b>Two synthetic worlds.</b> A two-site plant (US1, DE1) and a four-plant supply network, generated from seeds,
+      both ending on 28 Sep 2026. No real company data.</li>
+      <li><b>Governed bridge</b> (<code>semantic/bridge/bridge.yaml</code>) links plant sites to supply plants, machine
+      parts to spares and suppliers, and lines to the customer parts they make.</li>
+      <li><b>Metric compiler.</b> Supplier on-time delivery is defined once in YAML and compiled to SQL. The model picks a
+      metric; it never writes SQL.</li>
+      <li><b>Impact analysis</b> prices five ways to get the spare: own stock, open order, air transfer, broker, new order.
+      Each is extra spend plus lost contribution from the outage.</li>
+      <li><b>Gemini reader</b> turns supplier emails, PDFs, and inspection photos into schema-checked JSON.</li>
+      <li><b>One container.</b> FastAPI serves the API, the live agent stream, and the React app. Gemini runs on Vertex AI
+      under the service account, so no API key is deployed.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="team">
+  <h2>The agent team</h2>
+  <div>
+    <figure>
+      <div class="dg">
+        <svg viewBox="0 0 1000 300" role="img" aria-label="An alert goes to three specialist agents running in parallel, each with only its own tools. They write briefs to session state. The operations lead then reads the briefs and proposes a plan for approval.">
+          <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z"/></marker></defs>
+          <rect class="box" x="20" y="120" width="140" height="60"/><text x="32" y="146">Alert</text><text class="sub" x="32" y="166">US1-L2-01</text>
+          <path class="arr2" d="M160 150 L200 150"/>
+          <rect class="zone" x="200" y="18" width="420" height="262"/><text class="lbl" x="212" y="36">PARALLELAGENT: ALL THREE AT ONCE</text>
+          <rect class="box" x="220" y="44" width="380" height="66"/><text x="232" y="66">Maintenance planner</text>
+          <text class="sub" x="232" y="84">get_sensor_evidence · get_field_reports</text><text class="sub" x="232" y="100">work_order_history · failures</text>
+          <rect class="box" x="220" y="120" width="380" height="66"/><text x="232" y="142">Procurement lead</text>
+          <text class="sub" x="232" y="162">analyse_alert_impact · get_supplier_record</text>
+          <rect class="box" x="220" y="196" width="380" height="66"/><text x="232" y="218">Customer service lead</text>
+          <text class="sub" x="232" y="238">analyse_alert_impact (orders at risk)</text>
+          <path class="arr2" d="M600 77 L650 130"/><path class="arr2" d="M600 153 L650 150"/><path class="arr2" d="M600 229 L650 170"/>
+          <rect class="box" x="650" y="110" width="130" height="80"/><text x="662" y="140">Session state</text><text class="sub" x="662" y="160">3 written briefs</text>
+          <path class="arr2" d="M780 150 L810 150"/>
+          <text class="lbl" x="810" y="82">SEQUENTIALAGENT: THEN</text>
+          <rect class="key" x="810" y="95" width="170" height="110"/><text x="822" y="120">Operations lead</text>
+          <text class="sub" x="822" y="142">list_open_alerts</text><text class="sub" x="822" y="160">analyse_alert_impact</text><text class="sub" x="822" y="178">propose_action_plan</text>
+          <path class="arr2" d="M895 205 L895 248"/>
+          <rect class="box" x="810" y="248" width="170" height="40"/><text x="822" y="273">Waits for approval</text>
+        </svg>
+      </div>
+      <figcaption>Each specialist sees only its own department's tools, like a real team. The lead never sees raw data
+      first; it weighs the three briefs on urgency, cost, and customer exposure.</figcaption>
+    </figure>
+    <p>This uses Google's <b>Agent Development Kit</b> as designed: a <code>ParallelAgent</code> inside a
+    <code>SequentialAgent</code> (<code>src/backend/copilot/services/agent_team.py</code>). Free questions on the Copilot
+    page go to a single agent with all nine tools instead. A team run costs about twelve model calls; a single run about
+    five. If one Gemini model runs out of quota, the run restarts on a backup model and the trace says so.</p>
+  </div>
+</section>
+
+<section id="walkthrough">
+  <h2>One alert, start to finish</h2>
+  <div>
+    <p>This is the demo story. It comes straight from the generated data; nothing is planted on top.</p>
+    <ol class="timeline">
+      <li><time>25 Jul 2026, 02:00</time>Two spindle-bearing alerts at US1 need the one bearing set on the shelf. The
+      replacement is on order from supplier V10001.</li>
+      <li><time>02:00, clock paused</time>Autopilot starts the team. The procurement lead finds V10001 was on time for only
+      66.1% of its lines in the last 90 days, and Gemini has read its delay notice: the new date is 8 August.</li>
+      <li><time>02:00, plan ready</time>The lead gives the shelf set to the overdue alert and covers this one with an air transfer from
+      DE1 for $650. Waiting for the order would mean 190 hours down and four customer order lines at risk.</li>
+      <li><time>Approval</time>A person approves. The bearing set leaves the DE1 shelf in the simulation.</li>
+      <li><time>26 Jul 2026, 10:00</time>The spindle fails as predicted. With the transfer, the line is down 26 hours
+      instead of 230. Saved: $100,077.</li>
+    </ol>
+    <h3>And across four months</h3>
+    <div class="tbl"><table class="num">
+      <thead><tr><th>Alerts scored</th><th>Plan differed</th><th>Downtime avoided</th><th>Saved on failures</th><th>Spent on false alerts</th><th>Net</th></tr></thead>
+      <tbody><tr><td>38 (26 real, 12 false)</td><td>6</td><td>662.1 h</td><td>$199,809</td><td>$1,860</td><td><b>$197,949</b></td></tr></tbody>
+    </table></div>
+    <p>Reproduce it with <code>make value</code>. The losses on false alerts are subtracted, which is why judges can
+    trust the net figure.</p>
+  </div>
+</section>
+
+<section id="trust">
+  <h2>Why the numbers can be trusted</h2>
+  <div>
+    <div class="cols pair">
+      <div><h4>No invented numbers</h4><p>Every number in an answer is checked against the tool results before the answer gets the "Verified" badge.</p></div>
+      <div><h4>No SQL from the model</h4><p>Supplier metrics compile from governed definitions and carry a SQL fingerprint.</p></div>
+      <div><h4>No peeking at the future</h4><p>Every tool answers as of the demo clock. Outcomes count only once they are in the past.</p></div>
+      <div><h4>No silent actions</h4><p>Agents only propose. A proposal's numbers come from the analysis, not the model's text. People approve.</p></div>
+    </div>
+    <p>Quality evidence: 423 backend and 7 frontend tests, offline tests of the real ADK runner with scripted models,
+    and an eight-scenario agent evaluation (<code>make eval</code>, 7 of 8 on a local model; the full Gemini score is
+    still to run).</p>
+  </div>
+</section>
+
+<section id="words">
+  <h2>Words you will hear</h2>
+  <div>
+    <dl>
+      <dt>P-F interval</dt><dd>Time from when a failure becomes detectable (P) to when it happens (F). The window the plan must fit in.</dd>
+      <dt>OEE</dt><dd>Overall equipment effectiveness: availability times performance times quality. The plant's standard health score.</dd>
+      <dt>MES, CMMS, ERP, TMS</dt><dd>Production, maintenance, business, and transport systems. Each department's own source of truth.</dd>
+      <dt>OTD</dt><dd>On-time delivery: the share of a supplier's order lines that arrived on time.</dd>
+      <dt>Governed metric</dt><dd>A number defined once in a reviewed YAML file, so every answer computes it the same way.</dd>
+      <dt>Point in time</dt><dd>Every query sees only data up to the demo clock, as a real plant would.</dd>
+      <dt>ADK</dt><dd>Google's Agent Development Kit, the framework that runs the agents and their tools.</dd>
+      <dt>Vertex AI</dt><dd>Google Cloud's platform for calling Gemini with a service account instead of an API key.</dd>
+      <dt>Cloud Run</dt><dd>Google Cloud service that runs our container and gives it a public URL; it scales to zero when idle.</dd>
+      <dt>Server-sent events</dt><dd>How the browser receives each agent step live while the team works.</dd>
+    </dl>
+  </div>
+</section>
+
+<section id="match">
+  <h2>Challenge match</h2>
+  <div>
+    <p>Checked on 2 Oct 2026 against the official site (<a href="https://aibuildercup.com/themes.html">themes</a>,
+    <a href="https://aibuildercup.com/Faqs.html">FAQ</a>, <a href="https://aibuildercup.com/">timeline</a>).</p>
+    <h3>Rules and deliverables</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Official requirement</th><th>Where we stand</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Manufacturing theme: efficiency, quality, reliability, supply and demand, or sustainability; turn operational data into insights, recommendations, or actions</td><td>Reliability (failure prediction) joined to supply and demand (spares, suppliers, customer orders), ending in approved actions</td><td><span class="pill ok">Met</span></td></tr>
+        <tr><td>Use Google AI models (Gemini or Gemma) or an agentic platform</td><td>Gemini for agents, multimodal reading, and vision; agents on Google ADK</td><td><span class="pill ok">Met</span></td></tr>
+        <tr><td>Deployed on Google Cloud via Cloud Run or Firebase</td><td>Dockerfile and <code>deploy/cloudrun.sh</code> ready; image built and served locally. First deploy waits for a funded Google Cloud project</td><td><span class="pill bad">Blocked</span></td></tr>
+        <tr><td>Working deployed link</td><td>Comes from the deploy</td><td><span class="pill bad">Blocked</span></td></tr>
+        <tr><td>Functional prototype, end to end</td><td>Runs end to end locally with live Gemini; a team run end to end is still to do after the deploy</td><td><span class="pill warn">Mostly</span></td></tr>
+        <tr><td>Video demo under 3 minutes (YouTube, Vimeo, or public Drive)</td><td><code>docs/DEMO_SCRIPT.md</code> is timed at exactly 3:00; trim to about 2:45 so it is clearly under</td><td><span class="pill warn">Open</span></td></tr>
+        <tr><td>Public GitHub repository</td><td>The repository is private today; make it public before submitting</td><td><span class="pill warn">Open</span></td></tr>
+        <tr><td>Deck (PDF) on the problem, benefits, and scalability</td><td><code>docs/SUBMISSION.md</code> covers problem and benefits; no deck yet, and no scalability section</td><td><span class="pill warn">Open</span></td></tr>
+        <tr><td>Fresh project started during the hackathon (build window 7 Sep to 18 Oct)</td><td>Source repositories created 29 Sep 2026; this repository started 30 Sep 2026</td><td><span class="pill ok">Met</span></td></tr>
+        <tr><td>One solution, one theme; all materials in English</td><td>One entry, Manufacturing; everything in English</td><td><span class="pill ok">Met</span></td></tr>
+        <tr><td>Team of 2 to 4: working professionals, 21+, JAPAC-based, no students</td><td>Second member must be on the team before registration closes on <b>11 Oct</b></td><td><span class="pill warn">Check</span></td></tr>
+      </tbody>
+    </table></div>
+    <h3>Judging criteria</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Criterion</th><th>Our strongest evidence</th><th>Gap to close</th></tr></thead>
+      <tbody>
+        <tr><td>Technical merit and Gen AI <span class="num">40%</span></td><td>ADK parallel and sequential team; multimodal Gemini; number verification; governed tools; model fallback; 430 tests</td><td>Full Gemini eval score; a scalability story (Firestore, BigQuery, Pub/Sub) in the deck</td></tr>
+        <tr><td>Problem alignment and impact <span class="num">25%</span></td><td>Cross-department maintenance problem; $197,949 net and 662 h over four months; $100,077 on one alert</td><td>Say plainly that the data is synthetic and how a real plant would connect</td></tr>
+        <tr><td>Innovation and creativity <span class="num">25%</span></td><td>Agents mirror real departments; Autopilot at 2 a.m.; approvals change the world; Gemini reads supplier mail and photos</td><td>Inspection photos to show the vision step live</td></tr>
+        <tr><td>User experience and design <span class="num">10%</span></td><td>Seven pages; live agent stream with names; Verified badge; plain-language errors</td><td>Rehearse the 3-minute path on the deployed app</td></tr>
+      </tbody>
+    </table></div>
+    <p><code>docs/SUBMISSION.md</code> follows our own five-point outline. Rewrite it, and build the deck, around these four
+    weighted criteria, with technical merit first, because it carries 40% of the score.</p>
+  </div>
+</section>
+
+<footer>OSI (Opsight Intelligence) &middot; synthetic data only &middot; details in <code>README.md</code>, <code>docs/SUBMISSION.md</code>, and <code>docs/HANDOVER.md</code>.</footer>
+</div>
+</body>
+</html>
