@@ -6,6 +6,10 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-10-02
+
+The app's own name, CI, and a plain-language architecture page.
+
 ### Changed
 - The app is now called OSI (Opsight Intelligence), replacing the working name, in the app header and page title,
   the API title, the docs, and the frontend package name.
