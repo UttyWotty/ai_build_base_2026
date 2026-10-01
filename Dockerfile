@@ -1,4 +1,4 @@
-# Container for emoldinounited on Cloud Run: stage one builds the React frontend, stage two installs the Python backend,
+# Container for OSI on Cloud Run: stage one builds the React frontend, stage two installs the Python backend,
 # generates both synthetic worlds, the bridge, and the failure model, then serves the API and the frontend with uvicorn.
 # The image is self-contained: no data volume, no database, and Gemini is reached through Vertex AI at run time.
 FROM node:22-slim AS frontend

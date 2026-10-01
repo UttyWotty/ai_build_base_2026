@@ -15,14 +15,15 @@ Component-level limitations carried over from the imported packages are listed i
     prediction; the healthy US1-L3-02 bearing should not.
 - [ ] **Run `make deploy` once against a real project** as soon as the Google Cloud account exists. The image was
   built and served locally; the deploy script was checked only for syntax. See `docs/HANDOVER.md`.
+  - **Blocked on funding (2026-10-02):** waiting for the competition credits, company sponsorship under the company
+    name, or a second team member to share the cost. The demo video, the full evaluation, the live team run, and the
+    final write-up all follow the deploy.
 - [ ] **Full Gemini evaluation.** The AI Studio free tier allows about 20 requests per model per day. An agent run
   takes about five, and a team run about twelve, so `make eval` cannot finish on it. Run it on a paid key or on Vertex
   AI after the deploy, and put the score in the README.
 - [ ] **A live team run end to end.** The three specialists have run live on Gemini; the lead's step then hit a Gemini
   503 overload. It passes offline with a scripted model. Run "Draft the plan with the copilot" once on a paid key or
   Vertex AI.
-- [ ] **CI, now that GitHub Actions minutes have reset (2026-10-01).** `make setup`, `make lint`, and `make test` on
-  every PR into `develop` and `main`, with Python 3.11 and Node 22. The tests need no model and no generated data.
 
 ## P1 - For the finals (Top 200 architecture sprints, Top 50 round)
 
@@ -62,3 +63,6 @@ Component-level limitations carried over from the imported packages are listed i
   served locally. -->
 <!-- - [ ] **A quota error broke every autopilot triage.** Resolved: fallback across Gemini models, plain-language errors,
   and an autopilot that stops itself. -->
+<!-- - [ ] **CI, now that GitHub Actions minutes have reset (2026-10-01).** `make setup`, `make lint`, and `make test` on
+  every PR into `develop` and `main`, with Python 3.11 and Node 22. The tests need no model and no generated data. Resolved 2026-10-02:
+  `.github/workflows/ci.yml`, green once on its PR, then switched to manual runs to save Actions minutes. -->

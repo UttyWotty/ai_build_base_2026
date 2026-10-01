@@ -1,4 +1,4 @@
-# emoldinounited: submission write-up
+# OSI (Opsight Intelligence): submission write-up
 
 AI Builder Cup 2026, Manufacturing track: Intelligent Operations and Industrial Efficiency.
 This write-up follows the five points the organisers ask every submission to show.
@@ -17,7 +17,7 @@ department's question. The expensive mistakes happen between departments.
 
 ## 2. How the solution addresses it
 
-emoldinounited runs a sense, reason, act loop over governed data from a plant and its supply network, and closes it:
+OSI runs a sense, reason, act loop over governed data from a plant and its supply network, and closes it:
 
 1. **Sense.** A gradient-boosted failure model scores every asset from its sensors. On the last four months of data it
    caught 27 of 41 failures, at 0.16 false alerts per asset-month and a median warning of 86 hours (`make models`).

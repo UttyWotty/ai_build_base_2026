@@ -6,6 +6,20 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-10-02
+
+The app's own name, CI, and a plain-language architecture page.
+
+### Changed
+- The app is now called OSI (Opsight Intelligence), replacing the working name, in the app header and page title,
+  the API title, the docs, and the frontend package name.
+
+### Added
+- CI on GitHub Actions: `make setup`, `make lint`, and `make test` on Python 3.11 and Node 22, started by hand from
+  the Actions tab to save minutes.
+- `docs/architecture.html`: the product in plain language (problem, loop, system and agent-team diagrams, one alert
+  start to finish, glossary) and a check of every official requirement and judging criterion against the repository.
+
 ## [0.8.0] - 2026-09-30
 
 The finals-grade product: React and FastAPI, the track record, live mode, the closed loop, multimodal Gemini, and the agent team.

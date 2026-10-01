@@ -1,4 +1,4 @@
-/* Global styles for the emoldinounited frontend: Tailwind, the type scale, and the colour tokens. */
+/* Global styles for the OSI frontend: Tailwind, the type scale, and the colour tokens. */
 /* Components use Tailwind utilities; the tokens here keep brand colours in one place. */
 /* The palette is quiet on purpose, so the few coloured signals (conflict, risk, verified) stand out. */
 @import "tailwindcss";
