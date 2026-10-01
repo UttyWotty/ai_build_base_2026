@@ -9,6 +9,8 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 ### Added
 - CI on GitHub Actions: `make setup`, `make lint`, and `make test` on Python 3.11 and Node 22, started by hand from
   the Actions tab to save minutes.
+- `docs/architecture.html`: the product in plain language (problem, loop, system and agent-team diagrams, one alert
+  start to finish, glossary) and a check of every official requirement and judging criterion against the repository.
 
 ## [0.8.0] - 2026-09-30
 
