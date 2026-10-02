@@ -7,6 +7,7 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 ## [Unreleased]
 
 ### Added
+- The road to submission in `techdebt.md`: five ordered steps from confirming the team to submitting.
 - Five inspection photos in `demo/field/photos`, each read by Gemini on its alert. Three worn parts are confirmed;
   the gearbox at 25 Jul 02:00, a false alert in the data, is not; a photo of the wrong part is flagged as such.
 
