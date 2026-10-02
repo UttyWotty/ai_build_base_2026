@@ -6,6 +6,22 @@ Component-level limitations carried over from the imported packages are listed i
 
 ---
 
+## Road to submission (in order)
+
+Each step waits for the one before it. Status on 2026-10-02.
+
+1. [ ] **Confirm the team.** The rules need 2 to 4 members; two colleagues applied by invitation and are waitlisted.
+   Registration closes **2026-10-11**. If they are still waitlisted near then, ask the organisers
+   (support+aibuildercup@hack2skill.com or their Discord).
+2. [ ] **Fund the Google Cloud project, then deploy.** `PROJECT_ID=<id> make deploy` and the checks in
+   `docs/HANDOVER.md` (the P0 deploy item below).
+3. [ ] **On the deployed app:** the full Gemini evaluation and a live team run (the P0 items below).
+4. [ ] **Video and write-up.** Record `docs/DEMO_SCRIPT.md`, trimmed to under 3:00, and rewrite `docs/SUBMISSION.md`
+   around the four judging criteria (see `docs/architecture.html`, Challenge match).
+5. [ ] **Submit.** Fill the deck's placeholders (team, members, the three links, the Gemini score) and export it as
+   PDF. Make the repository public. Submit the deployed link, the video, the repository, and the deck by
+   **2026-10-18**.
+
 ## P0 - Before the 2026-10-18 submission
 
 - [ ] **Run `make deploy` once against a real project** as soon as the Google Cloud account exists. The image was
