@@ -16,7 +16,7 @@ Times are targets. The story is one week at the US plant, then one number for th
 | 2:25 | **Track record** | "And not just once. Every alert of four months, scored against what really happened, including the times it was wrong: 662 hours of downtime avoided, 198 thousand dollars net." |
 | 2:45 | **How it works** | "Gemini on Vertex AI, a team of agents on the Agent Development Kit, one service on Cloud Run. From an alert at 2 a.m. to an approved plan before anyone arrives." |
 
-If the inspection photos are ready, add this after 1:40: on the Control room, open **Field inspection** on US1-L2-01 and click the sample photo. Say: "The technician sends a photo, and Gemini vision confirms the wear before any money is spent." A healthy photo on US1-L3-02 shows the opposite: "Not confirmed; check before paying for express."
+If the inspection photos are ready, add this after 1:40: on the Control room, open **Field inspection** on US1-L2-01 and click the sample photo. Say: "The technician sends a photo, and Gemini vision confirms the wear before any money is spent." Then open DE1-L2-04 (gearbox, same clock) and its photo. Gemini says the gears are intact and the oil needs flushing: "Not confirmed. This alert never became a failure, and the photo shows it before anyone pays for a gear set."
 
 Before recording:
 - Use a paid key or the deployed service on Vertex AI; a team run needs about twelve model calls.
