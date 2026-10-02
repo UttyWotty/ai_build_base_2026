@@ -6,13 +6,24 @@ Component-level limitations carried over from the imported packages are listed i
 
 ---
 
+## Road to submission (in order)
+
+Each step waits for the one before it. Status on 2026-10-02.
+
+1. [ ] **Confirm the team.** The rules need 2 to 4 members; two colleagues applied by invitation and are waitlisted.
+   Registration closes **2026-10-11**. If they are still waitlisted near then, ask the organisers
+   (support+aibuildercup@hack2skill.com or their Discord).
+2. [ ] **Fund the Google Cloud project, then deploy.** `PROJECT_ID=<id> make deploy` and the checks in
+   `docs/HANDOVER.md` (the P0 deploy item below).
+3. [ ] **On the deployed app:** the full Gemini evaluation and a live team run (the P0 items below).
+4. [ ] **Video and write-up.** Record `docs/DEMO_SCRIPT.md`, trimmed to under 3:00, and rewrite `docs/SUBMISSION.md`
+   around the four judging criteria (see `docs/architecture.html`, Challenge match).
+5. [ ] **Submit.** Fill the deck's placeholders (team, members, the three links, the Gemini score) and export it as
+   PDF. Make the repository public. Submit the deployed link, the video, the repository, and the deck by
+   **2026-10-18**.
+
 ## P0 - Before the 2026-10-18 submission
 
-- [ ] **Sample inspection photos (in progress, the team is generating them).** The field-inspection feature is built
-  and unit-tested, but it has not been run on a real photo. The prompts and file names are in `demo/field/README.md`.
-  - **Fix:** put the images in `demo/field/photos/` with the listed names.
-  - **Verify:** each photo is read by Gemini on its alert. The worn bearing, pump, and gearbox photos should confirm the
-    prediction; the healthy US1-L3-02 bearing should not.
 - [ ] **Run `make deploy` once against a real project** as soon as the Google Cloud account exists. The image was
   built and served locally; the deploy script was checked only for syntax. See `docs/HANDOVER.md`.
   - **Blocked on funding (2026-10-02):** waiting for the competition credits, company sponsorship under the company
@@ -66,3 +77,10 @@ Component-level limitations carried over from the imported packages are listed i
 <!-- - [ ] **CI, now that GitHub Actions minutes have reset (2026-10-01).** `make setup`, `make lint`, and `make test` on
   every PR into `develop` and `main`, with Python 3.11 and Node 22. The tests need no model and no generated data. Resolved 2026-10-02:
   `.github/workflows/ci.yml`, green once on its PR, then switched to manual runs to save Actions minutes. -->
+<!-- - [ ] **Sample inspection photos (in progress, the team is generating them).** The field-inspection feature is built
+  and unit-tested, but it has not been run on a real photo. The prompts and file names are in `demo/field/README.md`.
+  - **Fix:** put the images in `demo/field/photos/` with the listed names.
+  - **Verify:** each photo is read by Gemini on its alert. The worn bearing, pump, and gearbox photos should confirm the
+    prediction; the healthy US1-L3-02 bearing should not.
+  Resolved 2026-10-02: five photos in demo/field/photos, each read by Gemini on its alert; the results are in
+  demo/field/README.md. The gearbox photo is the false-alert case, since the data has no false bearing alert. -->
