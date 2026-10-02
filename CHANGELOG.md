@@ -6,6 +6,10 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+## [0.8.2] - 2026-10-02
+
+Inspection photos checked by Gemini, and the road to submission.
+
 ### Added
 - The road to submission in `techdebt.md`: five ordered steps from confirming the team to submitting.
 - Five inspection photos in `demo/field/photos`, each read by Gemini on its alert. Three worn parts are confirmed;
