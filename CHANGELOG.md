@@ -6,6 +6,9 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+### Changed
+- The road to submission in `techdebt.md`: the team is confirmed, so step 1 is closed.
+
 ## [0.8.2] - 2026-10-02
 
 Inspection photos checked by Gemini, and the road to submission.

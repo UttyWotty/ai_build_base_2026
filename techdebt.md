@@ -8,11 +8,12 @@ Component-level limitations carried over from the imported packages are listed i
 
 ## Road to submission (in order)
 
-Each step waits for the one before it. Status on 2026-10-02.
+Each step waits for the one before it. Status on 2026-10-12.
 
-1. [ ] **Confirm the team.** The rules need 2 to 4 members; two colleagues applied by invitation and are waitlisted.
+<!-- 1. [ ] **Confirm the team.** The rules need 2 to 4 members; two colleagues applied by invitation and are waitlisted.
    Registration closes **2026-10-11**. If they are still waitlisted near then, ask the organisers
    (support+aibuildercup@hack2skill.com or their Discord).
+   Resolved 2026-10-12: the team has its second member. -->
 2. [ ] **Fund the Google Cloud project, then deploy.** `PROJECT_ID=<id> make deploy` and the checks in
    `docs/HANDOVER.md` (the P0 deploy item below).
 3. [ ] **On the deployed app:** the full Gemini evaluation and a live team run (the P0 items below).
