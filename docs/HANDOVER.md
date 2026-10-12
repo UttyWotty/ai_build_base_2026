@@ -59,7 +59,10 @@ The script (`deploy/cloudrun.sh`) is safe to re-run. It:
 
 The app caps Gemini calls for the public: 10 per visitor and 60 in total per hour by default. Set
 `USAGE_LIMIT_PER_VISITOR`, `USAGE_LIMIT_TOTAL`, or `USAGE_LIMIT_WINDOW_MINUTES` on the service to change it (0 turns a
-cap off). The total cap is what protects the credit; a forged `X-Forwarded-For` header can only dodge the per-visitor one.
+cap off). The visitor is the last `X-Forwarded-For` entry, the address Google's front end saw, so a forged header
+does not dodge the per-visitor cap. Each counted call is logged with that address ("Model call by ...").
+Questions are capped at 8,000 characters, supplier messages at 20,000, and a bad upload or an unknown alert is
+refused before a call is counted.
 
 Each agent run stops after `AGENT_MAX_LLM_CALLS_SINGLE` (25) or `AGENT_MAX_LLM_CALLS_TEAM` (50) model calls; the agent
 framework's own default is 500. Both are code defaults, so a redeploy keeps them.

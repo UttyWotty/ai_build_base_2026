@@ -51,6 +51,7 @@ What makes it trustworthy:
 | 0.11.1 | One instance at most; deployed with the usage limit | Released |
 | 0.11.2 | UI polish: loading screen, full story line, How it works title | Released |
 | 0.11.3 | Fix: no guessed alert ids; every run capped | Released |
+| 0.11.4 | Server hardening from the bug audit | Released |
 
 Open items, in priority order, are in `techdebt.md`: the road to submission, starting with the video and the write-up.
 
@@ -121,7 +122,7 @@ The top bar sets the demo clock, either a named scenario or any time in the data
 
 Every language feature goes through `src/backend/llm_gateway`:
 - **`LLM_PROVIDER=gemini`** (default) uses the google-genai SDK. It reads `GEMINI_API_KEY` locally, or Vertex AI through the service account on Google Cloud. `GEMINI_MODEL` defaults to `gemini-3.8-flash`.
-- **`GEMINI_FALLBACK_MODELS`** lists backup models, tried in order when one is out of quota or unavailable. Each Gemini model has its own free-tier quota, and the trace notes each switch.
+- **`GEMINI_FALLBACK_MODELS`** lists backup models, tried in order when one is out of quota or unavailable before the run takes its first step (a run that fails midway stops, so it never gets a second call budget). Each Gemini model has its own free-tier quota, and the trace notes each switch.
 - **Errors in plain words.** People see "quota used up", "Gemini overloaded", "credentials refused", or "model not available", each with what to do; the raw text sits behind a details toggle.
 - **Multimodal reading** (`multimodal.py`) turns images and PDFs into JSON that follows a schema. Only Gemini reads them; other providers refuse clearly.
 - **`LLM_PROVIDER=local`** uses an OpenAI-compatible server (`LLM_BASE_URL`, `LLM_MODEL`) as the offline fallback for text.

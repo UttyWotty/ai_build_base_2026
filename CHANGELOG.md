@@ -6,6 +6,25 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+## [0.11.4] - 2026-10-12
+
+Server hardened for live judging: Gemini reads off the event loop, safe timestamps, a cap that cannot be dodged or multiplied, and length limits.
+
+### Fixed
+- Reading an inspection photo or a supplier message called Gemini on the server's event loop, so every other visitor
+  waited until it returned (minutes when Gemini retried). The reads now run in a worker thread.
+- A timestamp with a timezone offset was stored as-is and then broke the field inputs and the overview for every
+  visitor until a reset. Timestamps are now converted to UTC and stored without an offset.
+- The per-visitor usage cap read the first `X-Forwarded-For` entry, which the caller controls; it now reads the last,
+  which Google's front end adds. Each counted call is logged with the visitor's address.
+- A model that ran out of quota midway restarted the whole run on a backup model with a fresh call budget, which
+  could reach four budgets and file a second proposal. Only a model that fails before its first step falls back now.
+- Questions (8,000 characters), supplier messages (20,000), attachments (3) and verdict reasons (1,000) have a length
+  limit, so one request cannot multiply the cost of a run.
+- A bad upload or an unknown alert spent a visitor's call before being refused, and an unknown alert came back as a
+  Gemini error (502). Inputs and the alert are now checked first, and an unknown alert is 404.
+- A network error while reading a photo or a message became a server error instead of being retried.
+
 ## [0.11.3] - 2026-10-12
 
 Agents no longer guess alert ids, and every run is capped; deployed as revision ops-copilot-00006.
