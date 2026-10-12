@@ -11,6 +11,8 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 - The full evaluation on Gemini: 8/8 with `gemini-3.8-flash` on Vertex AI.
 
 ### Changed
+- The README opens with the live link, where to click first, the evaluation score, and the stack, and adds how a
+  real plant connects.
 - `docs/SUBMISSION.md` is rewritten around the four judging criteria, technical merit first, with the live link,
   the 8/8 evaluation, a scalability path, and how a real plant would connect.
 - The deploy script defaults to `asia-southeast1`, near the judges, and retries the role grant while a new service
