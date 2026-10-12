@@ -32,11 +32,25 @@ from copilot.api.endpoints import (
 from copilot.api.static_site import mount_frontend
 from copilot.core.usage_limit import UsageLimiter
 from copilot.services.factory import CopilotServices, default_services
-from copilot.services.settings import FRONTEND_DIST_DIR
+from copilot.services.settings import FRONTEND_DIST_DIR, LOG_LEVEL
 from llm_gateway.factory import default_selection
 
 logger = logging.getLogger(__name__)
 TITLE = "OSI API"
+# The package logger every copilot module logs under; without a handler of its own its INFO lines were dropped.
+COPILOT_LOGGER = "copilot"
+LOG_FORMAT = "%(levelname)s:     %(name)s: %(message)s"
+
+
+def configure_logging(level: str = LOG_LEVEL) -> None:
+    """Sends the copilot's log lines to stderr, where Cloud Run collects them; safe to call more than once."""
+    package = logging.getLogger(COPILOT_LOGGER)
+    package.setLevel(level)
+    if not package.handlers:
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter(LOG_FORMAT))
+        package.addHandler(handler)
+        package.propagate = False
 
 
 def create_app(load_services: Callable[[], CopilotServices] = default_services,
@@ -58,4 +72,5 @@ def create_app(load_services: Callable[[], CopilotServices] = default_services,
     return app
 
 
+configure_logging()
 app = create_app()
