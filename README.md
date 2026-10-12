@@ -185,7 +185,7 @@ Layers import downward only: `api` -> `services` -> `data_pipeline` -> `core`. T
 
 ## Deploying to Google Cloud
 
-One container: a Node stage builds the React app, the Python stage generates all data at build time, and uvicorn serves the API, the agent stream, and the app on Cloud Run's port. `PROJECT_ID=<id> make deploy` enables the APIs and creates a service account allowed only to call Vertex AI. It then deploys from source, so no key is deployed. `docs/HANDOVER.md` has every step, check, cost, and the teardown.
+One container: a Node stage builds the React app, the Python stage generates all data at build time, and uvicorn serves the API, the agent stream, and the app on Cloud Run's port. `PROJECT_ID=<id> make deploy` enables the APIs and creates a service account allowed only to call Vertex AI, and runs one instance at most, because the demo keeps its state in the container. It then deploys from source, so no key is deployed. `docs/HANDOVER.md` has every step, check, cost, and the teardown.
 
 **Usage limit.** The live app is public, so every call that reaches Gemini (agent runs, photo inspections, supplier messages) counts against two caps: 10 per visitor and 60 in total per hour by default (`USAGE_LIMIT_PER_VISITOR`, `USAGE_LIMIT_TOTAL`, `USAGE_LIMIT_WINDOW_MINUTES`; 0 turns a cap off). The total cap is the guarantee that nobody can drain the project's credit. A refused run says so in plain words and when to try again, and the autopilot stops itself.
 
