@@ -259,3 +259,18 @@ export interface InspectionFinding {
   observations: string[]
   advice: string
 }
+
+export interface AlertFeedback {
+  alert_id: string
+  asset_id: string
+  failure_mode: string
+  verdict: string
+  reason: string
+  marked_at: string
+}
+
+export interface FeedbackView {
+  own: AlertFeedback[]
+  similar: AlertFeedback[]
+  caution: string | null
+}

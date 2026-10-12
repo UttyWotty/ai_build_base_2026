@@ -99,5 +99,5 @@ async def supplier_updates(request: Request, as_of: str | None = None) -> dict[s
 
 @router.post("/field/reset")
 async def reset(request: Request) -> dict[str, int]:
-    field = services(request).field
-    return {"removed": field.inspections.clear() + field.updates.clear()}
+    bundle = services(request)
+    return {"removed": bundle.field.inspections.clear() + bundle.field.updates.clear() + bundle.feedback.clear()}

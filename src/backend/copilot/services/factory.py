@@ -17,11 +17,13 @@ from copilot.data_pipeline.world_store import WorldStore
 from copilot.services.agent_tools import CopilotTools
 from copilot.services.alert_book import AlertBook
 from copilot.services.decisions import DecisionBook, OutcomeService
+from copilot.services.feedback_service import FeedbackService
 from copilot.services.field_service import FieldInputService
 from copilot.services.impact_service import ImpactService
 from copilot.services.settings import (
     BRIDGE_DATA_DIR,
     BRIDGE_SEMANTIC_DIR,
+    FEEDBACK_PATH,
     INSPECTIONS_PATH,
     PLANT_CONFORMED_DIR,
     PLANT_SEMANTIC_DIR,
@@ -74,10 +76,11 @@ class CopilotServices:
     value: ValueService
     outcomes: OutcomeService
     field: FieldInputService
+    feedback: FeedbackService
 
     def tools_at(self, as_of: datetime) -> CopilotTools:
         return CopilotTools(as_of, self.impact, self.plant_tools, self.plant_catalog, self.reliability, self.proposals,
-                            self.field)
+                            self.field, self.feedback)
 
 
 def default_services(proposals_path: Path = PROPOSALS_PATH, field_dir: Path | None = None) -> CopilotServices:
@@ -92,13 +95,14 @@ def default_services(proposals_path: Path = PROPOSALS_PATH, field_dir: Path | No
     field = FieldInputService(build_reader(default_selection()), alerts, plant_catalog,
                               RecordStore(field_dir / "inspections.json" if field_dir else INSPECTIONS_PATH),
                               RecordStore(field_dir / "supplier_updates.json" if field_dir else SUPPLIER_UPDATES_PATH))
+    feedback = FeedbackService(alerts, RecordStore(field_dir / "feedback.json" if field_dir else FEEDBACK_PATH))
     impact = ImpactService(bridge, plant_catalog, alerts, reliability, store, decisions=book.decisions,
                            supplier_updates=field.supplier_updates)
     # The track record scores the pure analysis, so demo approvals never change it.
     pure = ImpactService(bridge, plant_catalog, alerts, reliability, store)
     plant_tools = ToolBox(plant_catalog, OEEService(plant_catalog), read_replay_alerts(REPLAY_PATH))
     return CopilotServices(impact, plant_tools, plant_catalog, reliability, proposals, ValueService(pure),
-                           OutcomeService(book, pure.analyse, pure.pf_days), field)
+                           OutcomeService(book, pure.analyse, pure.pf_days), field, feedback)
 
 
 def default_copilot_tools(as_of: datetime) -> CopilotTools:

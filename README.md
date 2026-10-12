@@ -29,6 +29,7 @@ What makes it trustworthy:
 - **No SQL from the model.** Supplier metrics compile from governed definitions, with a SQL fingerprint.
 - **No peeking at the future.** Every tool answers as of the demo clock; outcomes count only once they are in the past.
 - **No silent actions.** Agents propose; only people approve.
+- **Feedback flags, never silences.** An operator can mark an alert as false. Later alerts on the same machine and failure mode carry the note and ask for an inspection first, but stay visible: in the data, two machines with an earlier false alert failed for real weeks later.
 
 ## Status
 
@@ -40,6 +41,7 @@ What makes it trustworthy:
 | 0.8.1 | The OSI name; CI; architecture page with the challenge check | Released |
 | 0.8.2 | Inspection photos checked by Gemini; road to submission | Released |
 | 0.9.0 | Live on Cloud Run with Gemini on Vertex AI; 8/8 evaluation; submission write-up around the judging criteria | Released |
+| 0.10.0 | Ask about this on the field inspection; operator verdicts on false alerts | Released |
 
 Open items, in priority order, are in `techdebt.md`: the road to submission, starting with the video and the write-up.
 
@@ -77,7 +79,7 @@ The top bar sets the demo clock, either a named scenario or any time in the data
 | Page | What it shows |
 |---|---|
 | **Live** | The plant replayed as it happens: the clock runs at 1, 3, or 6 hours per second, and alerts, breakdowns, restorations, and spare orders and receipts stream in. With **Autopilot** on, each new alert pauses the clock while the agent team triages it and leaves a proposal, with approve and reject in place. On quota or credential errors the autopilot stops itself and explains why. |
-| **Control room** | Headline numbers, the open alerts, and for the selected one: the spare conflict, stock at both sites, the supplier's governed on-time delivery, every priced option, the sensor evidence against its normal band, field inspections, and the customers at risk. **Draft the plan with the copilot** streams the team's work live. |
+| **Control room** | Headline numbers, the open alerts, and for the selected one: the spare conflict, stock at both sites, the supplier's governed on-time delivery, every priced option, the sensor evidence against its normal band, field inspections with **Ask about this** for follow-up questions to the copilot, the operator's verdict (mark an alert as false, with a reason), and the customers at risk. **Draft the plan with the copilot** streams the team's work live. |
 | **Copilot** | Free questions to one agent or to the team, with the live tool timeline, each specialist's brief, the answer, and the verified badge. |
 | **Supplier inbox** | Gemini reads suppliers' messages (text or PDF) into delivery updates. A new date revises the open order from the moment the message arrived. |
 | **Approvals** | Proposals to approve or reject. An approved plan moves stock and clears conflicts from its moment on, and its outcome shows once the clock passes the failure, for example "down 26.0 h with the plan instead of 230.3 h, $100,077 saved". **Reset demo** clears the queue. |
@@ -97,7 +99,7 @@ The top bar sets the demo clock, either a named scenario or any time in the data
 | `list_open_alerts` | Alerts waiting for a repair, earliest deadline first |
 | `analyse_alert_impact` | Spares at both sites, the alert queue, supplier record, every priced option, worst case, customers at risk |
 | `get_sensor_evidence` | Daily means of the failure mode's symptom sensors over 7 days, with normal ranges |
-| `get_field_reports` | Inspection photo findings and supplier delivery updates that Gemini has read |
+| `get_field_reports` | Inspection photo findings and supplier delivery updates that Gemini has read, and operators' verdicts on this alert and earlier alerts of the same asset and failure mode |
 | `get_supplier_record` | Governed `supplier_otd` with its SQL fingerprint, and the expected lateness |
 | `oee_summary`, `failures`, `work_order_history` | Plant history from the OEE engine |
 | `propose_action_plan` | A proposal for a person to approve; its numbers come from the analysis, not the model |
@@ -171,6 +173,7 @@ Layers import downward only: `api` -> `services` -> `data_pipeline` -> `core`. T
 | `GET /api/value` | The track record |
 | `POST /api/field/supplier-message`, `GET /api/field/supplier-updates`, `GET /api/field/samples` | Supplier messages read into delivery updates; samples |
 | `POST /api/alerts/{id}/inspection`, `GET /api/alerts/{id}/inspections` | Inspection photos read against the failure mode |
+| `POST /api/alerts/{id}/feedback`, `GET /api/alerts/{id}/feedback?as_of=` | Mark an alert as false with a reason; its own and earlier verdicts, with the caution note |
 | `GET /api/proposals`, `POST /api/proposals/{id}/status`, `POST /api/proposals/reset` | The approval queue |
 | `GET /api/proposals/outcomes?as_of=` | Outcomes of approved decisions at the clock |
 | `POST /api/agent/stream` | An agent run (`mode`: `single` or `team`) as server-sent events, then the checked answer |

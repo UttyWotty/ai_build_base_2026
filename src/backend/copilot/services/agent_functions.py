@@ -29,8 +29,8 @@ def adk_functions(tools: CopilotTools) -> list[Callable[..., dict[str, object]]]
         return tools.safe(tools.get_sensor_evidence)(alert_id)
 
     def get_field_reports(alert_id: str) -> dict:
-        """Evidence from the field that Gemini has read: inspection photo findings for this alert, and supplier
-        messages that changed delivery dates (already applied to the impact analysis)."""
+        """Field evidence: inspection photo findings for this alert, supplier messages that changed delivery dates,
+        and operators' verdicts on this alert and on earlier alerts of the same asset and failure mode."""
         return tools.safe(tools.get_field_reports)(alert_id)
 
     def get_supplier_record(supplier_id: str) -> dict:

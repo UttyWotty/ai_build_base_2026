@@ -2,7 +2,7 @@
 // Paths are relative, so the Vite proxy (development) and Firebase Hosting rewrites (production) both work.
 // A non-2xx response throws ApiError with the backend's detail message, which the pages show as is.
 import type {
-  EngineStatus, Evidence, FieldSamples, Impact, InspectionFinding, Outcome, Overview, PlantEvent, Proposal, ScenarioList,
+  AlertFeedback, EngineStatus, Evidence, FeedbackView, FieldSamples, Impact, InspectionFinding, Outcome, Overview, PlantEvent, Proposal, ScenarioList,
   SupplierUpdate, TrackRecord,
 } from './types'
 
@@ -63,6 +63,10 @@ export const api = {
     postJson(`/api/alerts/${encodeURIComponent(alertId)}/inspection`, { ...upload, as_of: asOf }),
   inspections: async (alertId: string, asOf: string): Promise<InspectionFinding[]> =>
     (await getJson<{ inspections: InspectionFinding[] }>(`/api/alerts/${encodeURIComponent(alertId)}/inspections?${clock(asOf)}`)).inspections,
+  feedback: (alertId: string, asOf: string): Promise<FeedbackView> =>
+    getJson(`/api/alerts/${encodeURIComponent(alertId)}/feedback?${clock(asOf)}`),
+  markFalse: (alertId: string, reason: string, asOf: string): Promise<AlertFeedback> =>
+    postJson(`/api/alerts/${encodeURIComponent(alertId)}/feedback`, { reason, as_of: asOf }),
   resetField: async (): Promise<void> => { await postJson('/api/field/reset', {}) },
   proposals: async (): Promise<Proposal[]> => (await getJson<{ proposals: Proposal[] }>('/api/proposals')).proposals,
   setProposalStatus: async (proposalId: string, status: 'approved' | 'rejected'): Promise<Proposal> => {
