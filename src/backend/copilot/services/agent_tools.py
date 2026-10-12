@@ -14,8 +14,10 @@ from copilot.core.agent_views import (
     build_proposal,
     impact_result,
 )
+from copilot.core.alert_feedback import view_dict
 from copilot.core.errors import CopilotError
 from copilot.data_pipeline.proposal_store import ProposalStore
+from copilot.services.feedback_service import FeedbackService
 from copilot.services.field_service import FieldInputService
 from copilot.services.impact_service import ImpactService
 from copilot.services.supplier_reliability import SupplierReliabilityService
@@ -33,9 +35,10 @@ class CopilotTools:
 
     def __init__(self, as_of: datetime, impact: ImpactService, plant_tools: ToolBox, plant_catalog: PlantCatalog,
                  reliability: SupplierReliabilityService, proposals: ProposalStore,
-                 field: FieldInputService | None = None) -> None:
+                 field: FieldInputService | None = None, feedback: FeedbackService | None = None) -> None:
         self.as_of = as_of
         self.field = field
+        self.feedback = feedback
         self.impact = impact
         self.plant_tools = plant_tools
         self.plant_catalog = plant_catalog
@@ -61,10 +64,12 @@ class CopilotTools:
                 "sensors": trends}
 
     def get_field_reports(self, alert_id: str) -> dict[str, object]:
+        operator = view_dict(self.feedback.view(alert_id, self.as_of)) if self.feedback else None
         if self.field is None:
-            return {"inspections": [], "supplier_updates": []}
+            return {"inspections": [], "supplier_updates": [], "operator_feedback": operator}
         updates = self.field.updates_known(self.as_of)
         return {"alert_id": alert_id, "inspections": self.field.findings_for(alert_id, self.as_of),
+                "operator_feedback": operator,
                 "supplier_updates": [{"order_reference": u.order_reference, "supplier": u.supplier_name, "change": u.change,
                                       "new_delivery": u.new_delivery_at.strftime(TIME_FORMAT) if u.new_delivery_at else None,
                                       "reason": u.reason, "received": u.received_at.strftime(TIME_FORMAT)} for u in updates]}
