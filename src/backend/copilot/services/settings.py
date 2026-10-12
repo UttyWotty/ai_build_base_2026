@@ -25,9 +25,14 @@ SUPPLIER_UPDATES_PATH = Path(os.getenv("SUPPLIER_UPDATES_PATH", "data/copilot/su
 # Operators' verdicts on alerts, such as "this alert is false".
 FEEDBACK_PATH = Path(os.getenv("FEEDBACK_PATH", "data/copilot/feedback.json"))
 FIELD_SAMPLES_DIR = Path(os.getenv("FIELD_SAMPLES_DIR", "demo/field"))
+# The public demo's cap on Gemini calls (agent runs, photo inspections, supplier messages): per visitor and in
+# total within a sliding window. 0 turns a cap off, for example in a local .env.
+USAGE_LIMIT_PER_VISITOR = int(os.getenv("USAGE_LIMIT_PER_VISITOR", "10"))
+USAGE_LIMIT_TOTAL = int(os.getenv("USAGE_LIMIT_TOTAL", "60"))
+USAGE_LIMIT_WINDOW_MINUTES = int(os.getenv("USAGE_LIMIT_WINDOW_MINUTES", "60"))
 # The built React app; absent during local development, where Vite serves it.
 FRONTEND_DIST_DIR = Path(os.getenv("FRONTEND_DIST_DIR", "src/frontend/dist"))
 
 __all__ = ["BRIDGE_DATA_DIR", "BRIDGE_SEED", "BRIDGE_SEMANTIC_DIR", "DEMO_AS_OF", "FEEDBACK_PATH", "FIELD_SAMPLES_DIR", "FRONTEND_DIST_DIR",
            "INSPECTIONS_PATH", "SUPPLIER_UPDATES_PATH", "PROPOSALS_PATH", "PLANT_CONFORMED_DIR", "PLANT_SEMANTIC_DIR",
-           "SUPPLY_CONFORMED_DIR"]
+           "SUPPLY_CONFORMED_DIR", "USAGE_LIMIT_PER_VISITOR", "USAGE_LIMIT_TOTAL", "USAGE_LIMIT_WINDOW_MINUTES"]

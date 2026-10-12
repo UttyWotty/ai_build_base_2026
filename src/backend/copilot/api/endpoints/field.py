@@ -13,7 +13,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-from copilot.api.dependencies import parse_as_of, services
+from copilot.api.dependencies import parse_as_of, require_model_call, services
 from copilot.core.errors import CopilotError
 from copilot.data_pipeline.field_samples import (
     photo_path,
@@ -70,6 +70,7 @@ async def sample_photo(name: str) -> FileResponse:
 
 @router.post("/alerts/{alert_id}/inspection")
 async def inspect(alert_id: str, body: InspectionRequest, request: Request) -> dict[str, object]:
+    require_model_call(request)
     try:
         finding = services(request).field.inspect(alert_id, _attachment(body), parse_as_of(body.as_of))
     except (LLMError, CopilotError) as error:
@@ -84,6 +85,7 @@ async def inspections(alert_id: str, request: Request, as_of: str | None = None)
 
 @router.post("/field/supplier-message")
 async def supplier_message(body: SupplierMessage, request: Request) -> dict[str, object]:
+    require_model_call(request)
     try:
         update = services(request).field.read_supplier_message(body.text, [_attachment(a) for a in body.attachments],
                                                                parse_as_of(body.received_at))
