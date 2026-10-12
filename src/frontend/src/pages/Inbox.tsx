@@ -1,7 +1,7 @@
 // The supplier inbox: Gemini reads suppliers' messages (text or PDF) into delivery updates, and a delayed order's new
 // date flows straight into the impact analysis. Sample messages make the demo one click; any message can be pasted.
 // Updates count from the moment each message was received, so the demo clock decides which ones are known.
-import { FileText, Loader2, Mail, RotateCcw } from 'lucide-react'
+import { FileText, Loader2, Mail, Paperclip, RotateCcw } from 'lucide-react'
 import { useState } from 'react'
 import { api } from '../api/client'
 import type { SampleMessage, SupplierUpdate } from '../api/types'
@@ -87,7 +87,11 @@ function PasteBox({ onRead }: { onRead: () => void }) {
       <textarea value={text} onChange={(e) => setText(e.target.value)} rows={3} placeholder="Paste a supplier email, or attach a PDF"
         className="mt-2 w-full rounded-md border border-slate-200 p-2 text-sm" />
       <div className="mt-2 flex items-center gap-2">
-        <input type="file" accept="application/pdf,image/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="text-xs" />
+        <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-slate-300 px-2.5 py-1 text-xs font-medium hover:bg-slate-50">
+          <Paperclip className="h-3.5 w-3.5" />Attach PDF or image
+          <input type="file" accept="application/pdf,image/*" className="hidden" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+        </label>
+        {file && <span className="min-w-0 truncate text-xs text-slate-600">{file.name}</span>}
         <button onClick={read} disabled={busy || (!text && !file)} className="ml-auto rounded-md bg-brand-600 px-2.5 py-1 text-xs font-medium text-white disabled:opacity-50">Read with Gemini</button>
       </div>
       {error && <div className="mt-2"><ErrorNote message={error} /></div>}

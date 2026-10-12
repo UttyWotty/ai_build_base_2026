@@ -85,7 +85,7 @@ function StepRow({ step, showAuthor }: { step: ToolStep; showAuthor: boolean }) 
     <li className="rounded-lg border border-slate-200 bg-white">
       <button onClick={() => setOpen(!open)} className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm">
         {step.result === undefined ? <Loader2 className="h-4 w-4 animate-spin text-brand-600" /> : <Wrench className="h-4 w-4 text-brand-600" />}
-        {showAuthor && <span className="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-medium text-slate-600">{agentLabel(step.author)}</span>}
+        {showAuthor && <span className="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-xs font-medium text-slate-600">{agentLabel(step.author)}</span>}
         <span className="shrink-0 font-medium">{TOOL_LABELS[step.name] ?? step.name}</span>
         <code className="min-w-0 flex-1 truncate font-mono text-xs text-slate-500">{step.name}({args === '{}' ? '' : args})</code>
         <ChevronRight className={`h-4 w-4 shrink-0 text-slate-400 transition ${open ? 'rotate-90' : ''}`} />

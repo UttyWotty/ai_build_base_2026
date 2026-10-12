@@ -6,6 +6,15 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+## [0.11.2] - 2026-10-12
+
+UI polish for the recording; deployed as revision ops-copilot-00004.
+
+### Changed
+- UI polish for the recording: a loading screen instead of a blank page while the service starts; the scenario story
+  in the top bar wraps instead of being cut off; How it works opens with a title and the pitch, and lists operator
+  verdicts and the usage limit; the supplier inbox has a styled attach button; the smallest labels are 12 px.
+
 ## [0.11.1] - 2026-10-12
 
 The Cloud Run service runs one instance at most; deployed as revision ops-copilot-00003 with the usage limit.
