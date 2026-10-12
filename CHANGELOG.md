@@ -6,6 +6,10 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+### Fixed
+- The copilot's own log lines (service start, and each counted model call with the visitor's address) never reached
+  Cloud Run, because the package logger had no handler. They now go to stderr at `LOG_LEVEL` (INFO by default).
+
 ## [0.11.6] - 2026-10-12
 
 Supplier cancellations and confirmations now count, and operator cautions reach only later alerts.
