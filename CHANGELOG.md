@@ -6,6 +6,16 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-10-12
+
+A usage limit protects the public app's Gemini credit.
+
+### Added
+- A usage limit on the public app: every call that reaches Gemini (agent runs, photo inspections, supplier messages)
+  counts against 10 per visitor and 60 in total per sliding hour, set by `USAGE_LIMIT_*` (0 turns a cap off). The
+  agent stream refuses with one finished event of kind `limit`, so every page shows the plain message and the
+  autopilot stops itself; uploads get 429 with Retry-After.
+
 ## [0.10.2] - 2026-10-12
 
 The copilot's older Streamlit app is removed, and the architecture page's challenge check is current.

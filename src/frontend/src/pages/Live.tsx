@@ -23,7 +23,7 @@ const STARTS = [
 ]
 const FEED_LOOKBACK_HOURS = -24
 // Errors that would repeat on every alert: stop the autopilot rather than fail each triage.
-const STOPPING_KINDS = new Set(['quota', 'auth'])
+const STOPPING_KINDS = new Set(['quota', 'auth', 'limit'])
 
 export function Live() {
   const { asOf, setAsOf } = useClock()
