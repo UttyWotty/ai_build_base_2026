@@ -49,12 +49,15 @@ def new_false_alert(alert_id: str, asset_id: str, failure_mode: str, raised_at: 
     return AlertFeedback(alert_id, asset_id, failure_mode, FALSE_ALERT, text, marked_at)
 
 
-def feedback_view(records: list[AlertFeedback], alert_id: str, asset_id: str, failure_mode: str,
-                  now: datetime) -> FeedbackView:
-    """Verdicts known at `now`, newest first: this alert's own, and those on other alerts of the same asset and mode."""
+def feedback_view(records: list[AlertFeedback], alert_id: str, asset_id: str, failure_mode: str, now: datetime,
+                  earlier_alerts: frozenset[str]) -> FeedbackView:
+    """Verdicts known at `now`, newest first: this alert's own, and those on earlier alerts of the same asset and mode.
+
+    `earlier_alerts` holds the ids of alerts raised before this one; a verdict on a later alert never reaches back.
+    """
     known = sorted((r for r in records if r.marked_at <= now), key=lambda r: r.marked_at, reverse=True)
     own = tuple(r for r in known if r.alert_id == alert_id)
-    similar = tuple(r for r in known if r.alert_id != alert_id
+    similar = tuple(r for r in known if r.alert_id in earlier_alerts
                     and r.asset_id == asset_id and r.failure_mode == failure_mode)
     return FeedbackView(own, similar, caution_note(similar))
 

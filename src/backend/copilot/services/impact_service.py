@@ -123,7 +123,8 @@ class ImpactService:
         orders = [OpenOrder(r.po_id, r.supplier_id, int(r.quantity), pd.Timestamp(r.promised_at).to_pydatetime(),
                             max(pd.Timestamp(r.promised_at).to_pydatetime() + late, now)) for r in frame.itertuples()]
         updates = self.supplier_updates() if self.supplier_updates else []
-        return tuple(revise_expected(o, updates, now) for o in orders)
+        revised = (revise_expected(o, updates, now) for o in orders)
+        return tuple(o for o in revised if o is not None)
 
     def _candidate_orders(self, asset: AssetContext, part_ids: tuple[str, ...], now: datetime) -> tuple[OrderAtRisk, ...]:
         frame = q.open_customer_lines(self.connection_manager, asset.plant_id, part_ids, now.date(), CUSTOMER_HORIZON_DAYS)

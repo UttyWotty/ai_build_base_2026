@@ -60,7 +60,13 @@ Each step waits for the one before it. Status on 2026-10-12.
 ## P2 - Known limitations
 
 - [ ] **Decisions are applied independently.** A transfer is not charged for the sister site's later needs, and an
-  arrived transfer is reserved for its alert even if another alert's deadline comes first.
+  arrived transfer is reserved for its alert even if another alert's deadline comes first. The bug audit of
+  2026-10-12 measured it: the 25 Jul transfer from DE1 leaves DE1's 28 Jul alert without its spare, about $9.7k of
+  the $197,949 net value. Scoring the cases in time order through `apply_decisions` would fix the headline.
+- [ ] **An approved plan's outcome is priced on the pure analysis**, without the supplier updates or earlier
+  approvals the approver saw, so the demo's "230 h without the plan" leaves out the Everline delay (about 320 h with
+  it): conservative but inconsistent. If the approved option exists only because of an earlier decision (a `DEC-`
+  source), `decision_outcome` falls back to the recommended option instead of saying it cannot price it.
 - [ ] **The line-stops rule is coarse:** any asset outage stops its whole line, and lost output uses the running
   production order's rate. Good enough for ranking options; not a capacity model.
 - [ ] **The impact service has no service-level test.** Its rules are unit-tested and it was checked on the full data;
