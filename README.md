@@ -47,6 +47,7 @@ What makes it trustworthy:
 | 0.10.1 | Story opens on scarcity; deck PDF in docs | Released |
 | 0.10.2 | Streamlit app removed; challenge check current | Released |
 | 0.11.0 | Usage limit on Gemini calls (10 per visitor, 60 in total per hour) | Released |
+| 0.11.1 | One instance at most; deployed with the usage limit | Released |
 
 Open items, in priority order, are in `techdebt.md`: the road to submission, starting with the video and the write-up.
 
