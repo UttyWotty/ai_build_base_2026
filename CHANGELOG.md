@@ -6,6 +6,10 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+## [0.10.2] - 2026-10-12
+
+The copilot's older Streamlit app is removed, and the architecture page's challenge check is current.
+
 ### Removed
 - The copilot's older Streamlit app (`src/backend/copilot/ui`), its page test, and `make app`; the React app is the
   only copilot UI. The summary rules it shared with the API keep their tests in `tests/copilot/test_impact_summary.py`.
