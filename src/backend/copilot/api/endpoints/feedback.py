@@ -6,7 +6,7 @@ Unknown alerts are 404; a missing reason, or a verdict before the alert was rais
 from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from copilot.api.dependencies import parse_as_of, services
 from copilot.core.alert_feedback import feedback_row, view_dict
@@ -14,12 +14,13 @@ from copilot.core.errors import FeedbackError, ImpactError
 
 router = APIRouter(prefix="/api")
 BAD_REQUEST, NOT_FOUND = 400, 404
+MAX_REASON_CHARS = 1_000
 
 
 class FalseAlertRequest(BaseModel):
     """A false-alert verdict at the demo clock."""
 
-    reason: str
+    reason: str = Field(max_length=MAX_REASON_CHARS)
     as_of: str | None = None
 
 

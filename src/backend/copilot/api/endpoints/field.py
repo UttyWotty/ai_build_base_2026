@@ -1,7 +1,8 @@
 """Field input endpoints: inspection photos for an alert, and supplier messages, read by Gemini into structured data.
 
 Uploads arrive as base64 in JSON, which keeps the API simple for the browser and for tests.
-Model and schema failures come back as 502 with the reason, so the app can show what went wrong.
+Inputs and the alert are checked before a call is counted against the usage limit: a bad upload or an unknown alert
+(404) never spends a visitor's quota. Model and schema failures come back as 502 with the reason.
 """
 from __future__ import annotations
 
@@ -11,10 +12,10 @@ from dataclasses import asdict
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import FileResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from copilot.api.dependencies import parse_as_of, require_model_call, services
-from copilot.core.errors import CopilotError
+from copilot.core.errors import CopilotError, ImpactError
 from copilot.data_pipeline.field_samples import (
     photo_path,
     sample_messages,
@@ -27,6 +28,9 @@ from llm_gateway.multimodal import Attachment
 router = APIRouter(prefix="/api")
 BAD_REQUEST, NOT_FOUND, BAD_GATEWAY = 400, 404, 502
 MAX_UPLOAD_BYTES = 8 * 1024 * 1024
+# A supplier email is a few hundred words; the cap keeps one request from sending a book to Gemini.
+MAX_MESSAGE_CHARS = 20_000
+MAX_ATTACHMENTS = 3
 
 
 class Upload(BaseModel):
@@ -39,9 +43,9 @@ class InspectionRequest(Upload):
 
 
 class SupplierMessage(BaseModel):
-    text: str = ""
+    text: str = Field(default="", max_length=MAX_MESSAGE_CHARS)
     received_at: str
-    attachments: list[Upload] = []
+    attachments: list[Upload] = Field(default_factory=list, max_length=MAX_ATTACHMENTS)
 
 
 def _attachment(upload: Upload) -> Attachment:
@@ -70,9 +74,14 @@ async def sample_photo(name: str) -> FileResponse:
 
 @router.post("/alerts/{alert_id}/inspection")
 async def inspect(alert_id: str, body: InspectionRequest, request: Request) -> dict[str, object]:
+    photo, received_at = _attachment(body), parse_as_of(body.as_of)
+    try:
+        task = services(request).field.prepare_inspection(alert_id)
+    except ImpactError as error:
+        raise HTTPException(NOT_FOUND, str(error)) from error
     require_model_call(request)
     try:
-        finding = services(request).field.inspect(alert_id, _attachment(body), parse_as_of(body.as_of))
+        finding = await services(request).field.inspect(task, photo, received_at)
     except (LLMError, CopilotError) as error:
         raise HTTPException(BAD_GATEWAY, str(error)) from error
     return asdict(finding)
@@ -85,10 +94,10 @@ async def inspections(alert_id: str, request: Request, as_of: str | None = None)
 
 @router.post("/field/supplier-message")
 async def supplier_message(body: SupplierMessage, request: Request) -> dict[str, object]:
+    attachments, received_at = [_attachment(a) for a in body.attachments], parse_as_of(body.received_at)
     require_model_call(request)
     try:
-        update = services(request).field.read_supplier_message(body.text, [_attachment(a) for a in body.attachments],
-                                                               parse_as_of(body.received_at))
+        update = await services(request).field.read_supplier_message(body.text, attachments, received_at)
     except (LLMError, CopilotError) as error:
         raise HTTPException(BAD_GATEWAY, str(error)) from error
     return asdict(update)

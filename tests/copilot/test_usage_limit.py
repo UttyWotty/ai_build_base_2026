@@ -1,7 +1,8 @@
 """Tests for the public demo's usage limit: sliding-window caps per visitor and in total, and how the API refuses.
 
 A refused call is not counted, a window frees its oldest call, and a cap of 0 is off. The agent stream refuses with
-one finished event of kind "limit", so pages and the autopilot treat it as an error; photo uploads get 429.
+one finished event of kind "limit", so pages and the autopilot treat it as an error; photo uploads get 429. The visitor
+is the last X-Forwarded-For entry, and a bad upload or an unknown alert never spends a call.
 """
 from __future__ import annotations
 
@@ -12,6 +13,7 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 
 from copilot.api import server
+from copilot.core.errors import ImpactError
 from copilot.core.usage_limit import (
     OFF,
     TOTAL,
@@ -58,12 +60,21 @@ def test_messages_say_which_cap_and_how_long_to_wait() -> None:
     assert "limit of 60 AI runs per 60 minutes" in total and "about 60 minutes" in total
 
 
-class NoServices:
-    pass
+class FakeField:
+    """Knows one alert; any other id is unknown."""
+
+    def prepare_inspection(self, alert_id: str) -> object:
+        if alert_id != "AL-1":
+            raise ImpactError(f"Unknown alert {alert_id}")
+        return object()
+
+
+class FakeServices:
+    field = FakeField()
 
 
 def app_with(tmp_path: Path, limits: UsageLimits) -> TestClient:
-    return TestClient(server.create_app(lambda: NoServices(), tmp_path / "no-build", UsageLimiter(limits)))
+    return TestClient(server.create_app(lambda: FakeServices(), tmp_path / "no-build", UsageLimiter(limits)))
 
 
 def test_the_agent_stream_refuses_with_one_finished_limit_event(tmp_path: Path, monkeypatch) -> None:
@@ -71,6 +82,7 @@ def test_the_agent_stream_refuses_with_one_finished_limit_event(tmp_path: Path, 
     monkeypatch.setattr(agent_endpoint, "tools_at", lambda request, as_of: None)
     with app_with(tmp_path, UsageLimits(per_visitor=OFF, total=OFF, window=HOUR)) as open_client:
         assert open_client.post("/api/agent/stream", json={"question": "q", "mode": "nope"}).status_code == 400
+        assert open_client.post("/api/agent/stream", json={"question": "q" * 9_000}).status_code == 422
     with app_with(tmp_path, UsageLimits(per_visitor=0, total=1, window=HOUR)) as client:
         client.app.state.limiter.check("someone-else", datetime.now(timezone.utc))
         body = client.post("/api/agent/stream", json={"question": "Which alerts?"}).text
@@ -79,10 +91,18 @@ def test_the_agent_stream_refuses_with_one_finished_limit_event(tmp_path: Path, 
         assert "limit of 1 AI runs" in events[0]["error_message"]
 
 
-def test_photo_inspections_get_429_with_retry_after(tmp_path: Path) -> None:
+def test_photo_inspections_get_429_with_retry_after_for_the_last_forwarded_address(tmp_path: Path) -> None:
     with app_with(tmp_path, UsageLimits(per_visitor=1, total=OFF, window=HOUR)) as client:
-        client.app.state.limiter.check("testclient", datetime.now(timezone.utc))
+        client.app.state.limiter.check("203.0.113.9", datetime.now(timezone.utc))
         response = client.post("/api/alerts/AL-1/inspection", json={"mime_type": "image/jpeg", "data_base64": ""},
-                               headers={"x-forwarded-for": "testclient, 10.0.0.1"})
+                               headers={"x-forwarded-for": "forged-by-the-caller, 203.0.113.9"})
         assert response.status_code == 429 and int(response.headers["retry-after"]) > 0
         assert "per visitor" in response.json()["detail"]
+
+
+def test_bad_uploads_and_unknown_alerts_never_spend_a_call(tmp_path: Path) -> None:
+    with app_with(tmp_path, UsageLimits(per_visitor=OFF, total=1, window=HOUR)) as client:
+        bad = client.post("/api/alerts/AL-1/inspection", json={"mime_type": "image/jpeg", "data_base64": "not base64!"})
+        unknown = client.post("/api/alerts/AL-9/inspection", json={"mime_type": "image/jpeg", "data_base64": ""})
+        assert (bad.status_code, unknown.status_code) == (400, 404)
+        assert client.app.state.limiter.check("anyone", datetime.now(timezone.utc)).allowed

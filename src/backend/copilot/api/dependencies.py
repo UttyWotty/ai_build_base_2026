@@ -5,6 +5,7 @@ Every data endpoint is async and runs on the event loop, so the shared DuckDB co
 """
 from __future__ import annotations
 
+import logging
 from datetime import datetime, timedelta, timezone
 
 from fastapi import HTTPException, Request
@@ -34,6 +35,7 @@ RETRY_AFTER = "Retry-After"
 UNKNOWN_VISITOR = "unknown"
 SERVICE_UNAVAILABLE = 503
 BAD_REQUEST = 400
+logger = logging.getLogger(__name__)
 
 
 def services(request: Request) -> CopilotServices:
@@ -48,11 +50,18 @@ def selection(request: Request) -> ModelSelection:
 
 
 def parse_as_of(as_of: str | None) -> datetime:
-    """The demo clock from an ISO timestamp, defaulting to the configured demo moment."""
+    """The demo clock from an ISO timestamp, defaulting to the configured demo moment.
+
+    The data is naive, so a timestamp with an offset is converted to UTC and stripped; comparing aware with naive times
+    would raise in every later request that reads the stored field inputs.
+    """
     try:
-        return datetime.fromisoformat(as_of or DEMO_AS_OF)
+        moment = datetime.fromisoformat(as_of or DEMO_AS_OF)
     except ValueError as error:
         raise HTTPException(BAD_REQUEST, f"as_of must be an ISO timestamp, got {as_of!r}") from error
+    if moment.tzinfo is not None:
+        moment = moment.astimezone(timezone.utc).replace(tzinfo=None)
+    return moment
 
 
 def tools_at(request: Request, as_of: str | None) -> CopilotTools:
@@ -66,19 +75,22 @@ def default_limiter() -> UsageLimiter:
 
 
 def visitor_of(request: Request) -> str:
-    """The caller's address: the first X-Forwarded-For entry behind Cloud Run, else the socket peer.
+    """The caller's address: the last X-Forwarded-For entry behind Cloud Run, else the socket peer.
 
-    A caller can forge the header and dodge the per-visitor cap, never the total cap.
+    Google's front end appends the address it saw to whatever the caller sent, so only the last entry is trustworthy;
+    the first one is whatever the caller chose to write.
     """
     forwarded = request.headers.get(FORWARDED_FOR, "")
-    first = forwarded.split(",")[0].strip()
-    return first or (request.client.host if request.client else UNKNOWN_VISITOR)
+    last = forwarded.split(",")[-1].strip()
+    return last or (request.client.host if request.client else UNKNOWN_VISITOR)
 
 
 def model_call(request: Request) -> tuple[LimitDecision, str]:
     """Counts one Gemini-backed call against the caps; returns the decision and, when refused, the message."""
     limiter: UsageLimiter = getattr(request.app.state, LIMITER_STATE)
-    decision = limiter.check(visitor_of(request), datetime.now(timezone.utc))
+    visitor = visitor_of(request)
+    decision = limiter.check(visitor, datetime.now(timezone.utc))
+    logger.info("Model call by %s on %s: %s", visitor, request.url.path, "allowed" if decision.allowed else decision.scope)
     return decision, "" if decision.allowed else limit_message(decision, limiter.limits)
 
 

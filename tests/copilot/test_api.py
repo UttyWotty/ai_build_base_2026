@@ -98,6 +98,12 @@ def test_unknown_alerts_and_bad_clocks_are_client_errors(client: TestClient) -> 
     assert client.get("/api/overview", params={"as_of": "yesterday"}).status_code == 400
 
 
+def test_a_clock_with_an_offset_becomes_naive_utc() -> None:
+    from copilot.api.dependencies import parse_as_of
+    assert parse_as_of("2026-07-25T04:00+02:00") == datetime(2026, 7, 25, 2, 0)
+    assert parse_as_of("2026-07-25T02:00Z").tzinfo is None
+
+
 def test_a_person_approves_a_proposal(client: TestClient) -> None:
     assert client.get("/api/proposals").json()["proposals"][0]["status"] == "pending"
     assert client.post("/api/proposals/PR-AL-2-1/status", json={"status": "approved"}).json()["status"] == "approved"

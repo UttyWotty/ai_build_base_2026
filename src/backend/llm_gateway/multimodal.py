@@ -11,6 +11,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import Protocol
 
+import httpx
 from google import genai
 from google.genai import errors, types
 
@@ -81,6 +82,9 @@ class GeminiReader:
                 failure = error
                 if not is_transient(error.code):
                     break
+                continue
+            except httpx.HTTPError as error:
+                failure = error
                 continue
             if response.text:
                 return response.text

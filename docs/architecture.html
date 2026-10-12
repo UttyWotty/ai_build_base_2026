@@ -268,7 +268,7 @@ html { scroll-behavior: smooth; }
     <p>This uses Google's <b>Agent Development Kit</b> as designed: a <code>ParallelAgent</code> inside a
     <code>SequentialAgent</code> (<code>src/backend/copilot/services/agent_team.py</code>). Free questions on the Copilot
     page go to a single agent with all nine tools instead. A team run costs about twelve model calls; a single run about
-    five. If one Gemini model runs out of quota, the run restarts on a backup model and the trace says so.</p>
+    five. If one Gemini model runs out of quota before its first step, the run restarts on a backup model and the trace says so.</p>
   </div>
 </section>
 
@@ -306,7 +306,7 @@ html { scroll-behavior: smooth; }
       <div><h4>No peeking at the future</h4><p>Every tool answers as of the demo clock. Outcomes count only once they are in the past.</p></div>
       <div><h4>No silent actions</h4><p>Agents only propose. A proposal's numbers come from the analysis, not the model's text. People approve.</p></div>
     </div>
-    <p>Quality evidence: 434 backend and 10 frontend tests, offline tests of the real ADK runner with scripted models,
+    <p>Quality evidence: 438 backend and 10 frontend tests, offline tests of the real ADK runner with scripted models,
     and an eight-scenario agent evaluation (<code>make eval</code>, 7 of 8 on a local model; the full Gemini score is
     still to run).</p>
   </div>
@@ -356,7 +356,7 @@ html { scroll-behavior: smooth; }
     <div class="tbl"><table>
       <thead><tr><th>Criterion</th><th>Our strongest evidence</th><th>Gap to close</th></tr></thead>
       <tbody>
-        <tr><td>Technical merit and Gen AI <span class="num">40%</span></td><td>ADK parallel and sequential team; multimodal Gemini; number verification; governed tools; model fallback; evaluation 8/8 on Vertex AI; 444 tests</td><td>Done: eval score in the README, scalability slide in the deck</td></tr>
+        <tr><td>Technical merit and Gen AI <span class="num">40%</span></td><td>ADK parallel and sequential team; multimodal Gemini; number verification; governed tools; model fallback; evaluation 8/8 on Vertex AI; 448 tests</td><td>Done: eval score in the README, scalability slide in the deck</td></tr>
         <tr><td>Problem alignment and impact <span class="num">25%</span></td><td>Cross-department maintenance problem; $197,949 net and 662 h over four months; $100,077 on one alert</td><td>Done: honest-limits and "how a real plant connects" slides</td></tr>
         <tr><td>Innovation and creativity <span class="num">25%</span></td><td>Decisions under scarcity across departments; Autopilot at 2 a.m.; approvals change the world; Gemini reads supplier mail and photos; operator verdicts that flag, never silence</td><td>Done: inspection photos checked by Gemini</td></tr>
         <tr><td>User experience and design <span class="num">10%</span></td><td>Seven pages; live agent stream with names; Verified badge; plain-language errors; Ask about this on the inspection</td><td>Rehearse the 3-minute path on the deployed app</td></tr>

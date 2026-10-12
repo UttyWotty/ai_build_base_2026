@@ -2,10 +2,12 @@
 
 An inspection is read against the alert's failure mode, so Gemini judges the photo with the right question in mind.
 A supplier message becomes an update that revises the matching open order from the moment it was received, which the
-impact analysis picks up at once.
+impact analysis picks up at once. Gemini reads run in a worker thread, so a slow read never stalls other visitors.
 """
 from __future__ import annotations
 
+import asyncio
+from dataclasses import dataclass
 from datetime import datetime
 
 import pandas as pd
@@ -31,6 +33,15 @@ def _ts(value: object) -> datetime | None:
     return None if value in (None, "", "None") else pd.Timestamp(str(value)).to_pydatetime()
 
 
+@dataclass(frozen=True)
+class InspectionTask:
+    """An alert checked and ready for Gemini: the instruction that frames the photo for its failure mode."""
+
+    alert_id: str
+    asset_id: str
+    instruction: str
+
+
 class FieldInputService:
     """Inspection findings and supplier updates."""
 
@@ -42,7 +53,8 @@ class FieldInputService:
         self.inspections = inspections
         self.updates = updates
 
-    def inspect(self, alert_id: str, photo: Attachment, received_at: datetime) -> InspectionFinding:
+    def prepare_inspection(self, alert_id: str) -> InspectionTask:
+        """Checks the alert and builds the instruction; raises ImpactError before any Gemini call is spent."""
         alert = self.alerts.get(alert_id)
         mode = next((c.failure_modes[alert.failure_mode] for c in self.plant_catalog.plant.asset_classes.values()
                      if alert.failure_mode in c.failure_modes), None)
@@ -50,13 +62,17 @@ class FieldInputService:
             raise ImpactError(f"No failure mode {alert.failure_mode} in the plant catalog")
         symptoms = ", ".join(s.replace("_", " ") for s in mode.symptoms) or "its history"
         instruction = inspection_instruction(alert.asset_id, mode.label, mode.component, symptoms, mode.recommended_action)
-        raw = self.reader.read(instruction, "", [photo], INSPECTION_SCHEMA)
-        finding = parse_inspection(raw, alert.alert_id, alert.asset_id, received_at)
+        return InspectionTask(alert.alert_id, alert.asset_id, instruction)
+
+    async def inspect(self, task: InspectionTask, photo: Attachment, received_at: datetime) -> InspectionFinding:
+        raw = await asyncio.to_thread(self.reader.read, task.instruction, "", [photo], INSPECTION_SCHEMA)
+        finding = parse_inspection(raw, task.alert_id, task.asset_id, received_at)
         self.inspections.add(finding)
         return finding
 
-    def read_supplier_message(self, text: str, attachments: list[Attachment], received_at: datetime) -> SupplierUpdate:
-        raw = self.reader.read(SUPPLIER_INSTRUCTION, text, attachments, SUPPLIER_SCHEMA)
+    async def read_supplier_message(self, text: str, attachments: list[Attachment],
+                                    received_at: datetime) -> SupplierUpdate:
+        raw = await asyncio.to_thread(self.reader.read, SUPPLIER_INSTRUCTION, text, attachments, SUPPLIER_SCHEMA)
         update = parse_supplier_update(raw, received_at)
         self.updates.add(update)
         return update
