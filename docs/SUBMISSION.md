@@ -49,7 +49,7 @@ The expensive mistakes happen between departments. OSI is an AI team that works 
 **Measured, not claimed.**
 - `make eval` runs eight scenarios, from triage to creating a proposal, and scores the tools called, the required
   facts, the number check, and the proposal. **Score: 8/8 with Gemini 3.8 Flash on Vertex AI.**
-- 426 backend and 10 frontend automated tests, a code-rule checker, strict TypeScript, and offline tests of the real ADK
+- 432 backend and 10 frontend automated tests, a code-rule checker, strict TypeScript, and offline tests of the real ADK
   runner and the agent team with scripted models.
 
 **Built for Google Cloud.**
@@ -58,6 +58,8 @@ The expensive mistakes happen between departments. OSI is an AI team that works 
 - Gemini runs on **Vertex AI** under the service's own account, which may only call Vertex AI. No API key is deployed.
 - `deploy/cloudrun.sh` enables the APIs, creates that account, and deploys from source with Cloud Build. It is safe to
   re-run. `docs/HANDOVER.md` lists every step with its check, the costs, and the teardown.
+- The public app caps Gemini calls at 10 per visitor and 60 in total per hour, so nobody can drain the credit; a refused
+  run says when to try again, and the autopilot stops itself.
 - Backup Gemini models take over when one is out of quota. Errors reach people in plain words, and the autopilot stops
   itself instead of failing repeatedly.
 

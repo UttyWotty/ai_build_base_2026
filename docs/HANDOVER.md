@@ -56,6 +56,10 @@ The script (`deploy/cloudrun.sh`) is safe to re-run. It:
   deployed), and passes `GEMINI_MODEL` and `GEMINI_FALLBACK_MODELS`
 - prints the service URL
 
+The app caps Gemini calls for the public: 10 per visitor and 60 in total per hour by default. Set
+`USAGE_LIMIT_PER_VISITOR`, `USAGE_LIMIT_TOTAL`, or `USAGE_LIMIT_WINDOW_MINUTES` on the service to change it (0 turns a
+cap off). The total cap is what protects the credit; a forged `X-Forwarded-For` header can only dodge the per-visitor one.
+
 Overrides: `REGION`, `VERTEX_LOCATION` (default `global`), `GEMINI_MODEL`, `GEMINI_FALLBACK_MODELS`, `SERVICE`,
 `MIN_INSTANCES`.
 
@@ -92,6 +96,7 @@ Overrides: `REGION`, `VERTEX_LOCATION` (default `global`), `GEMINI_MODEL`, `GEMI
 | "Gemini refused the credentials" | The service account lacks `roles/aiplatform.user`, or the Vertex AI API is off; re-run the script |
 | "The model ... is not available" | The model is not offered at `VERTEX_LOCATION`; try `VERTEX_LOCATION=us-central1` or another `GEMINI_MODEL` |
 | "The Gemini quota ... is used up" | Quota; the app switches to the backup models, and the autopilot stops itself when none is left |
+| "The live demo allows 10 AI runs per visitor" or "has reached its limit" | The usage limit; wait, or raise `USAGE_LIMIT_*` on the service |
 | "Gemini ... is overloaded" | A temporary 503 on Google's side; try again in a minute |
 | The page reloads or loses state | Session affinity missing, or the instance restarted; re-run the script |
 | The build runs out of memory | Raise the Cloud Build machine type, or build locally and push the image |

@@ -13,7 +13,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from copilot.api.dependencies import selection, tools_at
+from copilot.api.dependencies import model_call, selection, tools_at
 from copilot.services.agent_runner import (
     SINGLE,
     TEAM,
@@ -27,6 +27,8 @@ EVENT_STREAM = "text/event-stream"
 MODES = frozenset({SINGLE, TEAM})
 BAD_REQUEST = 400
 NO_BUFFERING = {"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
+# The error kind of a run the usage limit refused; the autopilot stops on it.
+LIMIT_KIND = "limit"
 
 
 class Question(BaseModel):
@@ -43,6 +45,9 @@ async def stream(body: Question, request: Request) -> StreamingResponse:
     tools = tools_at(request, body.as_of)
     if body.mode not in MODES:
         raise HTTPException(BAD_REQUEST, f"mode must be one of {', '.join(sorted(MODES))}")
+    decision, message = model_call(request)
+    if not decision.allowed:
+        return StreamingResponse(_refused(message), media_type=EVENT_STREAM, headers=NO_BUFFERING)
     events = _events(stream_copilot(body.question, tools, selection(request), body.mode))
     return StreamingResponse(events, media_type=EVENT_STREAM, headers=NO_BUFFERING)
 
@@ -50,6 +55,13 @@ async def stream(body: Question, request: Request) -> StreamingResponse:
 async def _events(source: AsyncIterator[AgentStep | AgentRun]) -> AsyncIterator[str]:
     async for item in source:
         yield _sse(_step_event(item) if isinstance(item, AgentStep) else _done_event(item))
+
+
+async def _refused(message: str) -> AsyncIterator[str]:
+    """A run the usage limit refused, as one finished event, so every page and the autopilot handle it as an error."""
+    yield _sse({"type": "done", "answer": "", "verified": False, "error": LIMIT_KIND, "error_message": message,
+                "error_kind": LIMIT_KIND, "unexplained_numbers": [], "seconds": 0.0, "model": "",
+                "tools_used": []})
 
 
 def _step_event(step: AgentStep) -> dict[str, object]:
