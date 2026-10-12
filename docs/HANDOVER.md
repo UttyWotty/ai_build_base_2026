@@ -51,7 +51,8 @@ The script (`deploy/cloudrun.sh`) is safe to re-run. It:
 - enables Cloud Run, Cloud Build, Artifact Registry, and Vertex AI
 - creates the service account `ops-copilot-run` and grants it `roles/aiplatform.user` only
 - builds the container with Cloud Build and deploys the service `ops-copilot` in `asia-southeast1` (Singapore, near the judges): 2 CPUs, 2 GiB (the
-  running app uses about 400 MiB), session affinity, and public access for the judges
+  running app uses about 400 MiB), one instance at most (the demo's state lives in the container, so a second instance
+  would disagree; it also caps compute cost), session affinity, and public access for the judges
 - sets `GOOGLE_GENAI_USE_VERTEXAI=true`, so Gemini is called on Vertex AI with the service account (no API key is
   deployed), and passes `GEMINI_MODEL` and `GEMINI_FALLBACK_MODELS`
 - prints the service URL
@@ -60,7 +61,7 @@ The app caps Gemini calls for the public: 10 per visitor and 60 in total per hou
 `USAGE_LIMIT_PER_VISITOR`, `USAGE_LIMIT_TOTAL`, or `USAGE_LIMIT_WINDOW_MINUTES` on the service to change it (0 turns a
 cap off). The total cap is what protects the credit; a forged `X-Forwarded-For` header can only dodge the per-visitor one.
 
-Overrides: `REGION`, `VERTEX_LOCATION` (default `global`), `GEMINI_MODEL`, `GEMINI_FALLBACK_MODELS`, `SERVICE`,
+Overrides: `REGION`, `VERTEX_LOCATION` (default `global`), `GEMINI_MODEL`, `GEMINI_FALLBACK_MODELS`, `SERVICE`, `MAX_INSTANCES` (default 1),
 `MIN_INSTANCES`.
 
 **Check, in this order:**

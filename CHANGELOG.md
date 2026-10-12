@@ -6,6 +6,10 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+### Changed
+- The Cloud Run service runs one instance at most (`MAX_INSTANCES`, default 1), so every visitor sees the same
+  approvals and verdicts, and compute cost is capped.
+
 ## [0.11.0] - 2026-10-12
 
 A usage limit protects the public app's Gemini credit.
