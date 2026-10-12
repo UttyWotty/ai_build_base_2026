@@ -6,6 +6,10 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+## [0.11.4] - 2026-10-12
+
+Server hardened for live judging: Gemini reads off the event loop, safe timestamps, a cap that cannot be dodged or multiplied, and length limits.
+
 ### Fixed
 - Reading an inspection photo or a supplier message called Gemini on the server's event loop, so every other visitor
   waited until it returned (minutes when Gemini retried). The reads now run in a worker thread.
