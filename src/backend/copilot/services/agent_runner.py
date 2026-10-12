@@ -13,6 +13,8 @@ from dataclasses import dataclass, field, replace
 from datetime import datetime
 
 from google.adk.agents import BaseAgent, LlmAgent
+from google.adk.agents.invocation_context import LlmCallsLimitExceededError
+from google.adk.agents.run_config import RunConfig
 from google.adk.runners import InMemoryRunner
 from google.genai import types
 
@@ -24,6 +26,10 @@ from copilot.data_pipeline.adk_models import adk_model
 from copilot.services.agent_functions import adk_functions
 from copilot.services.agent_team import answering_agents, build_team
 from copilot.services.agent_tools import CopilotTools
+from copilot.services.settings import (
+    AGENT_MAX_LLM_CALLS_SINGLE,
+    AGENT_MAX_LLM_CALLS_TEAM,
+)
 from llm_gateway.selection import ModelSelection, Provider
 from llm_gateway.settings import GEMINI_FALLBACK_MODELS
 
@@ -37,6 +43,9 @@ TEMPERATURE = 0.0
 ERROR_CHARS = 300
 STATUS_PATTERN = re.compile(r"\b[45]\d\d [A-Z_]{4,}")
 # Free-tier and shared quotas answer 429 under bursts; the SDK retries these with backoff before the run fails.
+OTHER_KIND = "other"
+CALL_CAP_MESSAGE = ("The agents used their {cap} model calls for one run without finishing, so the run was stopped to "
+                    "protect the demo's budget. Ask about a specific alert, or try again.")
 RETRY_OPTIONS = types.HttpRetryOptions(attempts=5, initial_delay=2.0, max_delay=30.0,
                                        http_status_codes=[429, 500, 502, 503, 504])
 
@@ -111,9 +120,16 @@ async def stream_copilot(question: str, tools: CopilotTools, selection: ModelSel
     for index, current in enumerate(candidates):
         steps: list[AgentStep] = []
         try:
-            async for step in _steps(build_agent(tools, current, mode), question, answerers):
+            async for step in _steps(build_agent(tools, current, mode), question, answerers, _call_cap(mode)):
                 steps.append(step)
                 yield step
+        except LlmCallsLimitExceededError as error:
+            stopped = AgentStep("error", type(error).__name__, _short(error))
+            yield stopped
+            yield AgentRun(question, tools.as_of, current.label, tuple(steps) + (stopped,), "", (),
+                           round(time.monotonic() - started, 1), error=_short(error),
+                           error_message=CALL_CAP_MESSAGE.format(cap=_call_cap(mode)), error_kind=OTHER_KIND)
+            return
         except Exception as error:  # the model provider can fail in many ways; the run records it instead of crashing
             issue = classify(_short(error), current.label)
             if issue.try_another_model and index + 1 < len(candidates):
@@ -164,11 +180,16 @@ def _short(error: Exception) -> str:
     return (text.splitlines()[0] if text else type(error).__name__)[:ERROR_CHARS]
 
 
-async def _steps(agent: BaseAgent, question: str, answerers: frozenset[str]) -> AsyncIterator[AgentStep]:
+def _call_cap(mode: str) -> int:
+    return AGENT_MAX_LLM_CALLS_TEAM if mode == TEAM else AGENT_MAX_LLM_CALLS_SINGLE
+
+
+async def _steps(agent: BaseAgent, question: str, answerers: frozenset[str], cap: int) -> AsyncIterator[AgentStep]:
     runner = InMemoryRunner(agent=agent, app_name=APP_NAME)
     session = await runner.session_service.create_session(app_name=APP_NAME, user_id=USER_ID)
     message = types.Content(role=USER_ROLE, parts=[types.Part(text=question)])
-    async for event in runner.run_async(user_id=USER_ID, session_id=session.id, new_message=message):
+    async for event in runner.run_async(user_id=USER_ID, session_id=session.id, new_message=message,
+                                        run_config=RunConfig(max_llm_calls=cap)):
         author = event.author or ""
         for call in event.get_function_calls():
             yield AgentStep("tool_call", call.name or "", dict(call.args or {}), author)

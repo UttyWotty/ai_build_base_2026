@@ -45,11 +45,12 @@ The expensive mistakes happen between departments. OSI is an AI team that works 
 - Every number in an answer is checked against the tool results before the answer is marked verified.
 - Actions are proposals only, and their numbers come from the analysis, not from the model's text.
 - Every tool is point-in-time, so the agents cannot see the future of the replayed plant.
+- A run stops after 25 model calls (50 for the team), so a confused agent cannot loop on the credit.
 
 **Measured, not claimed.**
 - `make eval` runs eight scenarios, from triage to creating a proposal, and scores the tools called, the required
   facts, the number check, and the proposal. **Score: 8/8 with Gemini 3.8 Flash on Vertex AI.**
-- 432 backend and 10 frontend automated tests, a code-rule checker, strict TypeScript, and offline tests of the real ADK
+- 434 backend and 10 frontend automated tests, a code-rule checker, strict TypeScript, and offline tests of the real ADK
   runner and the agent team with scripted models.
 
 **Built for Google Cloud.**

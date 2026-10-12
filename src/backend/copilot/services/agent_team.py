@@ -29,9 +29,10 @@ TEAM_NAME = "operations_team"
 SPECIALISTS_NAME = "specialists"
 LEAD_NAME = "operations_lead"
 ROLE_TOOLS = {
-    "maintenance_planner": ("get_sensor_evidence", "get_field_reports", "work_order_history", "failures"),
-    "procurement_lead": ("analyse_alert_impact", "get_supplier_record"),
-    "customer_lead": ("analyse_alert_impact",),
+    "maintenance_planner": ("list_open_alerts", "get_sensor_evidence", "get_field_reports", "work_order_history",
+                            "failures"),
+    "procurement_lead": ("list_open_alerts", "analyse_alert_impact", "get_supplier_record"),
+    "customer_lead": ("list_open_alerts", "analyse_alert_impact"),
     LEAD_NAME: ("list_open_alerts", "analyse_alert_impact", "propose_action_plan"),
 }
 

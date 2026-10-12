@@ -73,6 +73,10 @@ Each step waits for the one before it. Status on 2026-10-12.
 
 ## P3 - Process and carried over
 
+<!-- - [ ] **A team question that named no alert looped on guessed alert ids (2026-10-12).** The specialists could not list
+  the open alerts, and the agent framework allows 500 model calls per run. Resolved 2026-10-12: the specialists have
+  list_open_alerts and a never-guess rule, runs are capped at 25 or 50 model calls, and an unknown alert names where
+  to find valid ids. A hot fix (ADK_MAX_LLM_CALLS=40 on the service) stopped the live run first. -->
 - [ ] **The 0.4.0 agent commit (4e40fe5) landed on develop without a PR,** and PR #19 was merged with a failing test
   (fixed in #20). Merges now run only after `make lint` and `make test` succeed.
 - [ ] **pdm_oee:** the model store uses pickle; early warnings for long P-F modes score as false; the simulated plant is

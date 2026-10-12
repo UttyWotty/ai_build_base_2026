@@ -6,6 +6,12 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+### Fixed
+- A team question that named no alert sent the specialists guessing alert ids, one model call per guess, up to the
+  agent framework's default of 500 calls. The specialists now have `list_open_alerts` and a never-guess rule, every
+  run is capped at 25 model calls (50 for the team, `AGENT_MAX_LLM_CALLS_*`) with a plain message when it stops,
+  and an unknown alert id names where to find the valid ones. Evaluation still 8/8 on Vertex AI.
+
 ## [0.11.2] - 2026-10-12
 
 UI polish for the recording; deployed as revision ops-copilot-00004.
