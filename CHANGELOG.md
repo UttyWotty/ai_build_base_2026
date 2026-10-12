@@ -6,6 +6,11 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+### Changed
+- The story opens on scarcity, not prediction: "At 2 a.m., two machines need the last spare part. OSI decides who gets
+  it, covers the other, and proves it paid off." Updated in the README, the write-up, the architecture page, the demo
+  script's opening and close, and the deck's cover and problem slides.
+
 ### Added
 - The submission deck as a PDF in `docs/OSI-deck.pdf`, linked from the README and the write-up. The video link is
   still a placeholder on its last slide.
