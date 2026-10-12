@@ -112,7 +112,8 @@ async def stream_copilot(question: str, tools: CopilotTools, selection: ModelSel
                          mode: str = SINGLE) -> AsyncIterator[AgentStep | AgentRun]:
     """Yield each step as the agent (or the team) takes it, then the finished, checked run.
 
-    When a Gemini model is out of quota or unavailable, the run restarts on the next backup model and says so.
+    When a Gemini model is out of quota or unavailable before its first step, the run restarts on the next backup model
+    and says so; a model that fails midway ends the run, so one run never gets more than one call budget.
     """
     started = time.monotonic()
     answerers = answering_agents() if mode == TEAM else frozenset({AGENT_NAME})
@@ -132,7 +133,9 @@ async def stream_copilot(question: str, tools: CopilotTools, selection: ModelSel
             return
         except Exception as error:  # the model provider can fail in many ways; the run records it instead of crashing
             issue = classify(_short(error), current.label)
-            if issue.try_another_model and index + 1 < len(candidates):
+            # Only a model that failed before doing anything is retried on a backup: a restart after tool calls would
+            # spend a second call budget and could file a second proposal.
+            if issue.try_another_model and not steps and index + 1 < len(candidates):
                 yield AgentStep("notice", "fallback", f"{issue.message} Switching to {candidates[index + 1].label}.")
                 continue
             failed = AgentStep("error", type(error).__name__, _short(error))

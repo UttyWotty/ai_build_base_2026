@@ -11,7 +11,7 @@ from collections.abc import AsyncIterator
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from copilot.api.dependencies import model_call, selection, tools_at
 from copilot.services.agent_runner import (
@@ -29,12 +29,15 @@ BAD_REQUEST = 400
 NO_BUFFERING = {"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
 # The error kind of a run the usage limit refused; the autopilot stops on it.
 LIMIT_KIND = "limit"
+# The question is resent on every model call of a run, so its length multiplies the cost. An "Ask about this" turn
+# carries a topic and three earlier turns of up to 800 characters each, which stays well under the cap.
+MAX_QUESTION_CHARS = 8_000
 
 
 class Question(BaseModel):
     """A question at a demo clock."""
 
-    question: str
+    question: str = Field(max_length=MAX_QUESTION_CHARS)
     as_of: str | None = None
     # "single" for one agent, "team" for the specialists and the lead.
     mode: str = SINGLE

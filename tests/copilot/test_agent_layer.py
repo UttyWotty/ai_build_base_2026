@@ -156,3 +156,35 @@ def test_a_looping_agent_is_stopped_by_the_call_cap(monkeypatch: pytest.MonkeyPa
 def test_every_team_member_can_list_the_open_alerts() -> None:
     from copilot.services.agent_team import ROLE_TOOLS
     assert all("list_open_alerts" in tools for tools in ROLE_TOOLS.values())
+
+
+class QuotaLlm(BaseLlm):
+    """Fails with a quota error, either at once or after one tool call, as a busy Gemini model would."""
+
+    async def generate_content_async(self, llm_request: LlmRequest, stream: bool = False) -> AsyncGenerator[LlmResponse, None]:
+        answered = any(p.function_response for c in llm_request.contents for p in (c.parts or []))
+        if self.model == "fails-midway" and not answered:
+            part = types.Part(function_call=types.FunctionCall(name="list_open_alerts", args={}))
+            yield LlmResponse(content=types.Content(role="model", parts=[part]))
+            return
+        if self.model == "backup":
+            yield LlmResponse(content=types.Content(role="model", parts=[types.Part(text="There are 2 open alerts.")]))
+            return
+        raise RuntimeError("429 RESOURCE_EXHAUSTED quota")
+
+
+def _run_with_fallback(monkeypatch: pytest.MonkeyPatch, first: str):
+    monkeypatch.setattr(agent_runner, "adk_model", lambda selection: QuotaLlm(model=selection.model))
+    monkeypatch.setattr(agent_runner, "GEMINI_FALLBACK_MODELS", ("backup",))
+    return agent_runner.run_copilot("Which alerts?", FakeTools(), ModelSelection(Provider.GEMINI, first, "", 5.0))
+
+
+def test_a_model_that_fails_before_working_falls_back_to_the_backup(monkeypatch: pytest.MonkeyPatch) -> None:
+    run = _run_with_fallback(monkeypatch, "fails-at-once")
+    assert run.answer == "There are 2 open alerts." and "backup" in run.model
+
+
+def test_a_model_that_fails_midway_ends_the_run_without_a_second_budget(monkeypatch: pytest.MonkeyPatch) -> None:
+    run = _run_with_fallback(monkeypatch, "fails-midway")
+    assert run.answer == "" and run.error_kind == "quota" and run.tools_used == ("list_open_alerts",)
+    assert "fails-midway" in run.model
