@@ -61,6 +61,9 @@ The app caps Gemini calls for the public: 10 per visitor and 60 in total per hou
 `USAGE_LIMIT_PER_VISITOR`, `USAGE_LIMIT_TOTAL`, or `USAGE_LIMIT_WINDOW_MINUTES` on the service to change it (0 turns a
 cap off). The total cap is what protects the credit; a forged `X-Forwarded-For` header can only dodge the per-visitor one.
 
+Each agent run stops after `AGENT_MAX_LLM_CALLS_SINGLE` (25) or `AGENT_MAX_LLM_CALLS_TEAM` (50) model calls; the agent
+framework's own default is 500. Both are code defaults, so a redeploy keeps them.
+
 Overrides: `REGION`, `VERTEX_LOCATION` (default `global`), `GEMINI_MODEL`, `GEMINI_FALLBACK_MODELS`, `SERVICE`, `MAX_INSTANCES` (default 1),
 `MIN_INSTANCES`.
 

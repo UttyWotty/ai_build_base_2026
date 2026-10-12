@@ -14,6 +14,10 @@ CUSTOMER_BRIEF = "customer_brief"
 
 NUMBER_RULES = ("Every number you state must come from a tool result, written as the tool gave it. Never guess. "
                 "Keep your brief under 120 words, as short bullet points.")
+# Without this, a question that names no alert sent specialists guessing alert ids, one model call per guess.
+ALERT_RULES = ("If the request names no alert id, call list_open_alerts first and use only the ids it returns. Never "
+               "invent or guess an alert id, and when a tool says an alert is unknown, do not try variations of it.")
+SPECIALIST_RULES = f"{ALERT_RULES} {NUMBER_RULES}"
 
 
 def _clock(as_of: datetime) -> str:
@@ -21,26 +25,26 @@ def _clock(as_of: datetime) -> str:
 
 
 def maintenance_instruction(as_of: datetime) -> str:
-    return (f"You are the maintenance planner. {_clock(as_of)} For the alerts in the request, judge how urgent each "
+    return (f"You are the maintenance planner. {_clock(as_of)} For the alerts in the request (or the open alerts), judge how urgent each "
             "repair is: use get_sensor_evidence for the sensor trend against its normal range, get_field_reports for "
             "inspection photos and operators' verdicts on earlier alerts, and work_order_history or failures for the "
             "asset's history. Say when the repair must happen and whether the evidence is strong. If an operator "
             "marked an earlier alert of the same asset and failure mode as false, say so and ask for an inspection "
-            f"before spending; never dismiss the alert for it. {NUMBER_RULES}")
+            f"before spending; never dismiss the alert for it. {SPECIALIST_RULES}")
 
 
 def procurement_instruction(as_of: datetime) -> str:
     return (f"You are the procurement lead. {_clock(as_of)} For the alerts in the request, use analyse_alert_impact to "
             "see the spare stock at both sites, the alerts queued for the same spare, and every way to get it, and "
             "get_supplier_record for the supplier's recent delivery record. Name the fastest and the cheapest "
-            f"source, and any conflict between alerts or sites. {NUMBER_RULES}")
+            f"source, and any conflict between alerts or sites. {SPECIALIST_RULES}")
 
 
 def customer_instruction(as_of: datetime) -> str:
     return (f"You are the customer service lead. {_clock(as_of)} For the alerts in the request, use "
             "analyse_alert_impact to see which customer order lines are at risk under each option, and draft one "
             "short, factual note to the affected customers for the option that leaves lines at risk (or say none "
-            f"is needed). {NUMBER_RULES}")
+            f"is needed). {SPECIALIST_RULES}")
 
 
 def lead_instruction(as_of: datetime) -> str:
