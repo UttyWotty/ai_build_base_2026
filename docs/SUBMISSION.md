@@ -50,7 +50,7 @@ The expensive mistakes happen between departments. OSI is an AI team that works 
 **Measured, not claimed.**
 - `make eval` runs eight scenarios, from triage to creating a proposal, and scores the tools called, the required
   facts, the number check, and the proposal. **Score: 8/8 with Gemini 3.8 Flash on Vertex AI.**
-- 438 backend and 10 frontend automated tests, a code-rule checker, strict TypeScript, and offline tests of the real ADK
+- 438 backend and 11 frontend automated tests, a code-rule checker, strict TypeScript, and offline tests of the real ADK
   runner and the agent team with scripted models.
 
 **Built for Google Cloud.**

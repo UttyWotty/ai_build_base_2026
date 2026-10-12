@@ -8,10 +8,11 @@ import { api } from '../api/client'
 import type { AgentDoneEvent, PlantEvent } from '../api/types'
 import { AutopilotPanel } from '../components/AutopilotPanel'
 import { EventFeed } from '../components/EventFeed'
-import { Card, Kpi } from '../components/ui'
+import { Card, ErrorNote, Kpi } from '../components/ui'
 import { addHours, longClock } from '../lib/clockMath'
 import { compactMoney, hours } from '../lib/format'
 import { eventKey, plural, type Triage } from '../lib/live'
+import { useAction } from '../state/useAction'
 import { useClock } from '../state/clockContext'
 import { useAsync } from '../state/useAsync'
 import { useLiveClock } from '../state/useLiveClock'
@@ -37,12 +38,19 @@ export function Live() {
   const resumeAfterTriage = useRef(false)
   const stop = useCallback(() => setRunning(false), [])
   useLiveClock(running, speed, stop)
-  const feed = useAsync(() => api.events(windowStart, asOf), [windowStart, asOf, decisions])
+  // Each jump starts a new epoch, even a jump back to the same start for a second take. A response carries the epoch
+  // it was asked in, so the new window is never diffed against the old one and its existing alerts are not re-triaged.
+  const [jumps, setJumps] = useState(0)
+  const epoch = `${windowStart}#${jumps}`
+  const feed = useAsync(async () => ({ epoch, events: await api.events(windowStart, asOf) }), [epoch, asOf, decisions])
+  const events = feed.data?.epoch === epoch ? feed.data.events : null
   const overview = useAsync(() => api.overview(asOf), [asOf, decisions])
   const pending = useAsync(async () => (await api.proposals()).filter((p) => p.status === 'pending'), [asOf, triages, decisions])
-  const decide = async (id: string, status: 'approved' | 'rejected') => { await api.setProposalStatus(id, status); setDecisions((n) => n + 1) }
-  const fresh = useFreshKeys(feed.data?.map(eventKey) ?? [])
-  useAutopilotTrigger(feed.data ?? [], autopilot, running, setTriages, () => {
+  const action = useAction()
+  const decide = (id: string, status: 'approved' | 'rejected') =>
+    action.run(async () => { await api.setProposalStatus(id, status); setDecisions((n) => n + 1) })
+  const fresh = useFreshKeys(events?.map(eventKey) ?? null, epoch)
+  useAutopilotTrigger(events, epoch, autopilot, running, setTriages, () => {
     resumeAfterTriage.current = true
     setRunning(false)
   })
@@ -52,11 +60,19 @@ export function Live() {
       resumeAfterTriage.current = false
       setAutopilot(false)
       setStoppedReason(result.error_message)
-      return
     }
-    if (resumeAfterTriage.current) { resumeAfterTriage.current = false; setRunning(true) }
   }, [])
-  const jumpTo = (at: string) => { setRunning(false); setTriages([]); setAsOf(at); setWindowStart(addHours(at, FEED_LOOKBACK_HOURS)) }
+  // The clock resumes only when every triage of the batch has finished, not when the first one does.
+  useEffect(() => {
+    if (resumeAfterTriage.current && triages.length > 0 && triages.every((t) => t.done)) {
+      resumeAfterTriage.current = false
+      setRunning(true)
+    }
+  }, [triages])
+  const jumpTo = (at: string) => {
+    resumeAfterTriage.current = false
+    setRunning(false); setTriages([]); setAsOf(at); setWindowStart(addHours(at, FEED_LOOKBACK_HOURS)); setJumps((n) => n + 1)
+  }
   const h = overview.data?.headline
   return (
     <div className="space-y-4">
@@ -78,7 +94,7 @@ export function Live() {
       </Card>
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_1.2fr]">
         <Card title="Plant events" action={<span className="text-xs text-slate-400">since {longClock(windowStart)}</span>}>
-          <div className="max-h-[640px] overflow-y-auto pr-1"><EventFeed events={feed.data ?? []} fresh={fresh} /></div>
+          <div className="max-h-[640px] overflow-y-auto pr-1"><EventFeed events={events ?? []} fresh={fresh} /></div>
         </Card>
         <div className="min-w-0 space-y-4">
           <div className="grid grid-cols-2 gap-3 2xl:grid-cols-4">
@@ -87,7 +103,9 @@ export function Live() {
             <Kpi label="Downtime avoided" value={h ? hours(h.downtime_avoided_hours) : '–'} tone="good" />
             <Kpi label="Cost avoided" value={h ? compactMoney(h.cost_avoided_usd) : '–'} tone="good" />
           </div>
-          <AutopilotPanel triages={triages} enabled={autopilot} onFinished={finishTriage} pending={pending.data ?? []} onDecide={decide} stoppedReason={stoppedReason} />
+          {action.error && <ErrorNote message={action.error} />}
+          <AutopilotPanel triages={triages} enabled={autopilot} onFinished={finishTriage} pending={pending.data ?? []} onDecide={decide}
+            busy={action.busy} stoppedReason={stoppedReason} />
           <Link to="/approvals" className="block rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm hover:border-brand-500">
             <span className="font-semibold">{plural(pending.data?.length ?? 0, 'proposal')}</span> waiting for approval →
           </Link>
@@ -97,30 +115,36 @@ export function Live() {
   )
 }
 
-function useFreshKeys(keys: string[]): Set<string> {
-  const seen = useRef<Set<string> | null>(null)
+// Keys that appeared since the last response; the first response of each window only seeds what is already known.
+function useFreshKeys(keys: string[] | null, epoch: string): Set<string> {
+  const seen = useRef<{ epoch: string; keys: Set<string> } | null>(null)
   const [fresh, setFresh] = useState<Set<string>>(new Set())
-  const signature = keys.join('\n')
+  const signature = keys?.join('\n') ?? null
   useEffect(() => {
-    if (seen.current === null) { seen.current = new Set(keys); return }
-    const added = keys.filter((k) => !seen.current!.has(k))
-    added.forEach((k) => seen.current!.add(k))
+    if (keys === null) return
+    if (seen.current?.epoch !== epoch) { seen.current = { epoch, keys: new Set(keys) }; setFresh(new Set()); return }
+    const known = seen.current.keys
+    const added = keys.filter((k) => !known.has(k))
+    added.forEach((k) => known.add(k))
     if (added.length) setFresh(new Set(added))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [signature])
+  }, [signature, epoch])
   return fresh
 }
 
-function useAutopilotTrigger(events: PlantEvent[], enabled: boolean, running: boolean,
+// Alerts already in a window when it is first shown are known; only alerts that arrive afterwards are triaged.
+function useAutopilotTrigger(events: PlantEvent[] | null, epoch: string, enabled: boolean, running: boolean,
                              setTriages: Dispatch<SetStateAction<Triage[]>>, pause: () => void): void {
-  const known = useRef<Set<string> | null>(null)
+  const known = useRef<{ epoch: string; ids: Set<string> } | null>(null)
   useEffect(() => {
+    if (events === null) return
     const alerts = events.filter((e) => e.kind === 'alert' && e.alert_id)
-    if (known.current === null) { known.current = new Set(alerts.map((e) => e.alert_id!)); return }
-    const arrived = alerts.filter((e) => !known.current!.has(e.alert_id!)).reverse()
-    arrived.forEach((e) => known.current!.add(e.alert_id!))
+    if (known.current?.epoch !== epoch) { known.current = { epoch, ids: new Set(alerts.map((e) => e.alert_id!)) }; return }
+    const ids = known.current.ids
+    const arrived = alerts.filter((e) => !ids.has(e.alert_id!)).reverse()
+    arrived.forEach((e) => ids.add(e.alert_id!))
     if (!enabled || !running || arrived.length === 0) return
     setTriages((all) => [...all, ...arrived.map((event) => ({ event, done: false }))])
     pause()
-  }, [events, enabled, running, setTriages, pause])
+  }, [events, epoch, enabled, running, setTriages, pause])
 }

@@ -28,9 +28,20 @@ async function getJson<T>(path: string): Promise<T> {
 }
 
 export async function toError(response: Response): Promise<ApiError> {
-  const body = await response.json().catch(() => ({}))
-  const detail = typeof body?.detail === 'string' ? body.detail : response.statusText
-  return new ApiError(response.status, detail)
+  const body: unknown = await response.json().catch(() => null)
+  return new ApiError(response.status, errorDetail(body, response.status, response.statusText))
+}
+
+// The backend's message when it sent one; FastAPI's validation errors (422) carry a list of issues instead of a string.
+// HTTP/2 responses have no status text, so the status code is the last resort and an error is never shown empty.
+export function errorDetail(body: unknown, status: number, statusText: string): string {
+  const detail = (body as { detail?: unknown } | null)?.detail
+  if (typeof detail === 'string' && detail) return detail
+  if (Array.isArray(detail)) {
+    const messages = detail.map((d) => (d as { msg?: unknown })?.msg).filter((m): m is string => typeof m === 'string')
+    if (messages.length) return `The request was not accepted: ${messages.join('; ')}`
+  }
+  return `The server answered ${status}${statusText ? ` ${statusText}` : ''}. Try again in a moment.`
 }
 
 const clock = (asOf: string): string => `as_of=${encodeURIComponent(asOf)}`
