@@ -32,7 +32,9 @@ What makes it trustworthy:
 | 0.8.1 | The OSI name; CI; architecture page with the challenge check | Released |
 | 0.8.2 | Inspection photos checked by Gemini; road to submission | Released |
 
-Open items, in priority order, are in `techdebt.md`: the road to submission, then the first real Cloud Run deploy (waiting on funding for the Google Cloud project) and a full Gemini evaluation on a paid key or Vertex AI.
+**Live:** https://ops-copilot-432875717420.asia-southeast1.run.app (Cloud Run in Singapore, Gemini on Vertex AI).
+
+Open items, in priority order, are in `techdebt.md`: the road to submission, starting with the video and the write-up.
 
 ## Quick start
 
@@ -95,7 +97,7 @@ The top bar sets the demo clock, either a named scenario or any time in the data
 
 **Evaluation.** `make eval` runs eight scenarios (`evaluation/copilot/scenarios.yaml`) and checks the tools called, required facts, the number check, and the proposal:
 - **Local Qwen3.6-35B-A3B:** 7 of 8. The miss was a tool gap, now fixed.
-- **Gemini:** verified answers on single runs. The full score waits for a paid key or Vertex AI, because the free tier allows about 20 requests per model per day.
+- **Gemini:** **8/8** with `gemini-3.8-flash` on Vertex AI (2026-10-12).
 
 ## Models
 

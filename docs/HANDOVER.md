@@ -13,7 +13,7 @@ Work top to bottom; each step says how to check it worked.
 | Agents (Agent Development Kit): single agent and the four-agent team | Done; evaluated locally, verified live on single Gemini runs |
 | Multimodal: supplier inbox (live on Gemini), inspection photos (waiting for sample photos) | Done |
 | Web app: React frontend over FastAPI, one container | Done; image built and served locally |
-| Cloud Run deploy script | Written; not yet run against a real project |
+| Cloud Run deploy script | Deployed on 2026-10-12: https://ops-copilot-432875717420.asia-southeast1.run.app |
 
 ## 1. Local check with Gemini (no Cloud account needed)
 
@@ -50,7 +50,7 @@ PROJECT_ID=<project id> make deploy
 The script (`deploy/cloudrun.sh`) is safe to re-run. It:
 - enables Cloud Run, Cloud Build, Artifact Registry, and Vertex AI
 - creates the service account `ops-copilot-run` and grants it `roles/aiplatform.user` only
-- builds the container with Cloud Build and deploys the service `ops-copilot` in `europe-west1`: 2 CPUs, 2 GiB (the
+- builds the container with Cloud Build and deploys the service `ops-copilot` in `asia-southeast1` (Singapore, near the judges): 2 CPUs, 2 GiB (the
   running app uses about 400 MiB), session affinity, and public access for the judges
 - sets `GOOGLE_GENAI_USE_VERTEXAI=true`, so Gemini is called on Vertex AI with the service account (no API key is
   deployed), and passes `GEMINI_MODEL` and `GEMINI_FALLBACK_MODELS`
@@ -65,7 +65,7 @@ Overrides: `REGION`, `VERTEX_LOCATION` (default `global`), `GEMINI_MODEL`, `GEMI
 3. The Track record shows a net of $197.9k.
 4. On the Copilot page, a question comes back verified. Then "Draft the plan with the copilot" on US1-L2-01 runs the
    four-agent team to a proposal. This also clears the "live team run" item in `techdebt.md`.
-5. The logs (`gcloud run services logs read ops-copilot --region europe-west1`) show no permission errors from
+5. The logs (`gcloud run services logs read ops-copilot --region asia-southeast1`) show no permission errors from
    Vertex AI.
 6. Run `make eval` against Vertex AI (point a local `.env` at the project with `GOOGLE_GENAI_USE_VERTEXAI=true`,
    `GOOGLE_CLOUD_PROJECT`, and `GOOGLE_CLOUD_LOCATION`, after `gcloud auth application-default login`), and record the
@@ -82,7 +82,7 @@ Overrides: `REGION`, `VERTEX_LOCATION` (default `global`), `GEMINI_MODEL`, `GEMI
 
 - Cloud Run with `MIN_INSTANCES=0` costs nothing while idle. Gemini Flash costs cents per agent run; a team run costs
   about twice a single run.
-- To remove everything: `gcloud run services delete ops-copilot --region europe-west1`, then delete the images in
+- To remove everything: `gcloud run services delete ops-copilot --region asia-southeast1`, then delete the images in
   Artifact Registry (repository `cloud-run-source-deploy`), or shut the whole project down.
 
 ## 7. Troubleshooting
