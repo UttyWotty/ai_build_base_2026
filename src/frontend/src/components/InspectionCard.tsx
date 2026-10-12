@@ -27,20 +27,22 @@ export function InspectionCard({ alertId, assetId, asOf }: { alertId: string; as
   const findings = useAsync(() => api.inspections(alertId, asOf), [alertId, asOf, version])
   const samples = useAsync(api.fieldSamples, [])
   const photos = (samples.data?.photos ?? []).filter((p) => p.asset_id === assetId)
-  const send = async (blob: Blob, mime?: string) => {
+  const send = async (load: () => Promise<Blob>, mime?: string) => {
+    if (busy) return
     setBusy(true); setError(null)
-    try { await api.inspect(alertId, await toUpload(blob, mime), asOf); setVersion((v) => v + 1) }
+    try { await api.inspect(alertId, await toUpload(await load(), mime), asOf); setVersion((v) => v + 1) }
     catch (e) { setError((e as Error).message) } finally { setBusy(false) }
   }
-  const sendSample = async (photo: SamplePhoto) => send(await (await fetch(`/api/field/samples/photos/${photo.name}`)).blob(), photo.mime_type)
+  const sendSample = (photo: SamplePhoto) => send(() => samplePhoto(photo.name), photo.mime_type)
   return (
     <Card title={<span className="inline-flex items-center gap-2"><Camera className="h-4 w-4" />Field inspection</span>}>
       <div className="flex flex-wrap items-center gap-2">
         <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-slate-300 px-2.5 py-1 text-xs font-medium hover:bg-slate-50">
-          Upload photo<input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && send(e.target.files[0])} />
+          Upload photo<input type="file" accept="image/*" className="hidden" disabled={busy}
+            onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ''; if (file) send(async () => file) }} />
         </label>
         {photos.map((p) => (
-          <button key={p.name} onClick={() => sendSample(p)} className="rounded-md border border-slate-200 px-2.5 py-1 text-xs hover:border-brand-500">Sample: {p.name}</button>
+          <button key={p.name} onClick={() => sendSample(p)} disabled={busy} className="disabled:opacity-50 rounded-md border border-slate-200 px-2.5 py-1 text-xs hover:border-brand-500">Sample: {p.name}</button>
         ))}
         {busy && <span className="inline-flex items-center gap-1 text-xs text-slate-500"><Loader2 className="h-3.5 w-3.5 animate-spin" />Gemini is looking at the photo</span>}
       </div>
@@ -53,6 +55,12 @@ export function InspectionCard({ alertId, assetId, asOf }: { alertId: string; as
         placeholder="Ask about this inspection" suggestions={ASK_SUGGESTIONS} />
     </Card>
   )
+}
+
+async function samplePhoto(name: string): Promise<Blob> {
+  const response = await fetch(`/api/field/samples/photos/${encodeURIComponent(name)}`)
+  if (!response.ok) throw new Error(`The sample photo ${name} could not be loaded (${response.status}).`)
+  return response.blob()
 }
 
 function askTopic(alertId: string, assetId: string): string {

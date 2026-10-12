@@ -33,7 +33,7 @@ export function ControlRoom() {
       ) : (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[300px_1fr]">
           <AlertList alerts={alerts} selected={selected} onSelect={setSelected} />
-          {selected && <div className="min-w-0"><AlertDetail alertId={selected} asOf={asOf} /></div>}
+          {selected && <div className="min-w-0"><AlertDetail key={selected} alertId={selected} asOf={asOf} /></div>}
         </div>
       )}
     </div>

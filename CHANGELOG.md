@@ -6,6 +6,25 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+## [0.11.5] - 2026-10-12
+
+The demo path in the frontend fixed: alert switching, second replay takes, highlights, cancelled runs, readable errors, and busy buttons.
+
+### Fixed
+- Switching alerts while the operations team was drafting a plan kept the old plan streaming under the new alert,
+  along with a half-typed false-alert reason. Each alert now gets a fresh detail panel.
+- Replaying a scenario a second time without reloading triaged nothing, and the whole feed lit up as new on first
+  load and after every jump. Each jump now starts a fresh replay that knows the alerts already in its window.
+- When two alerts arrived together, the clock resumed as soon as the first triage finished; it now waits for all.
+- A triage whose run failed said "proposal sent for approval" and left the latest block empty; it now says the run did
+  not finish.
+- Leaving a page did not stop a running agent, which kept spending Gemini calls and the visitor's limit; it is now
+  cancelled.
+- Errors without a backend message showed as an empty red box (HTTP/2 has no status text); they now name the status,
+  and validation errors list their issues.
+- Approve, reject, reset, and the sample photos had no busy state or error message: a double click sent twice and a
+  failure showed nothing. Buttons are disabled while their request runs and failures are shown.
+
 ## [0.11.4] - 2026-10-12
 
 Server hardened for live judging: Gemini reads off the event loop, safe timestamps, a cap that cannot be dodged or multiplied, and length limits.
