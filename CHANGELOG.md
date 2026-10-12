@@ -6,6 +6,10 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-10-12
+
+A usage limit protects the public app's Gemini credit.
+
 ### Added
 - A usage limit on the public app: every call that reaches Gemini (agent runs, photo inspections, supplier messages)
   counts against 10 per visitor and 60 in total per sliding hour, set by `USAGE_LIMIT_*` (0 turns a cap off). The
