@@ -14,9 +14,11 @@ Each step waits for the one before it. Status on 2026-10-12.
    Registration closes **2026-10-11**. If they are still waitlisted near then, ask the organisers
    (support+aibuildercup@hack2skill.com or their Discord).
    Resolved 2026-10-12: the team has its second member. -->
-2. [ ] **Fund the Google Cloud project, then deploy.** `PROJECT_ID=<id> make deploy` and the checks in
+<!-- 2. [ ] **Fund the Google Cloud project, then deploy.** `PROJECT_ID=<id> make deploy` and the checks in
    `docs/HANDOVER.md` (the P0 deploy item below).
-3. [ ] **On the deployed app:** the full Gemini evaluation and a live team run (the P0 items below).
+   Resolved 2026-10-12: free trial project, deployed to asia-southeast1, every HANDOVER check passed. -->
+<!-- 3. [ ] **On the deployed app:** the full Gemini evaluation and a live team run (the P0 items below).
+   Resolved 2026-10-12: 8/8 on Vertex AI, and a verified live team run. -->
 4. [ ] **Video and write-up.** Record `docs/DEMO_SCRIPT.md`, trimmed to under 3:00, and rewrite `docs/SUBMISSION.md`
    around the four judging criteria (see `docs/architecture.html`, Challenge match).
 5. [ ] **Submit.** Fill the deck's placeholders (team, members, the three links, the Gemini score) and export it as
@@ -25,17 +27,22 @@ Each step waits for the one before it. Status on 2026-10-12.
 
 ## P0 - Before the 2026-10-18 submission
 
-- [ ] **Run `make deploy` once against a real project** as soon as the Google Cloud account exists. The image was
+<!-- - [ ] **Run `make deploy` once against a real project** as soon as the Google Cloud account exists. The image was
   built and served locally; the deploy script was checked only for syntax. See `docs/HANDOVER.md`.
   - **Blocked on funding (2026-10-02):** waiting for the competition credits, company sponsorship under the company
     name, or a second team member to share the cost. The demo video, the full evaluation, the live team run, and the
     final write-up all follow the deploy.
-- [ ] **Full Gemini evaluation.** The AI Studio free tier allows about 20 requests per model per day. An agent run
+  Resolved 2026-10-12: https://ops-copilot-432875717420.asia-southeast1.run.app on a free trial project; the
+  first run hit a new service account not yet visible to IAM, so the script now retries the grant. -->
+<!-- - [ ] **Full Gemini evaluation.** The AI Studio free tier allows about 20 requests per model per day. An agent run
   takes about five, and a team run about twelve, so `make eval` cannot finish on it. Run it on a paid key or on Vertex
   AI after the deploy, and put the score in the README.
-- [ ] **A live team run end to end.** The three specialists have run live on Gemini; the lead's step then hit a Gemini
+  Resolved 2026-10-12: 8/8 with gemini-3.8-flash on Vertex AI; the score is in the README. -->
+<!-- - [ ] **A live team run end to end.** The three specialists have run live on Gemini; the lead's step then hit a Gemini
   503 overload. It passes offline with a scripted model. Run "Draft the plan with the copilot" once on a paid key or
   Vertex AI.
+  Resolved 2026-10-12: on the deployed app, all four agents ran on Gemini on Vertex AI, the lead proposed the DE1
+  transfer for 650 USD, and the answer was verified, in 25 seconds. -->
 
 ## P1 - For the finals (Top 200 architecture sprints, Top 50 round)
 

@@ -6,8 +6,14 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+### Added
+- The app is live on Cloud Run in `asia-southeast1`, with Gemini on Vertex AI; the link is in the README.
+- The full evaluation on Gemini: 8/8 with `gemini-3.8-flash` on Vertex AI.
+
 ### Changed
-- The road to submission in `techdebt.md`: the team is confirmed, so step 1 is closed.
+- The deploy script defaults to `asia-southeast1`, near the judges, and retries the role grant while a new service
+  account becomes visible to IAM.
+- The road to submission in `techdebt.md`: the team is confirmed, so step 1 is closed; the deploy and the live team run are done too.
 
 ## [0.8.2] - 2026-10-02
 
