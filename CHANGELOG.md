@@ -6,6 +6,10 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+## [0.11.5] - 2026-10-12
+
+The demo path in the frontend fixed: alert switching, second replay takes, highlights, cancelled runs, readable errors, and busy buttons.
+
 ### Fixed
 - Switching alerts while the operations team was drafting a plan kept the old plan streaming under the new alert,
   along with a half-typed false-alert reason. Each alert now gets a fresh detail panel.
