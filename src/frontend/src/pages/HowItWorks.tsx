@@ -16,6 +16,7 @@ const GUARDRAILS = [
   ['No SQL from the model', 'Supplier metrics compile from governed definitions; each answer shows the SQL fingerprint.'],
   ['No peeking at the future', 'Every tool answers as of the demo clock; outcomes count only once they are in the past.'],
   ['No silent actions', 'The agent creates proposals; only a person can approve them.'],
+  ['Feedback flags, never silences', 'An operator can mark an alert as false; later alerts on that machine ask for an inspection first, but stay visible.'],
 ]
 
 const PLATFORM = [
@@ -23,6 +24,7 @@ const PLATFORM = [
   ['Service', 'One Cloud Run service: FastAPI for the API and the agent stream, serving the React app'],
   ['Identity', 'A service account limited to Vertex AI; no API key is deployed'],
   ['Data', 'DuckDB over Parquet inside the service, generated from seeds'],
+  ['Protection', 'One instance, and a usage limit on Gemini calls per visitor and in total, so the public demo stays up'],
 ]
 
 function Box({ icon, title, sub, accent = false }: { icon: ReactNode; title: string; sub: string; accent?: boolean }) {
@@ -39,6 +41,12 @@ const arrow = <ArrowRight className="h-4 w-4 shrink-0 self-center text-slate-400
 export function HowItWorks() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
+      <div>
+        <h1 className="text-xl font-semibold">How it works</h1>
+        <p className="mt-1 text-sm text-slate-600">
+          At 2 a.m., two machines need the last spare part. OSI decides who gets it, covers the other, and proves it paid off.
+        </p>
+      </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {LOOP.map(({ icon: Icon, title, text }) => (
           <Card key={title}><div className="flex items-center gap-2 font-semibold"><Icon className="h-5 w-5 text-brand-600" />{title}</div>
