@@ -41,6 +41,7 @@ What makes it trustworthy:
 | 0.8.1 | The OSI name; CI; architecture page with the challenge check | Released |
 | 0.8.2 | Inspection photos checked by Gemini; road to submission | Released |
 | 0.9.0 | Live on Cloud Run with Gemini on Vertex AI; 8/8 evaluation; submission write-up around the judging criteria | Released |
+| 0.10.0 | Ask about this on the field inspection; operator verdicts on false alerts | Released |
 
 Open items, in priority order, are in `techdebt.md`: the road to submission, starting with the video and the write-up.
 
