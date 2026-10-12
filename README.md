@@ -45,6 +45,7 @@ What makes it trustworthy:
 | 0.9.0 | Live on Cloud Run with Gemini on Vertex AI; 8/8 evaluation; submission write-up around the judging criteria | Released |
 | 0.10.0 | Ask about this on the field inspection; operator verdicts on false alerts | Released |
 | 0.10.1 | Story opens on scarcity; deck PDF in docs | Released |
+| 0.10.2 | Streamlit app removed; challenge check current | Released |
 
 Open items, in priority order, are in `techdebt.md`: the road to submission, starting with the video and the write-up.
 
