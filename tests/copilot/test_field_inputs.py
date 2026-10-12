@@ -53,6 +53,18 @@ def test_a_new_date_revises_only_its_order_and_only_once_received() -> None:
     assert revise_expected(ORDER, [update], T0 - timedelta(hours=1)) == ORDER
 
 
+def test_the_latest_word_wins_and_a_cancelled_order_is_dropped() -> None:
+    delay = SupplierUpdate(T0, "Everline", "SPO-US1-0061", "delay", datetime(2026, 8, 8, 12), "", 1.0)
+    on_time = SupplierUpdate(T0 + timedelta(hours=2), "Everline", "SPO-US1-0061", "on_time", None, "", 1.0)
+    cancelled = SupplierUpdate(T0 + timedelta(hours=4), "Everline", "SPO-US1-0061", "cancelled", None, "", 1.0)
+    no_change = SupplierUpdate(T0 + timedelta(hours=6), "Everline", "SPO-US1-0061", "no_delivery_change", None, "", 1.0)
+    later = T0 + timedelta(hours=8)
+    assert revise_expected(ORDER, [delay, on_time], later).expected_at == max(ORDER.promised_at, later)
+    assert revise_expected(ORDER, [delay, on_time, cancelled], later) is None
+    assert revise_expected(ORDER, [cancelled], T0) == ORDER
+    assert revise_expected(ORDER, [delay, no_change], later).expected_at == datetime(2026, 8, 8, 12)
+
+
 def test_samples_load_with_their_received_time(tmp_path: Path) -> None:
     (tmp_path / "inbox").mkdir()
     (tmp_path / "photos").mkdir()

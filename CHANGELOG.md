@@ -6,6 +6,22 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+## [0.11.6] - 2026-10-12
+
+Supplier cancellations and confirmations now count, and operator cautions reach only later alerts.
+
+### Fixed
+- Supplier messages that cancelled an order or put it back on schedule were ignored, and a later message could not
+  override an earlier delay, so the copilot could advise waiting for an order that would never come. The supplier's
+  latest word on an order now wins: a new date replaces the arrival, on time restores the promise, cancelled drops
+  the order.
+- Marking an alert false added "an earlier alert was marked false" to alerts raised before it as well. The caution
+  now reaches only alerts raised after the one that was marked.
+
+### Changed
+- techdebt.md records two limitations the bug audit measured: the transfer counted twice in the track record (about
+  $9.7k of the net value) and the outcome pricing basis.
+
 ## [0.11.5] - 2026-10-12
 
 The demo path in the frontend fixed: alert switching, second replay takes, highlights, cancelled runs, readable errors, and busy buttons.

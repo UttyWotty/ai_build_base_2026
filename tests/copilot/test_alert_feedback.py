@@ -53,21 +53,28 @@ def test_a_verdict_needs_a_bounded_reason_and_cannot_predate_its_alert() -> None
 def test_the_view_is_point_in_time_and_matches_asset_and_mode() -> None:
     records = [verdict("AL-1", T0), verdict("AL-9", T0 + timedelta(days=1)),
                verdict("AL-7", T0, asset="US1-L3-02"), verdict("AL-8", T0, mode="main_seal_leak")]
-    later = feedback_view(records, "AL-2", ASSET, MODE, T0 + timedelta(days=2))
+    earlier = frozenset({"AL-1", "AL-7", "AL-8", "AL-9"})
+    later = feedback_view(records, "AL-2", ASSET, MODE, T0 + timedelta(days=2), earlier)
     assert [f.alert_id for f in later.similar] == ["AL-9", "AL-1"] and later.own == ()
-    before = feedback_view(records, "AL-2", ASSET, MODE, T0 - timedelta(hours=1))
+    before = feedback_view(records, "AL-2", ASSET, MODE, T0 - timedelta(hours=1), earlier)
     assert before.similar == () and before.caution is None
-    own = feedback_view(records, "AL-1", ASSET, MODE, T0)
+    own = feedback_view(records, "AL-1", ASSET, MODE, T0, frozenset())
     assert [f.alert_id for f in own.own] == ["AL-1"] and own.similar == () and own.caution is None
 
 
+def test_a_verdict_on_a_later_alert_never_reaches_back() -> None:
+    records = [verdict("AL-9", T0)]
+    view = feedback_view(records, "AL-2", ASSET, MODE, T0 + timedelta(days=1), frozenset({"AL-1"}))
+    assert view.similar == () and view.caution is None
+
+
 def test_the_caution_asks_for_an_inspection_and_never_dismisses() -> None:
-    view = feedback_view([verdict("AL-1", T0)], "AL-2", ASSET, MODE, T0 + timedelta(days=60))
+    view = feedback_view([verdict("AL-1", T0)], "AL-2", ASSET, MODE, T0 + timedelta(days=60), frozenset({"AL-1"}))
     assert view.caution is not None
     assert "an earlier alert on DE1-L2-04 (gearbox wear)" in view.caution and "25 Jul" in view.caution
     assert "inspection" in view.caution and "do not dismiss" in view.caution
     assert '"Oil was dirty". Confirm' in view.caution
-    two = feedback_view([verdict("AL-1", T0), verdict("AL-3", T0)], "AL-2", ASSET, MODE, T0)
+    two = feedback_view([verdict("AL-1", T0), verdict("AL-3", T0)], "AL-2", ASSET, MODE, T0, frozenset({"AL-1", "AL-3"}))
     assert "2 earlier alerts" in str(two.caution)
 
 
@@ -81,7 +88,9 @@ def test_the_service_keeps_verdicts_and_shows_them_to_later_alerts(tmp_path: Pat
     service.mark_false("AL-1", "Gear teeth intact; the oil needed flushing.", datetime(2026, 7, 25, 2, 0))
     view = service.view("AL-2", datetime(2026, 9, 17, 4, 0))
     assert [f.alert_id for f in view.similar] == ["AL-1"] and "flushing" in str(view.caution)
-    assert service.clear() == 1 and service.view("AL-2", datetime(2026, 9, 17, 4, 0)).similar == ()
+    service.mark_false("AL-2", "Bearing sounded fine.", datetime(2026, 9, 17, 4, 0))
+    assert service.view("AL-1", datetime(2026, 9, 18, 0, 0)).similar == ()
+    assert service.clear() == 2 and service.view("AL-2", datetime(2026, 9, 17, 4, 0)).similar == ()
 
 
 class FeedbackOnlyServices:

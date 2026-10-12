@@ -1,8 +1,9 @@
 """Field inputs that Gemini reads: a technician's inspection photo, and a supplier's message about a delivery.
 
 This module holds the JSON schemas the model must follow, the instructions it gets, and strict validation of what comes
-back, so a malformed reply is rejected rather than trusted. A supplier's new date revises an open order's expected
-arrival from the moment the message was received.
+back, so a malformed reply is rejected rather than trusted. A supplier's latest word on an order revises it from the
+moment the message was received: a new date replaces the expected arrival, on time restores the promise, cancelled
+drops the order.
 """
 from __future__ import annotations
 
@@ -14,6 +15,7 @@ from copilot.core.impact_model import OpenOrder
 
 CONDITIONS = ("healthy", "early_wear", "severe_wear", "failed", "unclear")
 CHANGES = ("delay", "earlier", "on_time", "cancelled", "no_delivery_change")
+ON_TIME, CANCELLED = "on_time", "cancelled"
 MIN_CONFIDENCE, MAX_CONFIDENCE = 0.0, 1.0
 # A supplier's date is taken as delivered at midday, the middle of a receiving day.
 DELIVERY_TIME = time(12, 0)
@@ -104,13 +106,21 @@ def parse_supplier_update(raw: dict, received_at: datetime) -> SupplierUpdate:
                           change, new_at, str(raw.get("reason", "")).strip(), _confidence(raw.get("confidence")))
 
 
-def revise_expected(order: OpenOrder, updates: list[SupplierUpdate], now: datetime) -> OpenOrder:
-    """Apply the latest update for this order received by now; a stated new date replaces the expected arrival."""
-    known = [u for u in updates if u.order_reference == order.po_id and u.received_at <= now and u.new_delivery_at]
+def revise_expected(order: OpenOrder, updates: list[SupplierUpdate], now: datetime) -> OpenOrder | None:
+    """Apply the supplier's latest decisive word on this order received by now; None when the order was cancelled.
+
+    A stated new date replaces the expected arrival, "on time" restores the promised date, and "cancelled" drops the
+    order. A message with no date and no such status (for example "no change") leaves the previous word standing.
+    """
+    known = [u for u in updates if u.order_reference == order.po_id and u.received_at <= now
+             and (u.new_delivery_at is not None or u.change in (ON_TIME, CANCELLED))]
     if not known:
         return order
     latest = max(known, key=lambda u: u.received_at)
-    return replace(order, expected_at=max(latest.new_delivery_at, now))
+    if latest.change == CANCELLED:
+        return None
+    arrival = latest.new_delivery_at if latest.new_delivery_at is not None else order.promised_at
+    return replace(order, expected_at=max(arrival, now))
 
 
 def _choice(value: object, allowed: tuple[str, ...], name: str) -> str:

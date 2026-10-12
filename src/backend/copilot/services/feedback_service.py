@@ -36,7 +36,8 @@ class FeedbackService:
     def view(self, alert_id: str, now: datetime) -> FeedbackView:
         alert = self.alerts.get(alert_id)
         records = [feedback_from_row(r) for r in self.store.all()]
-        return feedback_view(records, alert.alert_id, alert.asset_id, alert.failure_mode, now)
+        earlier = frozenset(a.alert_id for a in self.alerts.alerts.values() if a.raised_at < alert.raised_at)
+        return feedback_view(records, alert.alert_id, alert.asset_id, alert.failure_mode, now, earlier)
 
     def clear(self) -> int:
         return self.store.clear()
