@@ -6,6 +6,10 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+## [0.11.3] - 2026-10-12
+
+Agents no longer guess alert ids, and every run is capped; deployed as revision ops-copilot-00006.
+
 ### Fixed
 - A team question that named no alert sent the specialists guessing alert ids, one model call per guess, up to the
   agent framework's default of 500 calls. The specialists now have `list_open_alerts` and a never-guess rule, every

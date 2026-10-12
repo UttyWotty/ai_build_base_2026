@@ -7,7 +7,7 @@
 # Lint and test settings apply to every package so one `make lint` and `make test` cover the whole repository.
 [project]
 name = "ai-build-base-2026"
-version = "0.11.2"
+version = "0.11.3"
 description = "AI operations copilot for manufacturing: predicts failures, traces their impact through parts, suppliers, and customer orders, and drafts actions for approval."
 requires-python = ">=3.11"
 readme = "README.md"
