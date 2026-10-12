@@ -50,8 +50,9 @@ Each step waits for the one before it. Status on 2026-10-12.
   container and reset when an instance restarts. Move them to Firestore.
 - [ ] **Google Cloud native data path.** BigQuery for the conformed tables, Pub/Sub for the live sensor and event
   stream, Vertex AI for the failure model, and Cloud Monitoring for the agent's latency and errors.
-- [ ] **Delete the Streamlit app** (`src/backend/copilot/ui`, `make app`) and its tests after the first successful
+<!-- - [ ] **Delete the Streamlit app** (`src/backend/copilot/ui`, `make app`) and its tests after the first successful
   Cloud Run deploy of the React version.
+  Resolved 2026-10-12: the copilot's Streamlit app, its page test, and `make app` are removed; the React app is the only copilot UI. -->
 - [ ] **Team runs cost about twelve model calls.** Cache specialists' briefs per alert and clock, or let the lead
   skip specialists whose brief would not change.
 
@@ -63,7 +64,8 @@ Each step waits for the one before it. Status on 2026-10-12.
   production order's rate. Good enough for ranking options; not a capacity model.
 - [ ] **The impact service has no service-level test.** Its rules are unit-tested and it was checked on the full data;
   a test with an in-memory world store (`WorldStore.register_frame`) would pin the query layer too.
-- [ ] **The Streamlit page test needs generated data** and is skipped without it, so CI will not run it.
+<!-- - [ ] **The Streamlit page test needs generated data** and is skipped without it, so CI will not run it.
+  Resolved 2026-10-12: the test went with the copilot's Streamlit app. -->
 - [ ] **The frontend bundle is about 780 KB** (Recharts and Markdown). Code-split the charts if load time matters.
 - [ ] **Docstrings in the imported packages still name the standalone make targets** (for example `make data` where
   this repository now has `make pdm-data`). The commands in `README.md` and `docs/components/` are correct.

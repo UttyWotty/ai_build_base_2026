@@ -1,4 +1,4 @@
-# Streamlit settings for the copilot app, locally and on Cloud Run: a quiet light theme and no usage statistics.
+# Streamlit settings for the component UIs (make pdm-ui, make supply-ui): a quiet light theme and no usage statistics.
 [theme]
 base = "light"
 primaryColor = "#1a73e8"
