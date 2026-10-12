@@ -9,6 +9,7 @@ import { Badge, Card, ErrorNote } from '../components/ui'
 import { toUpload } from '../lib/files'
 import { shortTime } from '../lib/format'
 import { useClock } from '../state/clockContext'
+import { useAction } from '../state/useAction'
 import { useAsync } from '../state/useAsync'
 
 const CHANGE_TONE = { delay: 'danger', earlier: 'good', on_time: 'good', cancelled: 'danger', no_delivery_change: 'neutral' } as const
@@ -19,6 +20,7 @@ export function Inbox() {
   const samples = useAsync(api.fieldSamples, [])
   const updates = useAsync(() => api.supplierUpdates(asOf), [asOf, version])
   const refresh = () => setVersion((v) => v + 1)
+  const reset = useAction()
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <div className="flex items-start justify-between gap-4">
@@ -26,10 +28,12 @@ export function Inbox() {
           <h1 className="text-xl font-semibold">Supplier inbox</h1>
           <p className="text-sm text-slate-500">Gemini reads suppliers' messages into delivery updates. A new date replaces the expected arrival of the open order, and every analysis sees it from the moment the message arrived.</p>
         </div>
-        <button onClick={async () => { await api.resetField(); refresh() }} className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50">
+        <button onClick={() => reset.run(async () => { await api.resetField(); refresh() })} disabled={reset.busy}
+          className="inline-flex shrink-0 disabled:opacity-50 items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50">
           <RotateCcw className="h-4 w-4" />Reset
         </button>
       </div>
+      {reset.error && <ErrorNote message={reset.error} />}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card title={<span className="inline-flex items-center gap-2"><Mail className="h-4 w-4" />Messages</span>}>
           <div className="space-y-3">

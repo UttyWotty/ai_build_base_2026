@@ -8,6 +8,7 @@ import { OutcomeLine } from '../components/OutcomeLine'
 import { Badge, Card, ErrorNote, Loading } from '../components/ui'
 import { hours, money, optionLabel, shortTime } from '../lib/format'
 import { useClock } from '../state/clockContext'
+import { useAction } from '../state/useAction'
 import { useAsync } from '../state/useAsync'
 
 const STATUS_TONE = { pending: 'warn', approved: 'good', rejected: 'neutral' } as const
@@ -16,17 +17,13 @@ export function Approvals() {
   const { asOf } = useClock()
   const proposals = useAsync(api.proposals, [])
   const outcomes = useAsync(() => api.outcomes(asOf), [asOf, proposals.data])
+  const action = useAction()
   if (proposals.error) return <ErrorNote message={proposals.error} />
   if (!proposals.data) return <Loading />
   const ordered = [...proposals.data].sort((a, b) => Number(b.status === 'pending') - Number(a.status === 'pending'))
-  const decide = async (id: string, status: 'approved' | 'rejected') => {
-    await api.setProposalStatus(id, status)
-    proposals.reload()
-  }
-  const reset = async () => {
-    await api.resetProposals()
-    proposals.reload()
-  }
+  const decide = (id: string, status: 'approved' | 'rejected') =>
+    action.run(async () => { await api.setProposalStatus(id, status); proposals.reload() })
+  const reset = () => action.run(async () => { await api.resetProposals(); proposals.reload() })
   const byProposal = new Map((outcomes.data ?? []).map((o) => [o.proposal_id, o]))
   return (
     <div className="mx-auto max-w-4xl space-y-4">
@@ -35,18 +32,19 @@ export function Approvals() {
           <h1 className="text-xl font-semibold">Approvals</h1>
           <p className="text-sm text-slate-500">The copilot proposes; a person decides. Approved plans change stock and queues from their moment on, and their outcome appears once the clock passes it.</p>
         </div>
-        <button onClick={reset} className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50">
+        <button onClick={reset} disabled={action.busy} className="inline-flex shrink-0 disabled:opacity-50 items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50">
           <RotateCcw className="h-4 w-4" />Reset demo
         </button>
       </div>
+      {action.error && <ErrorNote message={action.error} />}
       {ordered.length === 0 && <p className="text-sm text-slate-500">No proposals yet. Draft one from the control room.</p>}
-      {ordered.map((p) => <ProposalCard key={p.proposal_id} proposal={p} outcome={byProposal.get(p.proposal_id)} onDecide={decide} />)}
+      {ordered.map((p) => <ProposalCard key={p.proposal_id} proposal={p} outcome={byProposal.get(p.proposal_id)} onDecide={decide} busy={action.busy} />)}
     </div>
   )
 }
 
-function ProposalCard({ proposal: p, outcome, onDecide }:
-  { proposal: Proposal; outcome: Outcome | undefined; onDecide: (id: string, s: 'approved' | 'rejected') => void }) {
+function ProposalCard({ proposal: p, outcome, onDecide, busy }:
+  { proposal: Proposal; outcome: Outcome | undefined; onDecide: (id: string, s: 'approved' | 'rejected') => void; busy: boolean }) {
   return (
     <Card title={<span className="inline-flex items-center gap-2">{p.asset_id}: {optionLabel(p.option_kind)} from {p.option_source}
       <Badge tone={STATUS_TONE[p.status]}>{p.status}</Badge></span>}
@@ -64,12 +62,12 @@ function ProposalCard({ proposal: p, outcome, onDecide }:
       </div>
       {p.status === 'pending' && (
         <div className="mt-4 flex gap-2">
-          <button onClick={() => onDecide(p.proposal_id, 'approved')}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700">
+          <button onClick={() => onDecide(p.proposal_id, 'approved')} disabled={busy}
+            className="inline-flex disabled:opacity-50 items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700">
             <Check className="h-4 w-4" />Approve
           </button>
-          <button onClick={() => onDecide(p.proposal_id, 'rejected')}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">
+          <button onClick={() => onDecide(p.proposal_id, 'rejected')} disabled={busy}
+            className="inline-flex disabled:opacity-50 items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">
             <X className="h-4 w-4" />Reject
           </button>
         </div>

@@ -1,6 +1,7 @@
 // Runs one copilot question and shows the agent working: each tool call appears as it happens, then the answer.
 // The answer carries a verified badge when every number in it came from a tool result, and the full results stay
 // one click away. Provider errors, such as a quota limit, are shown as they are, never as an empty answer.
+// Leaving the page cancels the run, so an abandoned run stops spending Gemini calls and the visitor's limit.
 import { CheckCircle2, ChevronRight, CircleAlert, Loader2, Wrench } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import Markdown from 'react-markdown'
@@ -39,10 +40,10 @@ export function AgentRunView({ question, asOf, onFinished, mode = 'single' }:
   const [notices, setNotices] = useState<string[]>([])
   const [done, setDone] = useState<AgentDoneEvent | null>(null)
   const [failure, setFailure] = useState<string | null>(null)
-  const started = useRef(false)
+  const finished = useRef(onFinished)
+  finished.current = onFinished
   useEffect(() => {
-    if (started.current) return
-    started.current = true
+    const controller = new AbortController()
     let final: AgentDoneEvent | null = null
     const handle = (event: AgentEvent) => {
       if (event.type === 'tool_call') setSteps((s) => [...s, { name: event.name, args: event.payload, author: event.author }])
@@ -51,15 +52,27 @@ export function AgentRunView({ question, asOf, onFinished, mode = 'single' }:
       else if (event.type === 'notice') { setNotices((n) => [...n, String(event.payload)]); setSteps([]); setBriefs([]) }
       else if (event.type === 'done') { final = event; setDone(event) }
     }
-    streamAgent(question, asOf, handle, mode).catch((e: Error) => setFailure(e.message)).finally(() => onFinished?.(final))
-  }, [question, asOf, onFinished, mode])
+    // Started on the next tick, so React's development double mount cancels the first start before any request.
+    const start = window.setTimeout(() => {
+      streamAgent(question, asOf, handle, mode, controller.signal)
+        .then(() => finished.current?.(final))
+        .catch((e: Error) => {
+          if (controller.signal.aborted) return
+          setFailure(e.message)
+          finished.current?.(final)
+        })
+    })
+    return () => { window.clearTimeout(start); controller.abort() }
+    // A run belongs to the question it started with; callers give a new question a new key, which starts a new run.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   return (
     <div className="space-y-4">
-      {notices.map((n) => <p key={n} className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">{n}</p>)}
+      {notices.map((n, index) => <p key={index} className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">{n}</p>)}
       {mode === 'team' && <p className="text-xs text-slate-500">Three specialists work in parallel, then the operations lead decides.</p>}
       <ol className="space-y-2">
         {steps.map((step, index) => <StepRow key={index} step={step} showAuthor={mode === 'team'} />)}
-        {briefs.map((brief) => <BriefRow key={brief.author} brief={brief} />)}
+        {briefs.map((brief, index) => <BriefRow key={index} brief={brief} />)}
         {!done && !failure && (
           <li className="flex items-center gap-2 text-sm text-slate-500">
             <Loader2 className="h-4 w-4 animate-spin" />{steps.length ? 'Reasoning over the results' : mode === 'team' ? 'The specialists are starting' : 'Gemini is planning its first step'}

@@ -9,11 +9,13 @@ import type { AgentDoneEvent, Proposal } from '../api/types'
 import { AgentRunView, Answer } from './AgentRunView'
 import { Badge, Card } from './ui'
 
-export function AutopilotPanel({ triages, enabled, onFinished, pending, onDecide, stoppedReason }:
+export function AutopilotPanel({ triages, enabled, onFinished, pending, onDecide, busy, stoppedReason }:
   { triages: Triage[]; enabled: boolean; onFinished: (alertId: string, result: AgentDoneEvent | null) => void;
-    pending: Proposal[]; onDecide: (id: string, status: 'approved' | 'rejected') => void; stoppedReason: string | null }) {
+    pending: Proposal[]; onDecide: (id: string, status: 'approved' | 'rejected') => void; busy: boolean;
+    stoppedReason: string | null }) {
   const active = triages.find((t) => !t.done)
   const finished = triages.filter((t) => t.done)
+  const latest = finished.length > 0 ? finished[finished.length - 1] : undefined
   return (
     <Card title={<span className="inline-flex items-center gap-2"><Bot className="h-4 w-4 text-brand-600" />Autopilot</span>}
       action={<Badge tone={enabled ? 'good' : 'neutral'}>{enabled ? 'on' : 'off'}</Badge>}>
@@ -34,32 +36,35 @@ export function AutopilotPanel({ triages, enabled, onFinished, pending, onDecide
             onFinished={(result) => onFinished(active.event.alert_id ?? '', result)} mode="team" />
         </div>
       )}
-      {!active && finished.length > 0 && finished[finished.length - 1].result && (
+      {!active && latest && (
         <div className="space-y-2">
-          <div className="text-sm font-medium">Latest: {finished[finished.length - 1].event.subject}, raised {shortTime(finished[finished.length - 1].event.at)}</div>
-          <Answer done={finished[finished.length - 1].result!} />
-          {pending.filter((p) => p.alert_id === finished[finished.length - 1].event.alert_id).map((p) => (
-            <DecisionBar key={p.proposal_id} proposal={p} onDecide={onDecide} />
+          <div className="text-sm font-medium">Latest: {latest.event.subject}, raised {shortTime(latest.event.at)}</div>
+          {latest.result
+            ? <Answer done={latest.result} />
+            : <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">The run did not finish, so no proposal was made. Draft one from the control room.</p>}
+          {pending.filter((p) => p.alert_id === latest.event.alert_id).map((p) => (
+            <DecisionBar key={p.proposal_id} proposal={p} onDecide={onDecide} busy={busy} />
           ))}
         </div>
       )}
       {finished.length > 0 && (
         <ul className="mt-4 space-y-1 border-t border-slate-100 pt-3 text-xs text-slate-600">
-          {finished.map((t) => <li key={t.event.alert_id}>Triaged {t.event.subject} ({shortTime(t.event.at)}): {t.result?.error ? 'not triaged, the model could not answer' : 'proposal sent for approval'}</li>)}
+          {finished.map((t) => <li key={t.event.alert_id}>Triaged {t.event.subject} ({shortTime(t.event.at)}): {!t.result || t.result.error ? 'not triaged, the run did not finish' : 'proposal sent for approval'}</li>)}
         </ul>
       )}
     </Card>
   )
 }
 
-function DecisionBar({ proposal: p, onDecide }: { proposal: Proposal; onDecide: (id: string, s: 'approved' | 'rejected') => void }) {
+function DecisionBar({ proposal: p, onDecide, busy }:
+  { proposal: Proposal; onDecide: (id: string, s: 'approved' | 'rejected') => void; busy: boolean }) {
   return (
     <div className="flex flex-wrap items-center gap-3 rounded-lg border border-brand-100 bg-brand-50 px-3 py-2 text-sm">
       <span className="font-medium">Proposal: {optionLabel(p.option_kind)} from {p.option_source}</span>
       <span className="text-slate-600">{money(p.extra_cost_usd)} extra, {hours(p.downtime_hours)} down</span>
       <span className="ml-auto flex gap-2">
-        <button onClick={() => onDecide(p.proposal_id, 'approved')} className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-emerald-700"><Check className="h-3.5 w-3.5" />Approve</button>
-        <button onClick={() => onDecide(p.proposal_id, 'rejected')} className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700"><X className="h-3.5 w-3.5" />Reject</button>
+        <button disabled={busy} onClick={() => onDecide(p.proposal_id, 'approved')} className="inline-flex disabled:opacity-50 items-center gap-1 rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-emerald-700"><Check className="h-3.5 w-3.5" />Approve</button>
+        <button disabled={busy} onClick={() => onDecide(p.proposal_id, 'rejected')} className="inline-flex disabled:opacity-50 items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700"><X className="h-3.5 w-3.5" />Reject</button>
       </span>
     </div>
   )
