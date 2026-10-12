@@ -1,6 +1,7 @@
 // Field inspection for one alert: a technician's photo, read by Gemini vision against the predicted failure mode.
 // Sample photos for the asset are one click away; any photo can be uploaded. Findings stay listed with their time.
-// A finding that contradicts the prediction is shown as clearly as one that confirms it.
+// A finding that contradicts the prediction is shown as clearly as one that confirms it, and the copilot answers
+// follow-up questions about the inspection in place.
 import { Camera, Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { api } from '../api/client'
@@ -8,7 +9,14 @@ import type { InspectionFinding, SamplePhoto } from '../api/types'
 import { toUpload } from '../lib/files'
 import { shortTime } from '../lib/format'
 import { useAsync } from '../state/useAsync'
+import { AskAboutThis } from './AskAboutThis'
 import { Badge, Card, ErrorNote } from './ui'
+
+const ASK_SUGGESTIONS = [
+  'Does the inspection confirm the alert, and what should we do?',
+  'What should the technician check next?',
+  'Is it safe to wait for the open order?',
+]
 
 const CONDITION_TONE = { healthy: 'good', early_wear: 'warn', severe_wear: 'danger', failed: 'danger', unclear: 'neutral' } as const
 
@@ -41,8 +49,15 @@ export function InspectionCard({ alertId, assetId, asOf }: { alertId: string; as
         {(findings.data ?? []).map((f, i) => <FindingRow key={i} finding={f} />)}
         {findings.data?.length === 0 && !busy && <li className="text-sm text-slate-500">No inspection yet. A photo of the part lets Gemini confirm or question the prediction before anyone spends money.</li>}
       </ul>
+      <AskAboutThis key={`${alertId}-${asOf}`} topic={askTopic(alertId, assetId)} asOf={asOf}
+        placeholder="Ask about this inspection" suggestions={ASK_SUGGESTIONS} />
     </Card>
   )
+}
+
+function askTopic(alertId: string, assetId: string): string {
+  return `Alert ${alertId} on asset ${assetId} and its field inspection photos. Use get_field_reports for the inspection `
+    + 'findings, and get_sensor_evidence or analyse_alert_impact when the question needs them.'
 }
 
 function FindingRow({ finding: f }: { finding: InspectionFinding }) {

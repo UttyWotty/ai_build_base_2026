@@ -24,6 +24,7 @@ const TOOL_LABELS: Record<string, string> = {
   list_open_alerts: 'Listed open alerts',
   analyse_alert_impact: 'Analysed impact',
   get_sensor_evidence: 'Read sensor evidence',
+  get_field_reports: 'Read field reports',
   get_supplier_record: 'Checked supplier record',
   oee_summary: 'Computed OEE',
   failures: 'Read failure history',

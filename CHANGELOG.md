@@ -6,6 +6,10 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+### Added
+- **Ask about this** on the field inspection: a conversation with the copilot in place, with suggested questions.
+  Follow-ups carry the alert and the last three turns, and every answer streams and is checked like any other run.
+
 ## [0.9.0] - 2026-10-12
 
 Live on Google Cloud: the first Cloud Run deploy, the full Gemini evaluation, and the write-up for the judges.
