@@ -3,7 +3,15 @@
 An AI operations copilot for manufacturing. It predicts equipment failures and traces each one through spare parts, suppliers, and customer orders. A team of Gemini agents then drafts the plan, and a person approves it.
 Built for the AI Builder Cup 2026, Manufacturing track (Intelligent Operations and Industrial Efficiency).
 
-**Track record on four months of data:** 38 alerts scored against what really happened. **662 hours** of downtime avoided and **$197,949 net saved**, after charging the plan for its spend on false alerts (`make value`).
+**Try it live:** https://ops-copilot-432875717420.asia-southeast1.run.app (Cloud Run in Singapore, Gemini on Vertex AI). The bearing scenario at 02:00 on 25 July is the default clock; open **Control room**, pick US1-L2-01, and press **Draft the plan with the copilot**.
+
+**Video:** to be added.
+
+| | |
+|---|---|
+| **Track record** | 38 alerts over four months, scored against what really happened: **662 hours** of downtime avoided and **$197,949 net saved**, after charging the plan for its spend on false alerts (`make value`) |
+| **Agent evaluation** | **8/8** scenarios with Gemini 3.8 Flash on Vertex AI (`make eval`) |
+| **Built with** | Gemini on Vertex AI, Google Agent Development Kit, Cloud Run, React, FastAPI |
 
 ## The problem
 
@@ -31,8 +39,6 @@ What makes it trustworthy:
 | 0.8.0 | React and FastAPI; track record; live mode and autopilot; closed loop; multimodal Gemini; multi-agent team; model fallback | Released |
 | 0.8.1 | The OSI name; CI; architecture page with the challenge check | Released |
 | 0.8.2 | Inspection photos checked by Gemini; road to submission | Released |
-
-**Live:** https://ops-copilot-432875717420.asia-southeast1.run.app (Cloud Run in Singapore, Gemini on Vertex AI).
 
 Open items, in priority order, are in `techdebt.md`: the road to submission, starting with the video and the write-up.
 
@@ -120,6 +126,20 @@ Every language feature goes through `src/backend/llm_gateway`:
 | 38 (26 real failures, 12 false) | 6 | 662.1 h | $199,809 | $1,860 | **$197,949** |
 
 The demo moment comes from the data, with nothing planted on top. At 02:00 on 25 July 2026, two spindle-bearing alerts at US1 need the one bearing set on the shelf. The replacement is with supplier V10001, which was on time for 66.1% of its lines over 90 days. The copilot gives the set to the overdue alert and covers the other with an air transfer from DE1 for $650. Waiting instead would mean 190 hours down and four customer lines at risk.
+
+## Connecting a real plant
+
+The data here is synthetic, generated from seeds and shaped like the systems a plant already runs. A real plant feeds the same governed layer:
+
+| The plant's system | What OSI takes from it | What the agents can answer |
+|---|---|---|
+| Sensor historian | Sensor history and live readings | Which machine fails, and when |
+| Maintenance system (CMMS) | Work orders and repairs | What fixed it last time |
+| ERP: stores and purchasing | Stock, open orders, supplier deliveries | Is the part here, or when will it arrive |
+| ERP: order book | Customer orders per line | Which customers are at risk |
+| Inbox and shop floor | Supplier messages, inspection photos | Did the date move, and is the wear real |
+
+The agents only see governed tools, so connecting a plant means mapping its data and adding its entries to the bridge (`semantic/bridge/bridge.yaml`), not rewriting prompts.
 
 ## Project layout
 
