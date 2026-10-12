@@ -6,6 +6,10 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+## [0.10.1] - 2026-10-12
+
+The story opens on scarcity, not prediction, and the deck is in the repo as a PDF.
+
 ### Changed
 - The story opens on scarcity, not prediction: "At 2 a.m., two machines need the last spare part. OSI decides who gets
   it, covers the other, and proves it paid off." Updated in the README, the write-up, the architecture page, the demo
