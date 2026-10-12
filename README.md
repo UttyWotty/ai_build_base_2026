@@ -90,7 +90,7 @@ The top bar sets the demo clock, either a named scenario or any time in the data
 | **Supplier inbox** | Gemini reads suppliers' messages (text or PDF) into delivery updates. A new date revises the open order from the moment the message arrived. |
 | **Approvals** | Proposals to approve or reject. An approved plan moves stock and clears conflicts from its moment on, and its outcome shows once the clock passes the failure, for example "down 26.0 h with the plan instead of 230.3 h, $100,077 saved". **Reset demo** clears the queue. |
 | **Track record** | Every alert of the test period scored at its real outcome: the plan against the site acting alone. |
-| **How it works** | The loop, the architecture, the guardrails, and the Google Cloud setup. |
+| **How it works** | The pitch, the loop, the architecture, the guardrails (including operator verdicts), and the Google Cloud setup with its protections. |
 
 ## Agents
 

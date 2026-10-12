@@ -27,7 +27,7 @@ export function Layout({ children }: { children: ReactNode }) {
           <img src="/favicon.svg" alt="" className="h-8 w-8" />
           <div>
             <div className="text-sm font-bold tracking-tight">OSI</div>
-            <div className="text-[11px] text-slate-500">Opsight Intelligence</div>
+            <div className="text-xs text-slate-500">Opsight Intelligence</div>
           </div>
         </div>
         <div className="flex flex-col gap-1 px-3">
@@ -39,7 +39,7 @@ export function Layout({ children }: { children: ReactNode }) {
             </NavLink>
           ))}
         </div>
-        <div className="mt-auto px-5 py-4 text-[11px] leading-relaxed text-slate-400">
+        <div className="mt-auto px-5 py-4 text-xs leading-relaxed text-slate-400">
           Synthetic data from seeded generators. Gemini via the Agent Development Kit.
         </div>
       </nav>
@@ -67,7 +67,7 @@ function TopBar() {
       </div>
       <input type="datetime-local" value={asOf} onChange={(e) => e.target.value && setAsOf(e.target.value)}
         className="rounded-lg border border-slate-200 px-2 py-1.5 text-sm text-slate-700" aria-label="Demo clock" />
-      <div className="min-w-0 flex-1 truncate text-sm text-slate-500">{active?.story ?? `Replaying ${shortTime(asOf)} UTC`}</div>
+      <div className="min-w-0 flex-1 text-sm leading-snug text-slate-500">{active?.story ?? `Replaying ${shortTime(asOf)} UTC`}</div>
       <div className="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-600">
         {engine.data ? `${engine.data.model} · ADK` : 'Connecting to backend'}
       </div>

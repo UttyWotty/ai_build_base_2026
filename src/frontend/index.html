@@ -1,7 +1,8 @@
 <!doctype html>
 <!-- Entry page of the OSI frontend: it loads the React app into the root element. -->
 <!-- The title and icon identify the app in the browser tab; everything else is rendered by React. -->
-<!-- Fonts come from Google Fonts so the typography is the same on every machine. -->
+<!-- Fonts come from Google Fonts so the typography is the same on every machine. A plain loading screen sits in the -->
+<!-- root element until React replaces it, so a cold start never shows an empty white page. -->
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -12,7 +13,13 @@
     <title>OSI | Opsight Intelligence</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#f8fafc;font-family:Inter,system-ui,sans-serif;color:#0f172a">
+        <img src="/favicon.svg" alt="" width="40" height="40" />
+        <div style="font-size:18px;font-weight:600">Loading OSI</div>
+        <div style="font-size:14px;color:#64748b">Opsight Intelligence is starting; the first visit can take a few seconds.</div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
