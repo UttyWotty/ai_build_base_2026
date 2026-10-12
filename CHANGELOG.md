@@ -6,6 +6,10 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+## [0.11.6] - 2026-10-12
+
+Supplier cancellations and confirmations now count, and operator cautions reach only later alerts.
+
 ### Fixed
 - Supplier messages that cancelled an order or put it back on schedule were ignored, and a later message could not
   override an earlier delay, so the copilot could advise waiting for an order that would never come. The supplier's
