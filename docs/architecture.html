@@ -306,7 +306,7 @@ html { scroll-behavior: smooth; }
       <div><h4>No peeking at the future</h4><p>Every tool answers as of the demo clock. Outcomes count only once they are in the past.</p></div>
       <div><h4>No silent actions</h4><p>Agents only propose. A proposal's numbers come from the analysis, not the model's text. People approve.</p></div>
     </div>
-    <p>Quality evidence: 423 backend and 7 frontend tests, offline tests of the real ADK runner with scripted models,
+    <p>Quality evidence: 426 backend and 10 frontend tests, offline tests of the real ADK runner with scripted models,
     and an eight-scenario agent evaluation (<code>make eval</code>, 7 of 8 on a local model; the full Gemini score is
     still to run).</p>
   </div>
@@ -334,36 +334,36 @@ html { scroll-behavior: smooth; }
   <h2>Challenge match</h2>
   <div>
     <p>Checked on 2 Oct 2026 against the official site (<a href="https://aibuildercup.com/themes.html">themes</a>,
-    <a href="https://aibuildercup.com/Faqs.html">FAQ</a>, <a href="https://aibuildercup.com/">timeline</a>).</p>
+    <a href="https://aibuildercup.com/Faqs.html">FAQ</a>, <a href="https://aibuildercup.com/">timeline</a>). Status updated on 12 Oct 2026.</p>
     <h3>Rules and deliverables</h3>
     <div class="tbl"><table>
       <thead><tr><th>Official requirement</th><th>Where we stand</th><th>Status</th></tr></thead>
       <tbody>
         <tr><td>Manufacturing theme: efficiency, quality, reliability, supply and demand, or sustainability; turn operational data into insights, recommendations, or actions</td><td>Reliability (failure prediction) joined to supply and demand (spares, suppliers, customer orders), ending in approved actions</td><td><span class="pill ok">Met</span></td></tr>
         <tr><td>Use Google AI models (Gemini or Gemma) or an agentic platform</td><td>Gemini for agents, multimodal reading, and vision; agents on Google ADK</td><td><span class="pill ok">Met</span></td></tr>
-        <tr><td>Deployed on Google Cloud via Cloud Run or Firebase</td><td>Dockerfile and <code>deploy/cloudrun.sh</code> ready; image built and served locally. First deploy waits for a funded Google Cloud project</td><td><span class="pill bad">Blocked</span></td></tr>
-        <tr><td>Working deployed link</td><td>Comes from the deploy</td><td><span class="pill bad">Blocked</span></td></tr>
-        <tr><td>Functional prototype, end to end</td><td>Runs end to end locally with live Gemini; a team run end to end is still to do after the deploy</td><td><span class="pill warn">Mostly</span></td></tr>
-        <tr><td>Video demo under 3 minutes (YouTube, Vimeo, or public Drive)</td><td><code>docs/DEMO_SCRIPT.md</code> is timed at exactly 3:00; trim to about 2:45 so it is clearly under</td><td><span class="pill warn">Open</span></td></tr>
+        <tr><td>Deployed on Google Cloud via Cloud Run or Firebase</td><td>Cloud Run in asia-southeast1 with Gemini on Vertex AI, deployed with <code>deploy/cloudrun.sh</code></td><td><span class="pill ok">Met</span></td></tr>
+        <tr><td>Working deployed link</td><td><a href="https://ops-copilot-432875717420.asia-southeast1.run.app">ops-copilot-432875717420.asia-southeast1.run.app</a></td><td><span class="pill ok">Met</span></td></tr>
+        <tr><td>Functional prototype, end to end</td><td>Runs end to end on the deployed app; the four-agent team planned the demo alert live and verified; evaluation 8/8 on Vertex AI</td><td><span class="pill ok">Met</span></td></tr>
+        <tr><td>Video demo under 3 minutes (YouTube, Vimeo, or public Drive)</td><td><code>docs/DEMO_SCRIPT.md</code> is timed at exactly 3:00; trim to about 2:45 when recording so it is clearly under</td><td><span class="pill warn">Open</span></td></tr>
         <tr><td>Public GitHub repository</td><td>The repository is private today; make it public before submitting</td><td><span class="pill warn">Open</span></td></tr>
-        <tr><td>Deck (PDF) on the problem, benefits, and scalability</td><td><code>docs/SUBMISSION.md</code> covers problem and benefits; no deck yet, and no scalability section</td><td><span class="pill warn">Open</span></td></tr>
+        <tr><td>Deck (PDF) on the problem, benefits, and scalability</td><td><code>docs/OSI-deck.pdf</code>: 16 slides around the four criteria, with scalability and how a real plant connects; the video link is the last placeholder</td><td><span class="pill warn">Almost</span></td></tr>
         <tr><td>Fresh project started during the hackathon (build window 7 Sep to 18 Oct)</td><td>Source repositories created 29 Sep 2026; this repository started 30 Sep 2026</td><td><span class="pill ok">Met</span></td></tr>
         <tr><td>One solution, one theme; all materials in English</td><td>One entry, Manufacturing; everything in English</td><td><span class="pill ok">Met</span></td></tr>
-        <tr><td>Team of 2 to 4: working professionals, 21+, JAPAC-based, no students</td><td>Second member must be on the team before registration closes on <b>11 Oct</b></td><td><span class="pill warn">Check</span></td></tr>
+        <tr><td>Team of 2 to 4: working professionals, 21+, JAPAC-based, no students</td><td>EmoldinoUnited: two members, confirmed</td><td><span class="pill ok">Met</span></td></tr>
       </tbody>
     </table></div>
     <h3>Judging criteria</h3>
     <div class="tbl"><table>
       <thead><tr><th>Criterion</th><th>Our strongest evidence</th><th>Gap to close</th></tr></thead>
       <tbody>
-        <tr><td>Technical merit and Gen AI <span class="num">40%</span></td><td>ADK parallel and sequential team; multimodal Gemini; number verification; governed tools; model fallback; 430 tests</td><td>Full Gemini eval score; a scalability story (Firestore, BigQuery, Pub/Sub) in the deck</td></tr>
-        <tr><td>Problem alignment and impact <span class="num">25%</span></td><td>Cross-department maintenance problem; $197,949 net and 662 h over four months; $100,077 on one alert</td><td>Say plainly that the data is synthetic and how a real plant would connect</td></tr>
-        <tr><td>Innovation and creativity <span class="num">25%</span></td><td>Agents mirror real departments; Autopilot at 2 a.m.; approvals change the world; Gemini reads supplier mail and photos</td><td>Inspection photos to show the vision step live</td></tr>
-        <tr><td>User experience and design <span class="num">10%</span></td><td>Seven pages; live agent stream with names; Verified badge; plain-language errors</td><td>Rehearse the 3-minute path on the deployed app</td></tr>
+        <tr><td>Technical merit and Gen AI <span class="num">40%</span></td><td>ADK parallel and sequential team; multimodal Gemini; number verification; governed tools; model fallback; evaluation 8/8 on Vertex AI; 436 tests</td><td>Done: eval score in the README, scalability slide in the deck</td></tr>
+        <tr><td>Problem alignment and impact <span class="num">25%</span></td><td>Cross-department maintenance problem; $197,949 net and 662 h over four months; $100,077 on one alert</td><td>Done: honest-limits and "how a real plant connects" slides</td></tr>
+        <tr><td>Innovation and creativity <span class="num">25%</span></td><td>Decisions under scarcity across departments; Autopilot at 2 a.m.; approvals change the world; Gemini reads supplier mail and photos; operator verdicts that flag, never silence</td><td>Done: inspection photos checked by Gemini</td></tr>
+        <tr><td>User experience and design <span class="num">10%</span></td><td>Seven pages; live agent stream with names; Verified badge; plain-language errors; Ask about this on the inspection</td><td>Rehearse the 3-minute path on the deployed app</td></tr>
       </tbody>
     </table></div>
-    <p><code>docs/SUBMISSION.md</code> follows our own five-point outline. Rewrite it, and build the deck, around these four
-    weighted criteria, with technical merit first, because it carries 40% of the score.</p>
+    <p><code>docs/SUBMISSION.md</code> and the deck follow these four weighted criteria, with technical merit first,
+    because it carries 40% of the score.</p>
   </div>
 </section>
 

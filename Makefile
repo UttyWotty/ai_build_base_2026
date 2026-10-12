@@ -1,7 +1,7 @@
 # Developer entry points for setup, tests, linting, data generation, and the component UIs.
 # Every target runs inside the project virtualenv at .venv so the system Python stays untouched.
 # `make data` generates and conforms both worlds and the bridge; `make models` trains the failure model and replays its alerts.
-# `make api` and `make web` run the backend and the React app; `make app` is the older Streamlit version; `make impact A=<alert id>` analyses one alert, `make ask Q="..."` asks the copilot agent, and `make eval` scores it.
+# `make api` and `make web` run the backend and the React app; `make impact A=<alert id>` analyses one alert, `make ask Q="..."` asks the copilot agent, and `make eval` scores it.
 # pdm-* and supply-* targets run one component package.
 VENV := .venv
 PYTHON := $(VENV)/bin/python
@@ -14,7 +14,7 @@ FRONTEND := src/frontend
 -include .env
 export
 
-.PHONY: setup settings test lint data models bridge impact value ask eval app api web web-build image deploy pdm-data supply-data pdm-oee pdm-predict pdm-alerts pdm-ask pdm-eval pdm-ui \
+.PHONY: setup settings test lint data models bridge impact value ask eval api web web-build image deploy pdm-data supply-data pdm-oee pdm-predict pdm-alerts pdm-ask pdm-eval pdm-ui \
 	supply-eval supply-demo supply-demo-offline supply-ui
 
 setup:
@@ -53,9 +53,6 @@ ask:
 
 eval:
 	$(PYTHON) -m copilot.api.agent_eval_cli
-
-app:
-	$(VENV)/bin/streamlit run src/backend/copilot/ui/app.py
 
 api:
 	$(VENV)/bin/uvicorn copilot.api.server:app --reload --reload-dir src/backend --port 8000

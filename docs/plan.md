@@ -65,7 +65,7 @@ src/backend/copilot              bridge, impact, track record, decisions, field 
   core/                          pure logic: impact rules, decisions and outcomes, value, events, instructions
   data_pipeline/                 adapters: world store, bridge files, record stores, samples
   services/                      impact, value, decisions, field inputs, event feed, agents and team
-  api/ ui/                       FastAPI endpoints and CLIs; the earlier Streamlit app
+  api/                           FastAPI endpoints and CLIs
 src/frontend                     React web app
 ```
 

@@ -19,7 +19,7 @@ from copilot.core.value_backtest import case_value, summarise
 from copilot.data_pipeline.proposal_store import ProposalStore
 from copilot.services.agent_runner import AgentRun, AgentStep
 from tests.copilot.fixtures import T0
-from tests.copilot.test_presenters import IMPACT
+from tests.copilot.test_impact_summary import IMPACT
 from tests.copilot.test_value_backtest import report as value_report
 
 ALERT = {"alert_id": "AL-2", "asset_id": "US1-L2-01", "line_id": "US1-L2", "failure_mode": "spindle_bearing_wear",
