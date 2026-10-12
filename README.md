@@ -54,6 +54,7 @@ What makes it trustworthy:
 | 0.11.4 | Server hardening from the bug audit | Released |
 | 0.11.5 | Frontend demo-path fixes from the bug audit | Released |
 | 0.11.6 | Logic fixes from the bug audit | Released |
+| 0.11.7 | Copilot log lines reach Cloud Run | Released |
 
 Open items, in priority order, are in `techdebt.md`: the road to submission, starting with the video and the write-up.
 
