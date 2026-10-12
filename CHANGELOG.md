@@ -6,6 +6,10 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-10-12
+
+Teammate review: ask about an inspection in place, and operator verdicts on false alerts that never silence later ones.
+
 ### Added
 - **Ask about this** on the field inspection: a conversation with the copilot in place, with suggested questions.
   Follow-ups carry the alert and the last three turns, and every answer streams and is checked like any other run.
