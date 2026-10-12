@@ -49,7 +49,7 @@ class AlertBook:
 
     def get(self, alert_id: str) -> AlertFacts:
         if alert_id not in self.alerts:
-            raise ImpactError(f"Unknown alert {alert_id}")
+            raise ImpactError(f"Unknown alert {alert_id}; list_open_alerts gives the open alert ids")
         return self.alerts[alert_id]
 
     def raised_between(self, start: datetime, end: datetime) -> list[AlertFacts]:

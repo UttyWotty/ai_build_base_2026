@@ -135,3 +135,24 @@ def test_offline_team_run_separates_briefs_from_the_leads_answer(monkeypatch: py
     assert briefs == {"maintenance_planner", "procurement_lead", "customer_lead"}
     assert run.answer == "Lead: 2 alerts are open; plan follows." and run.tools_used == ("list_open_alerts",)
     assert run.verified
+
+
+class LoopingLlm(BaseLlm):
+    """Never answers: calls a tool on every turn, like an agent guessing alert ids."""
+
+    async def generate_content_async(self, llm_request: LlmRequest, stream: bool = False) -> AsyncGenerator[LlmResponse, None]:
+        part = types.Part(function_call=types.FunctionCall(name="list_open_alerts", args={}))
+        yield LlmResponse(content=types.Content(role="model", parts=[part]))
+
+
+def test_a_looping_agent_is_stopped_by_the_call_cap(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(agent_runner, "adk_model", lambda selection: LoopingLlm(model="scripted"))
+    monkeypatch.setattr(agent_runner, "AGENT_MAX_LLM_CALLS_SINGLE", 3)
+    run = agent_runner.run_copilot("Which alerts?", FakeTools(), ModelSelection(Provider.LOCAL, "scripted", "", 5.0))
+    assert run.answer == "" and not run.verified and run.error_kind == "other"
+    assert "3 model calls" in run.error_message and len(run.tools_used) <= 3
+
+
+def test_every_team_member_can_list_the_open_alerts() -> None:
+    from copilot.services.agent_team import ROLE_TOOLS
+    assert all("list_open_alerts" in tools for tools in ROLE_TOOLS.values())

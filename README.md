@@ -31,6 +31,7 @@ What makes it trustworthy:
 - **No SQL from the model.** Supplier metrics compile from governed definitions, with a SQL fingerprint.
 - **No peeking at the future.** Every tool answers as of the demo clock; outcomes count only once they are in the past.
 - **No silent actions.** Agents propose; only people approve.
+- **No runaway runs.** A run stops after 25 model calls (50 for the team), far above the 5 to 20 a normal run needs.
 - **Feedback flags, never silences.** An operator can mark an alert as false. Later alerts on the same machine and failure mode carry the note and ask for an inspection first, but stay visible: in the data, two machines with an earlier false alert failed for real weeks later.
 
 ## Status
@@ -96,7 +97,7 @@ The top bar sets the demo clock, either a named scenario or any time in the data
 ## Agents
 
 **The operations team** (`src/backend/copilot/services/agent_team.py`) plans and triages:
-- An ADK `ParallelAgent` runs three specialists at once, each with only its role's tools and a brief in session state. The maintenance planner has sensor evidence, field reports, and history. The procurement lead has spares, options, and supplier records. The customer service lead has orders at risk and drafts the customer note.
+- An ADK `ParallelAgent` runs three specialists at once, each with only its role's tools and a brief in session state. The maintenance planner has sensor evidence, field reports, and history. The procurement lead has spares, options, and supplier records. The customer service lead has orders at risk and drafts the customer note. Each can list the open alerts and is told never to guess an alert id.
 - An ADK `SequentialAgent` then runs the operations lead, whose instruction reads the three briefs. It balances urgency, cost, and customer exposure, and calls `propose_action_plan`.
 
 **The single agent** answers free questions with all tools. Both run on `stream_copilot`, which streams every tool call, result, and brief with its author.

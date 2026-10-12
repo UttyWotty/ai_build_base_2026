@@ -30,9 +30,13 @@ FIELD_SAMPLES_DIR = Path(os.getenv("FIELD_SAMPLES_DIR", "demo/field"))
 USAGE_LIMIT_PER_VISITOR = int(os.getenv("USAGE_LIMIT_PER_VISITOR", "10"))
 USAGE_LIMIT_TOTAL = int(os.getenv("USAGE_LIMIT_TOTAL", "60"))
 USAGE_LIMIT_WINDOW_MINUTES = int(os.getenv("USAGE_LIMIT_WINDOW_MINUTES", "60"))
+# Hard cap on model calls in one agent run, so a confused agent cannot loop on the credit (the framework default is
+# 500). A single run needs about 5 to 15, a team run about 12.
+AGENT_MAX_LLM_CALLS_SINGLE = int(os.getenv("AGENT_MAX_LLM_CALLS_SINGLE", "25"))
+AGENT_MAX_LLM_CALLS_TEAM = int(os.getenv("AGENT_MAX_LLM_CALLS_TEAM", "50"))
 # The built React app; absent during local development, where Vite serves it.
 FRONTEND_DIST_DIR = Path(os.getenv("FRONTEND_DIST_DIR", "src/frontend/dist"))
 
-__all__ = ["BRIDGE_DATA_DIR", "BRIDGE_SEED", "BRIDGE_SEMANTIC_DIR", "DEMO_AS_OF", "FEEDBACK_PATH", "FIELD_SAMPLES_DIR", "FRONTEND_DIST_DIR",
+__all__ = ["AGENT_MAX_LLM_CALLS_SINGLE", "AGENT_MAX_LLM_CALLS_TEAM", "BRIDGE_DATA_DIR", "BRIDGE_SEED", "BRIDGE_SEMANTIC_DIR", "DEMO_AS_OF", "FEEDBACK_PATH", "FIELD_SAMPLES_DIR", "FRONTEND_DIST_DIR",
            "INSPECTIONS_PATH", "SUPPLIER_UPDATES_PATH", "PROPOSALS_PATH", "PLANT_CONFORMED_DIR", "PLANT_SEMANTIC_DIR",
            "SUPPLY_CONFORMED_DIR", "USAGE_LIMIT_PER_VISITOR", "USAGE_LIMIT_TOTAL", "USAGE_LIMIT_WINDOW_MINUTES"]
