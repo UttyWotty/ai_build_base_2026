@@ -22,10 +22,12 @@ DEMO_AS_OF = os.getenv("DEMO_AS_OF", "2026-07-25T02:00")
 # Field inputs Gemini has read, and the sample photos and supplier messages for the demo.
 INSPECTIONS_PATH = Path(os.getenv("INSPECTIONS_PATH", "data/copilot/inspections.json"))
 SUPPLIER_UPDATES_PATH = Path(os.getenv("SUPPLIER_UPDATES_PATH", "data/copilot/supplier_updates.json"))
+# Operators' verdicts on alerts, such as "this alert is false".
+FEEDBACK_PATH = Path(os.getenv("FEEDBACK_PATH", "data/copilot/feedback.json"))
 FIELD_SAMPLES_DIR = Path(os.getenv("FIELD_SAMPLES_DIR", "demo/field"))
 # The built React app; absent during local development, where Vite serves it.
 FRONTEND_DIST_DIR = Path(os.getenv("FRONTEND_DIST_DIR", "src/frontend/dist"))
 
-__all__ = ["BRIDGE_DATA_DIR", "BRIDGE_SEED", "BRIDGE_SEMANTIC_DIR", "DEMO_AS_OF", "FIELD_SAMPLES_DIR", "FRONTEND_DIST_DIR",
+__all__ = ["BRIDGE_DATA_DIR", "BRIDGE_SEED", "BRIDGE_SEMANTIC_DIR", "DEMO_AS_OF", "FEEDBACK_PATH", "FIELD_SAMPLES_DIR", "FRONTEND_DIST_DIR",
            "INSPECTIONS_PATH", "SUPPLIER_UPDATES_PATH", "PROPOSALS_PATH", "PLANT_CONFORMED_DIR", "PLANT_SEMANTIC_DIR",
            "SUPPLY_CONFORMED_DIR"]

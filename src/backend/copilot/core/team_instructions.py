@@ -23,8 +23,10 @@ def _clock(as_of: datetime) -> str:
 def maintenance_instruction(as_of: datetime) -> str:
     return (f"You are the maintenance planner. {_clock(as_of)} For the alerts in the request, judge how urgent each "
             "repair is: use get_sensor_evidence for the sensor trend against its normal range, get_field_reports for "
-            "inspection photos, and work_order_history or failures for the asset's history. Say when the repair must "
-            f"happen and whether the evidence is strong. {NUMBER_RULES}")
+            "inspection photos and operators' verdicts on earlier alerts, and work_order_history or failures for the "
+            "asset's history. Say when the repair must happen and whether the evidence is strong. If an operator "
+            "marked an earlier alert of the same asset and failure mode as false, say so and ask for an inspection "
+            f"before spending; never dismiss the alert for it. {NUMBER_RULES}")
 
 
 def procurement_instruction(as_of: datetime) -> str:

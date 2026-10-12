@@ -9,6 +9,10 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 ### Added
 - **Ask about this** on the field inspection: a conversation with the copilot in place, with suggested questions.
   Follow-ups carry the alert and the last three turns, and every answer streams and is checked like any other run.
+- **Operator verdict** on every alert: mark it as false with a reason. Later alerts on the same asset and failure
+  mode show a caution and the agents ask for an inspection before spending, but the alert is never hidden. The
+  verdicts reach the agents through `get_field_reports`; the track record and the impact analysis never read them.
+  The supplier inbox's Reset also clears them.
 
 ## [0.9.0] - 2026-10-12
 

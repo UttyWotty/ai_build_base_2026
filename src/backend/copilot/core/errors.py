@@ -20,3 +20,7 @@ class BridgeValidationError(CopilotError):
 
 class ImpactError(CopilotError):
     """An impact analysis cannot be computed for the requested alert."""
+
+
+class FeedbackError(CopilotError):
+    """Operator feedback on an alert is incomplete, too long, or given before the alert existed."""
