@@ -14,8 +14,10 @@ Every number in it comes from the running app, its tests, or its evaluation, and
 
 ## The pitch
 
-Predictive maintenance tools stop at the alert. Whether the repair happens in time depends on stores, purchasing, and
-customer service. OSI carries the alert across all three: a team of Gemini agents checks the spare part, the supplier,
+At 2 a.m., two machines need the last spare part. OSI decides who gets it, covers the other, and proves it paid off.
+
+Predicting the failure is the easy part; getting the part in time is not. Whether the line keeps running depends on
+stores, purchasing, and customer service. OSI carries the alert across all three: a team of Gemini agents checks the spare part, the supplier,
 and the customer orders, prices every option, and drafts the plan. A person approves it. On four months of plant data
 it avoided **662 hours** of downtime and saved **197,949 USD net**, with its mistakes counted.
 

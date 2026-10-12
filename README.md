@@ -1,6 +1,8 @@
 # OSI (Opsight Intelligence)
 
-An AI operations copilot for manufacturing. It predicts equipment failures and traces each one through spare parts, suppliers, and customer orders. A team of Gemini agents then drafts the plan, and a person approves it.
+At 2 a.m., two machines need the last spare part. OSI decides who gets it, covers the other, and proves it paid off.
+
+An AI operations copilot for manufacturing. Predicting a failure is the easy part; OSI traces each alert through spare parts, suppliers, and customer orders, a team of Gemini agents drafts the plan, and a person approves it.
 Built for the AI Builder Cup 2026, Manufacturing track (Intelligent Operations and Industrial Efficiency).
 
 **Try it live:** https://ops-copilot-432875717420.asia-southeast1.run.app (Cloud Run in Singapore, Gemini on Vertex AI). The bearing scenario at 02:00 on 25 July is the default clock; open **Control room**, pick US1-L2-01, and press **Draft the plan with the copilot**.
