@@ -9,6 +9,7 @@ Every number in it comes from the running app, its tests, or its evaluation, and
 | **Live app** | https://ops-copilot-432875717420.asia-southeast1.run.app (Cloud Run, Singapore) |
 | **Repository** | https://github.com/UttyWotty/ai_build_base_2026 |
 | **Video** | To be added |
+| **Deck** | [`docs/OSI-deck.pdf`](OSI-deck.pdf) |
 | **Stack** | Gemini 3.8 Flash on Vertex AI, Google Agent Development Kit, Cloud Run, React and FastAPI |
 
 ## The pitch

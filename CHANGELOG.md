@@ -6,6 +6,10 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+### Added
+- The submission deck as a PDF in `docs/OSI-deck.pdf`, linked from the README and the write-up. The video link is
+  still a placeholder on its last slide.
+
 ## [0.10.0] - 2026-10-12
 
 Teammate review: ask about an inspection in place, and operator verdicts on false alerts that never silence later ones.
