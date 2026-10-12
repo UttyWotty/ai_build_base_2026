@@ -51,6 +51,7 @@ What makes it trustworthy:
 | 0.11.1 | One instance at most; deployed with the usage limit | Released |
 | 0.11.2 | UI polish: loading screen, full story line, How it works title | Released |
 | 0.11.3 | Fix: no guessed alert ids; every run capped | Released |
+| 0.11.4 | Server hardening from the bug audit | Released |
 
 Open items, in priority order, are in `techdebt.md`: the road to submission, starting with the video and the write-up.
 
