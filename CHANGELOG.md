@@ -6,6 +6,11 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+### Changed
+- `docs/DEMO_SCRIPT.md` is now a recording runbook: one-time setup (warm instance, a higher usage limit while
+  recording), a reset before every take, a take of about 2:50 with the inspection photos and the operator verdict, and
+  the steps after recording.
+
 ## [0.11.7] - 2026-10-12
 
 The copilot's own log lines, including counted model calls, now reach Cloud Run.
