@@ -39,6 +39,7 @@ What makes it trustworthy:
 | 0.8.0 | React and FastAPI; track record; live mode and autopilot; closed loop; multimodal Gemini; multi-agent team; model fallback | Released |
 | 0.8.1 | The OSI name; CI; architecture page with the challenge check | Released |
 | 0.8.2 | Inspection photos checked by Gemini; road to submission | Released |
+| 0.9.0 | Live on Cloud Run with Gemini on Vertex AI; 8/8 evaluation; submission write-up around the judging criteria | Released |
 
 Open items, in priority order, are in `techdebt.md`: the road to submission, starting with the video and the write-up.
 
