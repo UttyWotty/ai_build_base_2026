@@ -47,7 +47,8 @@ Each step waits for the one before it. Status on 2026-10-12.
 ## P1 - For the finals (Top 200 architecture sprints, Top 50 round)
 
 - [ ] **Durable state on Google Cloud.** Proposals, inspections, and supplier updates live in JSON files in the
-  container and reset when an instance restarts. Move them to Firestore.
+  container and reset when an instance restarts. Move them to Firestore. Until then the service runs one instance at
+  most (`MAX_INSTANCES`, default 1), so every visitor sees the same state.
 - [ ] **Google Cloud native data path.** BigQuery for the conformed tables, Pub/Sub for the live sensor and event
   stream, Vertex AI for the failure model, and Cloud Monitoring for the agent's latency and errors.
 <!-- - [ ] **Delete the Streamlit app** (`src/backend/copilot/ui`, `make app`) and its tests after the first successful
