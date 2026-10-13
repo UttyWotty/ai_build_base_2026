@@ -6,6 +6,9 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+### Changed
+- `techdebt.md` road to submission: status on 2026-10-13, ready to record, and the steps left after recording.
+
 ## [0.11.8] - 2026-10-13
 
 The live clock holds for a person's decision once the autopilot proposes, and the demo runbook follows rehearsals.
