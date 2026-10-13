@@ -11,7 +11,7 @@ import { EventFeed } from '../components/EventFeed'
 import { Card, ErrorNote, Kpi } from '../components/ui'
 import { addHours, longClock } from '../lib/clockMath'
 import { compactMoney, hours } from '../lib/format'
-import { eventKey, plural, type Triage } from '../lib/live'
+import { afterTriages, eventKey, plural, type Triage } from '../lib/live'
 import { useAction } from '../state/useAction'
 import { useClock } from '../state/clockContext'
 import { useAsync } from '../state/useAsync'
@@ -31,12 +31,16 @@ export function Live() {
   const [running, setRunning] = useState(false)
   const [speed, setSpeed] = useState(SPEEDS[0])
   const [autopilot, setAutopilot] = useState(true)
+  // On by default: a proposal is decided before the clock passes the failure it is about, even at the fastest speed.
+  const [waitForApproval, setWaitForApproval] = useState(true)
+  const [held, setHeld] = useState(false)
   const [windowStart, setWindowStart] = useState(() => addHours(asOf, FEED_LOOKBACK_HOURS))
   const [triages, setTriages] = useState<Triage[]>([])
   const [decisions, setDecisions] = useState(0)
   const [stoppedReason, setStoppedReason] = useState<string | null>(null)
   const resumeAfterTriage = useRef(false)
   const stop = useCallback(() => setRunning(false), [])
+  const run = (next: boolean) => { setHeld(false); setRunning(next) }
   useLiveClock(running, speed, stop)
   // Each jump starts a new epoch, even a jump back to the same start for a second take. A response carries the epoch
   // it was asked in, so the new window is never diffed against the old one and its existing alerts are not re-triaged.
@@ -62,23 +66,26 @@ export function Live() {
       setStoppedReason(result.error_message)
     }
   }, [])
-  // The clock resumes only when every triage of the batch has finished, not when the first one does.
+  // The clock moves on only when every triage of the batch has finished, not when the first one does; with the wait
+  // on, a batch that left a proposal holds the clock until the person presses Run.
   useEffect(() => {
-    if (resumeAfterTriage.current && triages.length > 0 && triages.every((t) => t.done)) {
-      resumeAfterTriage.current = false
-      setRunning(true)
-    }
-  }, [triages])
+    if (!resumeAfterTriage.current) return
+    const next = afterTriages(triages, waitForApproval)
+    if (next === 'wait') return
+    resumeAfterTriage.current = false
+    if (next === 'hold') setHeld(true)
+    else setRunning(true)
+  }, [triages, waitForApproval])
   const jumpTo = (at: string) => {
     resumeAfterTriage.current = false
-    setRunning(false); setTriages([]); setAsOf(at); setWindowStart(addHours(at, FEED_LOOKBACK_HOURS)); setJumps((n) => n + 1)
+    setHeld(false); setRunning(false); setTriages([]); setAsOf(at); setWindowStart(addHours(at, FEED_LOOKBACK_HOURS)); setJumps((n) => n + 1)
   }
   const h = overview.data?.headline
   return (
     <div className="space-y-4">
       <Card>
         <div className="flex flex-wrap items-center gap-4">
-          <button onClick={() => setRunning(!running)} className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
+          <button onClick={() => run(!running)} className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">
             {running ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}{running ? 'Pause' : 'Run'}
           </button>
           <button onClick={() => setAsOf(addHours(asOf, 1))} className="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-2 text-sm"><SkipForward className="h-4 w-4" />1 h</button>
@@ -86,11 +93,18 @@ export function Live() {
             {SPEEDS.map((s) => <button key={s} onClick={() => setSpeed(s)} className={`rounded-md px-2.5 py-1 ${s === speed ? 'bg-white shadow-sm' : 'text-slate-600'}`}>{s} h/s</button>)}
           </div>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={autopilot} onChange={(e) => { setAutopilot(e.target.checked); if (e.target.checked) setStoppedReason(null) }} />Autopilot</label>
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={waitForApproval} onChange={(e) => setWaitForApproval(e.target.checked)} />Wait for approval</label>
           <div className="ml-auto text-right">
             <div className="text-lg font-semibold tabular-nums">{longClock(asOf)}</div>
             <div className="flex gap-2 text-xs text-slate-500">{STARTS.map((s) => <button key={s.at} onClick={() => jumpTo(s.at)} className="underline-offset-2 hover:underline">{s.label}</button>)}</div>
           </div>
         </div>
+        {held && (
+          <p className="mt-3 text-sm text-amber-700">
+            Paused for a decision: approve or reject the proposal, then press Run. The clock waits so the plan is decided
+            before the moment it is about.
+          </p>
+        )}
       </Card>
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_1.2fr]">
         <Card title="Plant events" action={<span className="text-xs text-slate-400">since {longClock(windowStart)}</span>}>
