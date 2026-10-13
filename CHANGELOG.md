@@ -6,6 +6,22 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+## [0.11.8] - 2026-10-13
+
+The live clock holds for a person's decision once the autopilot proposes, and the demo runbook follows rehearsals.
+
+### Added
+- **Wait for approval** on the Live page, on by default: once the autopilot's team leaves a proposal, the clock holds
+  until a person decides and presses Run. Before, the clock ran on after the triage and, at 3 h/s, passed the failure
+  about 10 seconds later, so a visitor who did not pause in time saw the emergency buy instead of the saving.
+
+### Changed
+- `docs/DEMO_SCRIPT.md` is now a recording runbook: one-time setup (warm instance, a higher usage limit while
+  recording), a reset before every take, a take of about 2:50 with the inspection photos and the operator verdict, and
+  the steps after recording.
+- The demo runbook now follows full rehearsals on the live service: approve on Live while the clock holds for the
+  decision, team runs of 45 to 130 seconds, and narration that matches what Gemini reports on the gearbox photo.
+
 ## [0.11.7] - 2026-10-12
 
 The copilot's own log lines, including counted model calls, now reach Cloud Run.

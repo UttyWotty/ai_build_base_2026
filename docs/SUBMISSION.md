@@ -116,7 +116,8 @@ only ever see governed tools, so the integration work is in the data mappings, n
   as a plant's morning meeting would, and the operations lead decides. People watch each one's tool calls and brief
   stream in with its name.
 - **It works at 2 a.m.** In live mode the plant replays as it happens. With the autopilot on, each new alert pauses the
-  clock while the team triages it and leaves a proposal, so the plan is ready before anyone arrives.
+  clock while the team triages it and leaves a proposal, so the plan is ready before anyone arrives. The clock then
+  holds until a person approves or rejects it and presses Run.
 - **Approvals change the world.** A decision is not a note in a log: stock moves, conflicts clear, and the outcome is
   replayed against doing nothing.
 - **It is honest about being wrong.** The track record charges the plan for its spend on false alerts, and Gemini vision

@@ -55,6 +55,7 @@ What makes it trustworthy:
 | 0.11.5 | Frontend demo-path fixes from the bug audit | Released |
 | 0.11.6 | Logic fixes from the bug audit | Released |
 | 0.11.7 | Copilot log lines reach Cloud Run | Released |
+| 0.11.8 | Live clock waits for approval; demo runbook | Released |
 
 Open items, in priority order, are in `techdebt.md`: the road to submission, starting with the video and the write-up.
 
@@ -91,7 +92,7 @@ The top bar sets the demo clock, either a named scenario or any time in the data
 
 | Page | What it shows |
 |---|---|
-| **Live** | The plant replayed as it happens: the clock runs at 1, 3, or 6 hours per second, and alerts, breakdowns, restorations, and spare orders and receipts stream in. With **Autopilot** on, each new alert pauses the clock while the agent team triages it and leaves a proposal, with approve and reject in place. On quota or credential errors the autopilot stops itself and explains why. |
+| **Live** | The plant replayed as it happens: the clock runs at 1, 3, or 6 hours per second, and alerts, breakdowns, restorations, and spare orders and receipts stream in. With **Autopilot** on, each new alert pauses the clock while the agent team triages it and leaves a proposal, with approve and reject in place. With **Wait for approval** on (the default), the clock then holds until a person decides and presses Run, so a plan is never overtaken by the failure it is about. On quota or credential errors the autopilot stops itself and explains why. |
 | **Control room** | Headline numbers, the open alerts, and for the selected one: the spare conflict, stock at both sites, the supplier's governed on-time delivery, every priced option, the sensor evidence against its normal band, field inspections with **Ask about this** for follow-up questions to the copilot, the operator's verdict (mark an alert as false, with a reason), and the customers at risk. **Draft the plan with the copilot** streams the team's work live. |
 | **Copilot** | Free questions to one agent or to the team, with the live tool timeline, each specialist's brief, the answer, and the verified badge. |
 | **Supplier inbox** | Gemini reads suppliers' messages (text or PDF) into delivery updates. A new date revises the open order from the moment the message arrived. |
