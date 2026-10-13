@@ -6,6 +6,10 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+## [0.11.8] - 2026-10-13
+
+The live clock holds for a person's decision once the autopilot proposes, and the demo runbook follows rehearsals.
+
 ### Added
 - **Wait for approval** on the Live page, on by default: once the autopilot's team leaves a proposal, the clock holds
   until a person decides and presses Run. Before, the clock ran on after the triage and, at 3 h/s, passed the failure
