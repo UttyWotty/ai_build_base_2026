@@ -10,6 +10,8 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 - `docs/DEMO_SCRIPT.md` is now a recording runbook: one-time setup (warm instance, a higher usage limit while
   recording), a reset before every take, a take of about 2:50 with the inspection photos and the operator verdict, and
   the steps after recording.
+- The demo runbook now follows a full rehearsal on the live service: switch to 1 h/s while the team works, pause
+  as soon as the proposal appears, and approve on the Approvals page, so the outcome is not lost to the running clock.
 
 ## [0.11.7] - 2026-10-12
 
