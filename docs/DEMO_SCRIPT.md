@@ -35,31 +35,38 @@ causes a gap of about 20 seconds, so do them before recording, never between tak
 1. **Approvals** > **Reset demo** (clears drafted plans and outcomes).
 2. **Supplier inbox** > **Reset** (clears read messages, inspections, and operator verdicts).
 3. Reload the page, so the clock and the feed start fresh.
-4. **Live**: choose **Bearing week at US1**, click **3 h/s** (the default is 1 h/s), and leave **Autopilot** ticked.
+4. **Live**: click **Bearing week at US1** (the small link under the clock, top right) so the clock goes back to
+   24 Jul 12:00, click **3 h/s** (the default is 1 h/s), and leave **Autopilot** ticked.
 
 ## 3. The take
 
 | Time | Screen and click | Say |
 |---|---|---|
 | 0:00 | **Live**, press **Run**. The feed streams stops, restarts, spare orders | "Two a.m. Two machines are about to fail, and there's one spare bearing on the shelf. Predicting failures is the easy part. Deciding who gets the part, what it costs, and which customers slip takes four departments. OSI decides before anyone arrives." |
-| 0:18 | At 25 Jul 02:00 the alert arrives, the clock pauses, the autopilot starts | "A spindle bearing on line 2 is wearing out. Nobody is awake. The copilot picks it up." |
+| 0:18 | The alert arrives, the clock pauses, the autopilot starts. Now click **1 h/s** (see the clock rule below) | "A spindle bearing on line 2 is wearing out. Nobody is awake. The copilot picks it up." |
 | 0:25 | The team's tool calls appear with their names, then the three briefs | "Gemini works as a team, built on Google's Agent Development Kit. A maintenance planner reads the vibration, a procurement lead checks spares and suppliers, a customer lead checks orders. All three at once." |
-| 0:45 | The lead's answer, the verified line, the proposal with **Approve** (do not click yet) | "The operations lead weighs them. The one bearing set on the shelf goes to the other line, whose alert is overdue. This one gets an air transfer from Germany for 650 dollars, because the supplier is late one time in three. Every number here was checked against the tools." |
+| 0:45 | The proposal appears: press **Pause** at once. Then show the lead's answer and the verified line; do not approve yet | "The operations lead weighs them. The one bearing set on the shelf goes to the other line, whose alert is overdue. This one gets an air transfer from Germany for 650 dollars, because the supplier is late one time in three. Every number here was checked against the tools." |
 | 1:05 | **Control room**, alert US1-L2-01: **Every way to get the spare** and customers at risk | "Here is what it weighed: every way to get the part, priced. Waiting for the supplier means 190 hours down and four customer orders at risk." |
 | 1:15 | Scroll to the vibration chart. Then **Supplier inbox**: the Everline notice, **Read with Gemini** | "Why the alert: vibration climbing out of its normal band. And this morning the supplier wrote that the order slips to 8 August. Gemini reads it, and the plan updates." |
 | 1:33 | **Control room**, US1-L2-01, **Field inspection**: click the **Sample** photo | "The technician sends a photo, and Gemini vision confirms the wear before any money is spent." |
-| 1:43 | Alert DE1-L2-04 (gearbox, same clock), **Field inspection**, its **Sample** photo | "A gearbox alert in Germany, same night. Gemini sees intact gears and dirty oil: not confirmed." |
-| 1:52 | Optional: **Operator verdict**, type "gear teeth intact; oil needed flushing", **Mark as false alert** | "The engineer marks it false. The next alert on this gearbox carries that note and asks for an inspection first. It is never hidden." |
-| 2:02 | **Live**: **Approve**, then **Run**. At 26 Jul 10:00 the outcome appears in the feed | "A person approves. The next morning the spindle fails, as predicted, and the line is back in 26 hours instead of 230. 100,000 dollars saved on one alert." |
+| 1:43 | Alert DE1-L2-04 (gearbox, same clock), **Field inspection**, its **Sample** photo | "A gearbox alert in Germany, same night. Gemini sees intact gears: not confirmed." |
+| 1:52 | Optional: **Operator verdict**, type "Gear teeth intact on inspection", **Mark as false alert** | "The engineer marks it false. The next alert on this gearbox carries that note and asks for an inspection first. It is never hidden." |
+| 2:02 | **Approvals**: **Approve**. Then **Live**, **Run**; about 22 seconds later (26 Jul 10:00) the outcome appears in the feed: press **Pause** | "A person approves. The next morning the spindle fails, as predicted, and the line is back in 26 hours instead of 230. 100,000 dollars saved on one alert." |
 | 2:22 | **Track record** | "And not just once. Every alert of four months, scored against what really happened, including the times it was wrong: 662 hours of downtime avoided, 198 thousand dollars net." |
 | 2:38 | **How it works** | "Not another failure predictor: a team of Gemini agents that decides when parts are scarce, and proves it paid off, mistakes included. On Vertex AI and Cloud Run." |
 | 2:50 | End | |
 
 If time runs long, drop the optional verdict row first (10 seconds), then the DE1-L2-04 photo (9 seconds).
 
+The clock rule (learned in a rehearsal on 2026-10-13): the clock pauses only while the team works. Once the
+proposal appears it runs on, and at 26 Jul 10:00 the spindle fails. If that happens before you approve, the run shows
+the emergency buy instead of the saving, and the take must restart from section 2. At 3 h/s you have about 10
+seconds to press Pause; switching to 1 h/s while the team works gives about 30. The Live panel also forgets the
+proposal when you leave the page, which is why the approval happens on **Approvals**.
+
 Notes for the take:
-- The team run takes real time on Gemini. If it runs longer than the narration, keep talking over the tool calls, or
-  cut the wait when editing; the times above assume the wait is cut.
+- The team run takes 45 to 95 seconds on Gemini, longer than its narration. Keep talking over the tool calls, or cut
+  the wait when editing; the times above assume the wait is cut.
 - Name a specific alert in anything you type. A question such as "how many alerts are open" once came back
   unverified.
 - If a step shows a usage-limit message, the 40 calls for the hour are used up: wait, or raise the limit again.
