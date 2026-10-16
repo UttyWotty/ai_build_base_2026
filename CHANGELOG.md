@@ -6,7 +6,12 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+### Added
+- `LICENSE` (MIT) and a License section in `README.md`, before the repository goes public.
+- `docs/OSI-submission.pdf`: the official AI Builder Cup submission template, filled in with the same figures as the write-up and four snapshots of the live app; linked from `README.md` and `docs/SUBMISSION.md`.
+
 ### Changed
+- `docs/OSI-deck.pdf` re-exported from the final deck, with the demo video link on the closing slide.
 - The demo video link in `README.md` and `docs/SUBMISSION.md`; the road to submission marks the video done. `docs/SUBMISSION.md` and `docs/architecture.html` carry the current test counts, the measured team-run time, and the safer operator verdict.
 - `docs/DEMO_SCRIPT.md`: the video is the app only; every take starts from "Bearing week at US1" so the first alert is US1-L2-01; exact names of the Everline message and the sample photo buttons; leaving Live clears its run list.
 
