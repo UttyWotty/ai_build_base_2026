@@ -6,6 +6,9 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+### Changed
+- `docs/DEMO_SCRIPT.md`: the video is the app only; every take starts from "Bearing week at US1" so the first alert is US1-L2-01; exact names of the Everline message and the sample photo buttons; leaving Live clears its run list.
+
 ## [0.12.0] - 2026-10-16
 
 An operator verdict can no longer be set by a stray Enter: it needs a confirm, shows in the alert list, and can be undone.
