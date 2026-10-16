@@ -10,6 +10,7 @@ Every number in it comes from the running app, its tests, or its evaluation, and
 | **Repository** | https://github.com/UttyWotty/ai_build_base_2026 |
 | **Video** | https://youtu.be/b1bc3dhXC74 (2:10, captioned) |
 | **Deck** | [`docs/OSI-deck.pdf`](OSI-deck.pdf) |
+| **Submission template** | [`docs/OSI-submission.pdf`](OSI-submission.pdf), the official template filled in |
 | **Stack** | Gemini 3.8 Flash on Vertex AI, Google Agent Development Kit, Cloud Run, React and FastAPI |
 
 ## The pitch

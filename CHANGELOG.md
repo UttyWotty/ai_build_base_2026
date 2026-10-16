@@ -8,6 +8,7 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ### Added
 - `LICENSE` (MIT) and a License section in `README.md`, before the repository goes public.
+- `docs/OSI-submission.pdf`: the official AI Builder Cup submission template, filled in with the same figures as the write-up and four snapshots of the live app; linked from `README.md` and `docs/SUBMISSION.md`.
 
 ### Changed
 - `docs/OSI-deck.pdf` re-exported from the final deck, with the demo video link on the closing slide.
