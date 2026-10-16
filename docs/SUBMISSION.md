@@ -8,7 +8,7 @@ Every number in it comes from the running app, its tests, or its evaluation, and
 |---|---|
 | **Live app** | https://ops-copilot-432875717420.asia-southeast1.run.app (Cloud Run, Singapore) |
 | **Repository** | https://github.com/UttyWotty/ai_build_base_2026 |
-| **Video** | To be added |
+| **Video** | https://youtu.be/b1bc3dhXC74 (2:10, captioned) |
 | **Deck** | [`docs/OSI-deck.pdf`](OSI-deck.pdf) |
 | **Stack** | Gemini 3.8 Flash on Vertex AI, Google Agent Development Kit, Cloud Run, React and FastAPI |
 
@@ -31,7 +31,7 @@ The expensive mistakes happen between departments. OSI is an AI team that works 
 - A `SequentialAgent` then hands the briefs to an operations lead, who balances urgency, cost, and customer exposure,
   and creates the proposal.
 - Free questions go to a single `LlmAgent` with all nine typed tools.
-- On the deployed app, the full team plans the demo alert end to end in about 25 seconds, and its answer is verified.
+- On the deployed app, the full team plans the demo alert end to end in about one to two minutes, and its answer is verified.
 
 **Multimodal Gemini** (`src/backend/llm_gateway/multimodal.py`).
 - Gemini reads suppliers' messages, as text or PDF, into delivery updates with a strict JSON schema. A new date revises
@@ -50,7 +50,7 @@ The expensive mistakes happen between departments. OSI is an AI team that works 
 **Measured, not claimed.**
 - `make eval` runs eight scenarios, from triage to creating a proposal, and scores the tools called, the required
   facts, the number check, and the proposal. **Score: 8/8 with Gemini 3.8 Flash on Vertex AI.**
-- 440 backend and 11 frontend automated tests, a code-rule checker, strict TypeScript, and offline tests of the real ADK
+- 446 backend and 15 frontend automated tests, a code-rule checker, strict TypeScript, and offline tests of the real ADK
   runner and the agent team with scripted models.
 
 **Built for Google Cloud.**
@@ -134,6 +134,8 @@ only ever see governed tools, so the integration work is in the data mappings, n
 - Every option is a row in a priced table, next to the sensor chart against its normal band and the customers at risk.
 - Errors are in plain language, for example "The Gemini quota for this model is used up", and the app switches to a
   backup model by itself.
+- A false-alert verdict needs a **Confirm** that names the machine, shows as a badge in the alert list, and can be
+  undone, so one stray keystroke cannot quietly change how later alerts are treated.
 - **Reset demo** on Approvals and **Reset** on the Supplier inbox give every viewer a clean start.
 
 ## Architecture

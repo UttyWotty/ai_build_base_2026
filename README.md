@@ -7,7 +7,7 @@ Built for the AI Builder Cup 2026, Manufacturing track (Intelligent Operations a
 
 **Try it live:** https://ops-copilot-432875717420.asia-southeast1.run.app (Cloud Run in Singapore, Gemini on Vertex AI). The bearing scenario at 02:00 on 25 July is the default clock; open **Control room**, pick US1-L2-01, and press **Draft the plan with the copilot**.
 
-**Video:** to be added. **Deck:** [`docs/OSI-deck.pdf`](docs/OSI-deck.pdf).
+**Video:** [https://youtu.be/b1bc3dhXC74](https://youtu.be/b1bc3dhXC74) (2:10, captioned). **Deck:** [`docs/OSI-deck.pdf`](docs/OSI-deck.pdf).
 
 | | |
 |---|---|
@@ -58,7 +58,7 @@ What makes it trustworthy:
 | 0.11.8 | Live clock waits for approval; demo runbook | Released |
 | 0.12.0 | Operator verdict needs a confirm, shows in the alert list, and can be undone | Released |
 
-Open items, in priority order, are in `techdebt.md`: the road to submission, starting with the video and the write-up.
+Open items, in priority order, are in `techdebt.md`: the road to submission, ending with the public repository and the submission.
 
 ## Quick start
 
