@@ -1,6 +1,6 @@
 """A small JSON file of records, for field inputs the copilot keeps: inspection findings and supplier updates.
 
-Records are appended and read back as plain dicts; dataclasses are converted on the way in.
+Records are appended and read back as plain dicts; dataclasses are converted on the way in, and a caller may replace them all.
 Like the proposal store, it is local state for the demo and would move to Firestore on Google Cloud.
 """
 from __future__ import annotations
@@ -15,7 +15,7 @@ RECORDS_KEY = "records"
 
 
 class RecordStore:
-    """Append-only records in one JSON file."""
+    """Records in one JSON file: appended one at a time, or replaced as a whole by the caller that owns them."""
 
     def __init__(self, path: Path) -> None:
         self.path = path
@@ -29,6 +29,11 @@ class RecordStore:
         row = asdict(record) if is_dataclass(record) and not isinstance(record, type) else dict(record)  # type: ignore[arg-type]
         self._write(self.all() + [row])
         return json.loads(json.dumps(row, default=str))
+
+    def replace(self, records: list[dict[str, object]]) -> int:
+        """Overwrite the file with these rows and return how many were written."""
+        self._write(list(records))
+        return len(records)
 
     def clear(self) -> int:
         count = len(self.all())

@@ -61,11 +61,17 @@ class FakeOutcomes:
         return []
 
 
+class FakeFeedback:
+    def marked_false(self, now):
+        return frozenset({"AL-2"})
+
+
 class FakeServices:
     def __init__(self, proposals: ProposalStore) -> None:
         self.proposals = proposals
         self.value = FakeValue()
         self.outcomes = FakeOutcomes()
+        self.feedback = FakeFeedback()
 
     def tools_at(self, as_of: datetime) -> FakeTools:
         return FakeTools(as_of)
@@ -90,6 +96,7 @@ def test_overview_carries_the_headline_and_each_alerts_recommendation(client: Te
     assert body["headline"] == {"open_alerts": 1, "alerts_in_spare_conflict": 1, "downtime_avoided_hours": 180.3,
                                 "cost_avoided_usd": 93175.0}
     assert body["alerts"][0]["recommended"]["kind"] == "transfer" and body["alerts"][0]["conflict"]
+    assert body["alerts"][0]["marked_false"] is True
     assert client.get("/api/scenarios").json()["scenarios"][0]["id"] == "bearing-squeeze"
 
 

@@ -18,9 +18,11 @@ from copilot.core.alert_feedback import (
     feedback_from_row,
     feedback_row,
     feedback_view,
+    marked_alerts,
     new_false_alert,
+    withdraw_own,
 )
-from copilot.core.errors import FeedbackError
+from copilot.core.errors import FeedbackError, ImpactError
 from copilot.data_pipeline.record_store import RecordStore
 from copilot.services.alert_book import AlertBook
 from copilot.services.feedback_service import FeedbackService
@@ -93,6 +95,42 @@ def test_the_service_keeps_verdicts_and_shows_them_to_later_alerts(tmp_path: Pat
     assert service.clear() == 2 and service.view("AL-2", datetime(2026, 9, 17, 4, 0)).similar == ()
 
 
+def test_withdraw_removes_only_the_alerts_own_verdicts_known_now() -> None:
+    records = [verdict("AL-1", T0), verdict("AL-1", T0 + timedelta(days=3)), verdict("AL-2", T0)]
+    kept, removed = withdraw_own(records, "AL-1", T0 + timedelta(days=1))
+    assert removed == 1 and kept == records[1:]
+    assert withdraw_own(records, "AL-404", T0 + timedelta(days=9)) == (records, 0)
+
+
+def test_marked_alerts_is_point_in_time() -> None:
+    records = [verdict("AL-1", T0), verdict("AL-2", T0 + timedelta(days=1))]
+    assert marked_alerts(records, T0 - timedelta(minutes=1)) == frozenset()
+    assert marked_alerts(records, T0) == frozenset({"AL-1"})
+    assert marked_alerts(records, T0 + timedelta(days=1)) == frozenset({"AL-1", "AL-2"})
+
+
+def test_the_service_withdraws_a_verdict_and_the_caution_goes(tmp_path: Path) -> None:
+    service = FeedbackService(AlertBook(RAW_ALERTS), RecordStore(tmp_path / "feedback.json"))
+    service.mark_false("AL-1", "Gear teeth intact.", datetime(2026, 7, 25, 2, 0))
+    service.mark_false("AL-1", "Still fine later.", datetime(2026, 9, 18, 0, 0))
+    assert service.marked_false(datetime(2026, 7, 25, 2, 0)) == frozenset({"AL-1"})
+    assert service.withdraw("AL-1", datetime(2026, 9, 17, 4, 0)) == 1
+    view = service.view("AL-2", datetime(2026, 9, 17, 4, 0))
+    assert view.similar == () and view.caution is None
+    assert service.view("AL-1", datetime(2026, 7, 25, 2, 0)).own == ()
+    assert service.marked_false(datetime(2026, 9, 17, 4, 0)) == frozenset()
+    assert service.withdraw("AL-1", datetime(2026, 9, 17, 4, 0)) == 0
+    assert [f.reason for f in service.view("AL-1", datetime(2026, 9, 18, 0, 0)).own] == ["Still fine later."]
+    with pytest.raises(ImpactError):
+        service.withdraw("AL-404", datetime(2026, 9, 17, 4, 0))
+
+
+def test_the_store_replaces_its_rows(tmp_path: Path) -> None:
+    store = RecordStore(tmp_path / "records.json")
+    store.add({"a": 1})
+    assert store.replace([{"b": 2}, {"c": 3}]) == 2 and store.all() == [{"b": 2}, {"c": 3}]
+
+
 class FeedbackOnlyServices:
     def __init__(self, feedback: FeedbackService) -> None:
         self.feedback = feedback
@@ -109,3 +147,33 @@ def test_the_api_marks_and_reads_feedback(tmp_path: Path) -> None:
         assert client.post("/api/alerts/AL-1/feedback", json={"reason": " ", "as_of": "2026-07-25T02:00"}).status_code == 400
         assert client.post("/api/alerts/AL-1/feedback", json={"reason": "x", "as_of": "2026-07-01T00:00"}).status_code == 400
         assert client.get("/api/alerts/AL-404/feedback").status_code == 404
+
+
+def test_the_api_withdraws_a_verdict(tmp_path: Path) -> None:
+    service = FeedbackService(AlertBook(RAW_ALERTS), RecordStore(tmp_path / "feedback.json"))
+    app = server.create_app(lambda: FeedbackOnlyServices(service), tmp_path / "no-build")
+    clock = {"as_of": "2026-09-17T04:00"}
+    with TestClient(app) as client:
+        client.post("/api/alerts/AL-1/feedback", json={"reason": "Teeth intact.", "as_of": "2026-07-25T02:00"})
+        undone = client.delete("/api/alerts/AL-1/feedback", params=clock)
+        assert undone.status_code == 200 and undone.json() == {"alert_id": "AL-1", "removed": 1}
+        assert client.get("/api/alerts/AL-1/feedback", params=clock).json()["own"] == []
+        later = client.get("/api/alerts/AL-2/feedback", params=clock).json()
+        assert later["similar"] == [] and later["caution"] is None
+        again = client.delete("/api/alerts/AL-1/feedback", params=clock)
+        assert again.status_code == 200 and again.json()["removed"] == 0
+        assert client.delete("/api/alerts/AL-404/feedback", params=clock).status_code == 404
+
+
+def test_the_api_undo_keeps_a_verdict_from_a_later_clock_and_rejects_a_bad_clock(tmp_path: Path) -> None:
+    service = FeedbackService(AlertBook(RAW_ALERTS), RecordStore(tmp_path / "feedback.json"))
+    app = server.create_app(lambda: FeedbackOnlyServices(service), tmp_path / "no-build")
+    with TestClient(app) as client:
+        client.post("/api/alerts/AL-1/feedback", json={"reason": "Teeth intact.", "as_of": "2026-07-25T02:00"})
+        early = client.delete("/api/alerts/AL-1/feedback", params={"as_of": "2026-07-25T01:59"})
+        assert early.status_code == 200 and early.json()["removed"] == 0
+        assert client.delete("/api/alerts/AL-1/feedback", params={"as_of": "not-a-time"}).status_code == 400
+        kept = client.get("/api/alerts/AL-1/feedback", params={"as_of": "2026-07-25T02:00"}).json()["own"]
+        assert [f["reason"] for f in kept] == ["Teeth intact."]
+        aware = client.delete("/api/alerts/AL-1/feedback", params={"as_of": "2026-07-25T02:00Z"})
+        assert aware.status_code == 200 and aware.json()["removed"] == 1
