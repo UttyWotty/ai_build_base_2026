@@ -1,4 +1,4 @@
-// The list of open alerts at the demo clock, each with its priority, deadline, conflict flag, and the rules' pick.
+// The list of open alerts at the demo clock, each with its priority, deadline, conflict flag, verdict, and the rules' pick.
 // Clicking an alert selects it for the detail panel; the selected card is highlighted.
 // Cards are ordered as the backend returns them: earliest repair deadline first.
 import { AlertTriangle } from 'lucide-react'
@@ -17,6 +17,7 @@ export function AlertList({ alerts, selected, onSelect }:
           <div className="flex items-center gap-2">
             <Badge tone={a.priority === 'P1' ? 'danger' : 'neutral'}>{a.priority}</Badge>
             <span className="font-semibold">{a.asset_id}</span>
+            {a.marked_false && <Badge tone="warn">marked false</Badge>}
             {a.conflict && <AlertTriangle className="ml-auto h-4 w-4 text-amber-600" aria-label="Spare conflict" />}
           </div>
           <div className="mt-1 text-sm text-slate-700">{modeLabel(a.failure_mode)}</div>

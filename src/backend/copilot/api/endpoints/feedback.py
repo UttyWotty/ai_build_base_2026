@@ -1,4 +1,4 @@
-"""Operator feedback endpoints: mark an alert as false with a reason, and read what operators said about an alert.
+"""Operator feedback endpoints: mark an alert as false with a reason, undo it, and read what operators said about an alert.
 
 An alert shows its own verdicts and those on earlier alerts of the same asset and failure mode, with a caution note.
 Unknown alerts are 404; a missing reason, or a verdict before the alert was raised, is 400.
@@ -41,3 +41,13 @@ async def feedback(alert_id: str, request: Request, as_of: str | None = None) ->
         return view_dict(services(request).feedback.view(alert_id, parse_as_of(as_of)))
     except ImpactError as error:
         raise HTTPException(NOT_FOUND, str(error)) from error
+
+
+@router.delete("/alerts/{alert_id}/feedback")
+async def withdraw(alert_id: str, request: Request, as_of: str | None = None) -> dict[str, object]:
+    """Undo this alert's own verdicts known at the clock; repeating it removes nothing and still succeeds."""
+    try:
+        removed = services(request).feedback.withdraw(alert_id, parse_as_of(as_of))
+    except ImpactError as error:
+        raise HTTPException(NOT_FOUND, str(error)) from error
+    return {"alert_id": alert_id, "removed": removed}

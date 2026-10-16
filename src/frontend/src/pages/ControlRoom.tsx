@@ -12,7 +12,8 @@ import { useAsync } from '../state/useAsync'
 
 export function ControlRoom() {
   const { asOf } = useClock()
-  const overview = useAsync(() => api.overview(asOf), [asOf])
+  const [version, setVersion] = useState(0)
+  const overview = useAsync(() => api.overview(asOf), [asOf, version])
   const [chosen, setSelected] = useState<string | null>(null)
   const alerts = overview.data?.alerts ?? []
   const selected = alerts.some((a) => a.alert_id === chosen) ? chosen : alerts[0]?.alert_id ?? null
@@ -33,7 +34,8 @@ export function ControlRoom() {
       ) : (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[300px_1fr]">
           <AlertList alerts={alerts} selected={selected} onSelect={setSelected} />
-          {selected && <div className="min-w-0"><AlertDetail key={selected} alertId={selected} asOf={asOf} /></div>}
+          {selected && <div className="min-w-0"><AlertDetail key={selected} alertId={selected} asOf={asOf}
+            onVerdict={() => setVersion((v) => v + 1)} /></div>}
         </div>
       )}
     </div>

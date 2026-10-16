@@ -13,7 +13,9 @@ from copilot.core.alert_feedback import (
     feedback_from_row,
     feedback_row,
     feedback_view,
+    marked_alerts,
     new_false_alert,
+    withdraw_own,
 )
 from copilot.data_pipeline.record_store import RecordStore
 from copilot.services.alert_book import AlertBook
@@ -38,6 +40,19 @@ class FeedbackService:
         records = [feedback_from_row(r) for r in self.store.all()]
         earlier = frozenset(a.alert_id for a in self.alerts.alerts.values() if a.raised_at < alert.raised_at)
         return feedback_view(records, alert.alert_id, alert.asset_id, alert.failure_mode, now, earlier)
+
+    def withdraw(self, alert_id: str, now: datetime) -> int:
+        """Remove this alert's own verdicts known at `now`; an unknown alert raises like `view` does."""
+        alert = self.alerts.get(alert_id)
+        records = [feedback_from_row(r) for r in self.store.all()]
+        kept, removed = withdraw_own(records, alert.alert_id, now)
+        if removed > 0:
+            self.store.replace([feedback_row(f) for f in kept])
+        return removed
+
+    def marked_false(self, now: datetime) -> frozenset[str]:
+        """The ids of alerts that carry their own verdict at `now`."""
+        return marked_alerts([feedback_from_row(r) for r in self.store.all()], now)
 
     def clear(self) -> int:
         return self.store.clear()
