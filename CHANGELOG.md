@@ -7,6 +7,7 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 ## [Unreleased]
 
 ### Changed
+- The demo video link in `README.md` and `docs/SUBMISSION.md`; the road to submission marks the video done. `docs/SUBMISSION.md` and `docs/architecture.html` carry the current test counts, the measured team-run time, and the safer operator verdict.
 - `docs/DEMO_SCRIPT.md`: the video is the app only; every take starts from "Bearing week at US1" so the first alert is US1-L2-01; exact names of the Everline message and the sample photo buttons; leaving Live clears its run list.
 
 ## [0.12.0] - 2026-10-16
