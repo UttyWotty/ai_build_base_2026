@@ -8,7 +8,7 @@ Component-level limitations carried over from the imported packages are listed i
 
 ## Road to submission (in order)
 
-Each step waits for the one before it. Status on 2026-10-13.
+Each step waits for the one before it. Status on 2026-10-16: the deck PDF is re-exported and the repository is licensed (MIT); left are the release, going public, and submitting.
 
 <!-- 1. [ ] **Confirm the team.** The rules need 2 to 4 members; two colleagues applied by invitation and are waitlisted.
    Registration closes **2026-10-11**. If they are still waitlisted near then, ask the organisers
