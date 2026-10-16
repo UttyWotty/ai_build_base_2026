@@ -51,7 +51,7 @@ causes a gap of about 20 seconds, so do them before recording, never between tak
 | 0:18 | The alert arrives, the clock pauses, the autopilot starts | "A spindle bearing on line 2 is wearing out. Nobody is awake. The copilot picks it up." |
 | 0:25 | The team's tool calls appear with their names, then the three briefs | "Gemini works as a team, built on Google's Agent Development Kit. A maintenance planner reads the vibration, a procurement lead checks spares and suppliers, a customer lead checks orders. All three at once." |
 | 0:45 | The proposal appears and the clock holds ("Paused for a decision"). Show the lead's answer and the verified line, then click **Approve** in the panel | "The operations lead weighs them. The one bearing set on the shelf goes to the other line, whose alert is overdue. This one gets an air transfer from Germany for 650 dollars, because the supplier is late one time in three. Every number here was checked against the tools. The clock waits for a person, who approves." |
-| 1:05 | **Control room**, click alert US1-L2-01 (spindle bearing) in the list: **Every way to get the spare** and customers at risk | "Here is what it weighed: every way to get the part, priced. Waiting for the supplier means 190 hours down and four customer orders at risk." |
+| 1:05 | **Control room**, click alert US1-L2-01 (spindle bearing) in the list: **Every way to get the spare** and customers at risk | "Here is the approved plan next to every other way to get the part, priced. The transfer means 10 hours down. A broker costs 9,700 dollars; a new order means 323 hours down and seven customer lines at risk." (After approval the plan row reads "Approved plan", $0 extra, because the 650 dollars are already committed.) |
 | 1:15 | Scroll to the **spindle_vibration** chart. Then **Supplier inbox**: the first message, "Delivery update for your order SPO-US1-0061" from Everline, **Read with Gemini**; the result appears below under **Delivery updates known now** (8 Aug) | "Why the alert: vibration climbing out of its normal band. And this morning the supplier wrote that the order slips to 8 August. Gemini reads it, and the plan updates." |
 | 1:33 | **Control room**, US1-L2-01, **Field inspection**: click **Sample: US1-L2-01_spindle_bearing_worn.jpg** | "The technician sends a photo, and Gemini vision confirms the wear before any money is spent." |
 | 1:43 | Alert DE1-L2-04 (gearbox, same clock), **Field inspection**, click **Sample: DE1-L2-04_gearbox_intact.jpg** | "A gearbox alert in Germany, same night. Gemini sees intact gears: not confirmed." |
@@ -72,6 +72,8 @@ nobody approves within about 10 seconds at 3 h/s.
 Notes for the take:
 - Leaving **Live** clears its list of team runs; the clock keeps its time, and **Run** on return carries on from it.
   That is why the take approves on Live before it moves to the Control room.
+- **Operator verdict** is only for the DE1-L2-04 gearbox. On US1-L2-01 use **Ask about this** for questions: text
+  typed into the verdict box marks the alert false.
 - Sample photo buttons appear only on alerts that have one: US1-L2-01, US1-L3-01, US1-L3-02, DE1-L2-04, DE1-L1-03.
 - The team run takes 45 to 130 seconds on Gemini, longer than its narration. Keep talking over the tool calls, or cut
   the wait when editing; the times above assume the wait is cut.
