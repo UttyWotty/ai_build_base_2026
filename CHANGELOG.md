@@ -6,6 +6,10 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+## [0.12.1] - 2026-10-16
+
+The submission release: the demo video link, an MIT license, the final deck, and the filled submission template.
+
 ### Added
 - `LICENSE` (MIT) and a License section in `README.md`, before the repository goes public.
 - `docs/OSI-submission.pdf`: the official AI Builder Cup submission template, filled in with the same figures as the write-up and four snapshots of the live app; linked from `README.md` and `docs/SUBMISSION.md`.

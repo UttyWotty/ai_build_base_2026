@@ -8,7 +8,7 @@ Component-level limitations carried over from the imported packages are listed i
 
 ## Road to submission (in order)
 
-Each step waits for the one before it. Status on 2026-10-16: the deck PDF is re-exported and the repository is licensed (MIT); left are the release, going public, and submitting.
+Each step waits for the one before it. Status on 2026-10-16: submitted. Keep one warm instance through judging (19 Oct to 6 Nov), then set it back to 0.
 
 <!-- 1. [ ] **Confirm the team.** The rules need 2 to 4 members; two colleagues applied by invitation and are waitlisted.
    Registration closes **2026-10-11**. If they are still waitlisted near then, ask the organisers
@@ -26,10 +26,11 @@ Each step waits for the one before it. Status on 2026-10-16: the deck PDF is re-
    - After recording: set `USAGE_LIMIT_PER_VISITOR` back to 10 (runbook section 4), keep `--min-instances 1` through
      judging (19 Oct to 6 Nov), and reset the demo.
    Resolved 2026-10-16: recorded on v0.12.0, captioned, uploaded to https://youtu.be/b1bc3dhXC74; usage limit back to 10. -->
-5. [ ] **Submit.** Put the video URL into the deck's closing slide, `README.md`, and `docs/SUBMISSION.md` (the other
+<!-- 5. [ ] **Submit.** Put the video URL into the deck's closing slide, `README.md`, and `docs/SUBMISSION.md` (the other
    deck placeholders are filled), re-export the deck as PDF into `docs/OSI-deck.pdf`, and cut a patch release (docs
    only, no redeploy; any later `make deploy` needs `MIN_INSTANCES=1` and resets the usage limit to 10). Make the
    repository public. Submit the deployed link, the video, the repository, and the deck by **2026-10-18**.
+   Resolved 2026-10-16: deck PDF re-exported, MIT license added, repository public, submitted. -->
 
 ## P0 - Before the 2026-10-18 submission
 

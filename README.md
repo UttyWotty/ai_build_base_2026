@@ -57,8 +57,9 @@ What makes it trustworthy:
 | 0.11.7 | Copilot log lines reach Cloud Run | Released |
 | 0.11.8 | Live clock waits for approval; demo runbook | Released |
 | 0.12.0 | Operator verdict needs a confirm, shows in the alert list, and can be undone | Released |
+| 0.12.1 | Submission: video link, MIT license, final deck, filled submission template | Released |
 
-Open items, in priority order, are in `techdebt.md`: the road to submission, ending with the public repository and the submission.
+Submitted on 2026-10-16 with the repository public. Open items, in priority order, are in `techdebt.md`.
 
 ## Quick start
 
