@@ -14,7 +14,7 @@ import { OptionsTable } from './OptionsTable'
 import { SensorChart } from './SensorChart'
 import { Callout, Card, ErrorNote, Loading, Stat } from './ui'
 
-export function AlertDetail({ alertId, asOf }: { alertId: string; asOf: string }) {
+export function AlertDetail({ alertId, asOf, onVerdict }: { alertId: string; asOf: string; onVerdict: () => void }) {
   const impact = useAsync(() => api.impact(alertId, asOf), [alertId, asOf])
   const evidence = useAsync(() => api.evidence(alertId, asOf), [alertId, asOf])
   const [planning, setPlanning] = useState(0)
@@ -59,7 +59,8 @@ export function AlertDetail({ alertId, asOf }: { alertId: string; asOf: string }
       </div>
       <Card title="Every way to get the spare"><OptionsTable options={data.options} /></Card>
       <InspectionCard alertId={alertId} assetId={data.alert.asset_id} asOf={asOf} />
-      <FeedbackCard alertId={alertId} asOf={asOf} />
+      <FeedbackCard alertId={alertId} asOf={asOf} assetId={data.alert.asset_id} failureMode={data.alert.failure_mode}
+        onChange={onVerdict} />
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Card title="Why the model raised it">
           {evidence.data ? (

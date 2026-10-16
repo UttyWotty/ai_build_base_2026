@@ -7,8 +7,25 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 ## [Unreleased]
 
 ### Changed
-- `techdebt.md` road to submission: status on 2026-10-13, ready to record, and the steps left after recording.
 - `docs/DEMO_SCRIPT.md`: the video is the app only; every take starts from "Bearing week at US1" so the first alert is US1-L2-01; exact names of the Everline message and the sample photo buttons; leaving Live clears its run list.
+
+## [0.12.0] - 2026-10-16
+
+An operator verdict can no longer be set by a stray Enter: it needs a confirm, shows in the alert list, and can be undone.
+
+### Added
+- **Undo** on a recorded operator verdict, backed by `DELETE /api/alerts/{alert_id}/feedback`: it withdraws the
+  alert's own verdicts visible at the demo clock, so later alerts on the same asset and failure mode lose the caution.
+  Repeating it removes nothing and still succeeds.
+- A **marked false** badge in the Control room alert list on alerts that carry their own verdict at the current clock;
+  every `/api/overview` alert row now has a `marked_false` field. Track record and impact numbers do not change.
+
+### Fixed
+- Pressing Enter in the verdict reason no longer records a verdict. **Mark as false alert** now asks for a
+  confirmation that names the asset and failure mode, with **Confirm** and **Cancel** buttons.
+
+### Changed
+- `techdebt.md` road to submission: status on 2026-10-13, ready to record, and the steps left after recording.
 
 ## [0.11.8] - 2026-10-13
 
