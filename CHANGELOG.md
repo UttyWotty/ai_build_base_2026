@@ -6,6 +6,10 @@ Versions follow semantic versioning; before 1.0 each milestone is a minor releas
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-10-16
+
+An operator verdict can no longer be set by a stray Enter: it needs a confirm, shows in the alert list, and can be undone.
+
 ### Added
 - **Undo** on a recorded operator verdict, backed by `DELETE /api/alerts/{alert_id}/feedback`: it withdraws the
   alert's own verdicts visible at the demo clock, so later alerts on the same asset and failure mode lose the caution.
