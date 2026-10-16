@@ -27,6 +27,12 @@ async function getJson<T>(path: string): Promise<T> {
   return (await response.json()) as T
 }
 
+async function deleteJson<T>(path: string): Promise<T> {
+  const response = await fetch(path, { method: 'DELETE' })
+  if (!response.ok) throw await toError(response)
+  return (await response.json()) as T
+}
+
 export async function toError(response: Response): Promise<ApiError> {
   const body: unknown = await response.json().catch(() => null)
   return new ApiError(response.status, errorDetail(body, response.status, response.statusText))
@@ -78,6 +84,8 @@ export const api = {
     getJson(`/api/alerts/${encodeURIComponent(alertId)}/feedback?${clock(asOf)}`),
   markFalse: (alertId: string, reason: string, asOf: string): Promise<AlertFeedback> =>
     postJson(`/api/alerts/${encodeURIComponent(alertId)}/feedback`, { reason, as_of: asOf }),
+  withdrawFeedback: (alertId: string, asOf: string): Promise<{ alert_id: string; removed: number }> =>
+    deleteJson(`/api/alerts/${encodeURIComponent(alertId)}/feedback?${clock(asOf)}`),
   resetField: async (): Promise<void> => { await postJson('/api/field/reset', {}) },
   proposals: async (): Promise<Proposal[]> => (await getJson<{ proposals: Proposal[] }>('/api/proposals')).proposals,
   setProposalStatus: async (proposalId: string, status: 'approved' | 'rejected'): Promise<Proposal> => {

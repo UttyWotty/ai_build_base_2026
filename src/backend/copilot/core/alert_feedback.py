@@ -62,6 +62,20 @@ def feedback_view(records: list[AlertFeedback], alert_id: str, asset_id: str, fa
     return FeedbackView(own, similar, caution_note(similar))
 
 
+def withdraw_own(records: list[AlertFeedback], alert_id: str, now: datetime) -> tuple[list[AlertFeedback], int]:
+    """The records kept after withdrawing this alert's own verdicts known at `now`, and how many were removed.
+
+    A verdict recorded at a later clock is not visible at `now`, so it is kept.
+    """
+    kept = [r for r in records if not (r.alert_id == alert_id and r.marked_at <= now)]
+    return kept, len(records) - len(kept)
+
+
+def marked_alerts(records: list[AlertFeedback], now: datetime) -> frozenset[str]:
+    """The ids of alerts with at least one verdict known at `now`."""
+    return frozenset(r.alert_id for r in records if r.marked_at <= now)
+
+
 def caution_note(similar: tuple[AlertFeedback, ...]) -> str | None:
     """A note for people and agents: check before spending, never dismiss."""
     if not similar:

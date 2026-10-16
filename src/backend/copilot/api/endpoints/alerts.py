@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, Request
 
-from copilot.api.dependencies import tools_at
+from copilot.api.dependencies import parse_as_of, services, tools_at
 from copilot.core.impact_summary import (
     avoided,
     baseline,
@@ -23,15 +23,16 @@ ERROR_KEY = "error"
 
 @router.get("/overview")
 async def overview(request: Request, as_of: str | None = None) -> dict[str, object]:
-    """Open alerts with their recommended option, and the headline across them."""
+    """Open alerts with their recommended option and whether an operator marked them false, and the headline."""
     tools = tools_at(request, as_of)
+    marked = services(request).feedback.marked_false(parse_as_of(as_of))
     listing = tools.list_open_alerts()
     impacts = [tools.analyse_alert_impact(a["alert_id"]) for a in listing["alerts"]]
     rows = []
     for alert, impact in zip(listing["alerts"], impacts):
         hours, cost = avoided(impact)
         rows.append({**alert, "recommended": recommended(impact), "conflict": conflict_note(impact),
-                     "downtime_avoided_hours": hours, "cost_avoided_usd": cost})
+                     "downtime_avoided_hours": hours, "cost_avoided_usd": cost, "marked_false": alert["alert_id"] in marked})
     return {"as_of": listing["as_of"], "headline": headline(impacts), "alerts": rows}
 
 

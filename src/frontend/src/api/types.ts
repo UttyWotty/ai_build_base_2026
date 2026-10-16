@@ -59,6 +59,7 @@ export interface OverviewAlert extends AlertRow {
   conflict: string | null
   downtime_avoided_hours: number
   cost_avoided_usd: number
+  marked_false: boolean
 }
 
 export interface Headline {
